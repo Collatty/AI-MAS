@@ -101,16 +101,11 @@ public class State {
                     row++;
                     continue;
                 }
-
-
                 if ('A' <= character && character <= 'Z') { // Goal.
                     State.goals[row][col] = Character.toLowerCase(character);
                 }
-
             col++;
             }
-
-
         }
 
 
