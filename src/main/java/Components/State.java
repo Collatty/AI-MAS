@@ -44,6 +44,8 @@ public class State {
     public char[][] agents = new char [MAX_ROW][MAX_COL];
     public static char[][] goals = new char[MAX_ROW][MAX_COL];
 
+
+
     public State parent;
     public Action action;
 
@@ -60,45 +62,58 @@ public class State {
         }
     }
 
-    public State(BufferedReader serverMessages) throws Exception {
-        // Read lines specifying colors
-        String line = serverMessages.readLine();
-        if (line.matches("^[a-z]+:\\s*[0-9A-Z](\\s*,\\s*[0-9A-Z])*\\s*$")) {
-            System.err.println("Error, client does not support colors.");
-            System.exit(1);
-        }
+    public State(String initialState, String goals) throws Exception {
 
         int row = 0;
-        boolean agentFound = false;
+        int col = 0;
         this.parent = null;
 
-        while (!line.equals("")) {
-            if (line.length()<State.getMaxCol()){
-                State.setMaxCol(line.length()+1);
-            }
-            for (int col = 0; col < line.length(); col++) {
-                char chr = line.charAt(col);
+        for (char character : initialState.toCharArray()){
+                if (character == '\n') {
+                    col = 0;
+                    row++;
+                    continue;
+                }
 
-                if (chr == '+') { // Wall.
+                if (character == '+') { // Wall.
                     State.walls[row][col] = true;
-                } else if ('0' <= chr && chr <= '9') { // Agent.
-                    this.agents[row][col] = chr;
-                } else if ('A' <= chr && chr <= 'Z') { // Box.
-                    this.boxes[row][col] = chr;
-                } else if ('a' <= chr && chr <= 'z') { // Goal.
-                    State.goals[row][col] = chr;
-                } else if (chr == ' ') {
+                } else if ('0' <= character && character <= '9') { // Agent.
+                    this.agents[row][col] = character;
+                } else if ('A' <= character && character <= 'Z') { // Box.
+                    this.boxes[row][col] = character;
+                }  else if (character == ' ') {
                     // Free space.
                 } else {
-                    System.err.println("Error, read invalid level character: " + (int) chr);
+                    System.err.println("Error, read invalid level character: " + (int) character);
                     System.exit(1);
                 }
+                col++;
             }
-            line = serverMessages.readLine();
-            row++;
-        }
         State.setMaxRow(row+1);
-    }
+
+        col = 0;
+        row = 0;
+
+        for (char character : goals.toCharArray()) {
+
+                if (character == '\n') {
+                    col = 0;
+                    row++;
+                    continue;
+                }
+
+
+                if ('A' <= character && character <= 'Z') { // Goal.
+                    State.goals[row][col] = Character.toLowerCase(character);
+                }
+
+            col++;
+            }
+
+
+        }
+
+
 
     public int g() {
         return this.g;
@@ -211,8 +226,8 @@ public class State {
             int result = 1;
             result = prime * result + Arrays.deepHashCode(this.agents);
             result = prime * result + Arrays.deepHashCode(this.boxes);
-            result = prime * result + Arrays.deepHashCode(this.goals);
-            result = prime * result + Arrays.deepHashCode(this.walls);
+            result = prime * result + Arrays.deepHashCode(goals);
+            result = prime * result + Arrays.deepHashCode(walls);
             this._hash = result;
         }
         return this._hash;
