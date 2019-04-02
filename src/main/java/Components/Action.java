@@ -23,6 +23,7 @@ public class Action {
         this.actionType = Type.Move;
         this.dir1 = d;
         this.dir2 = null;
+
     }
 
     private Action(Type t, Dir d1, Dir d2) {
