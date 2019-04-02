@@ -1,6 +1,7 @@
 import Components.State;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Client {
@@ -10,21 +11,21 @@ public class Client {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
 
-        System.out.println("hello world");
-        BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
+        LevelReader levelReader = new LevelReader();
         try {
-            State initialState = new State(serverMessages);
-            System.out.println(initialState.toString());
+            State initialState = new State(levelReader.initial, levelReader.goal);
         } catch (Exception e) {
             e.printStackTrace();
         }
+        System.out.println("Move(W);Move(E)");
 
 
 
 
-        Client client = new Client(serverMessages);
+        //Client client = new Client(serverMessages);
 
         //TODO main method for running client program
     }
