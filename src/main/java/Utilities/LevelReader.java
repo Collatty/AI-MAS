@@ -3,6 +3,7 @@ package Utilities;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +23,8 @@ public class LevelReader {
 
     public static BufferedReader bufferedReader;
 
-    public LevelReader() throws IOException{
-        try (
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-            message = readAllLines(reader);
-        }
-
+    public LevelReader(BufferedReader reader) throws IOException{
+        message = readAllLines(reader);
         stringCreator();
 
     }
