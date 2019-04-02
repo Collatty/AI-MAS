@@ -1,4 +1,4 @@
-package AI;
+package main.java.AI;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
