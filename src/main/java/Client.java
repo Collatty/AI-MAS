@@ -19,9 +19,9 @@ public class Client {
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
 
-        LevelReader levelReader = new LevelReader(serverMessages);
+        LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-            State initialState = new State(levelReader.initial, levelReader.goal);
+            State initialState = new State(LevelReader.getInitial(), LevelReader.getGoal());
         } catch (Exception e) {
             e.printStackTrace();
         }
