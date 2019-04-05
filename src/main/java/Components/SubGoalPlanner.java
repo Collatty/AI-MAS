@@ -18,7 +18,7 @@ import java.util.List;
 * */
 public abstract class SubGoalPlanner {
 
-    private List<List<Tile>> initialState = System.arraycopy();
+    private List<List<Tile>> initialState;
     private List<Goal> goals = Board.getGoals();
 
 
