@@ -1,4 +1,4 @@
-package Components;
+package Components.State;
 
 public class Block {
 
@@ -37,6 +37,11 @@ public class Block {
         this.yCoordinate = yCoordinate;
     }
     //END SETTERS
+
+    @Override
+    public String toString() {
+        return this.color.substring(0,1).toUpperCase();
+    }
 
 
 

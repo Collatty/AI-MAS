@@ -1,6 +1,7 @@
-package Components;
+package Components.State;
 
-import java.io.BufferedReader;
+import Components.Action;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,8 +132,8 @@ public class State {
         return true;
     }
 
-/*    public ArrayList<State> getExpandedStates() {
-        ArrayList<State> expandedStates = new ArrayList<>(Action.EVERY.length);
+/*    public ArrayList<Board> getExpandedStates() {
+        ArrayList<Board> expandedStates = new ArrayList<>(Action.EVERY.length);
         for (Action c : Action.EVERY) {
             // Determine applicability of action
             int newAgentRow = this.agentRow + Action.dirToRowChange(c.dir1);
@@ -141,7 +142,7 @@ public class State {
             if (c.actionType == Action.Type.Move) {
                 // Check if there's a wall or box on the cell to which the agent is moving
                 if (this.cellIsFree(newAgentRow, newAgentCol)) {
-                    State n = this.ChildState();
+                    Board n = this.ChildState();
                     n.action = c;
                     n.agentRow = newAgentRow;
                     n.agentCol = newAgentCol;
@@ -154,7 +155,7 @@ public class State {
                     int newBoxCol = newAgentCol + Action.dirToColChange(c.dir2);
                     // .. and that new cell of box is free
                     if (this.cellIsFree(newBoxRow, newBoxCol)) {
-                        State n = this.ChildState();
+                        Board n = this.ChildState();
                         n.action = c;
                         n.agentRow = newAgentRow;
                         n.agentCol = newAgentCol;
@@ -170,7 +171,7 @@ public class State {
                     int boxCol = this.agentCol + Action.dirToColChange(c.dir2);
                     // .. and there's a box in "dir2" of the agent
                     if (this.boxAt(boxRow, boxCol)) {
-                        State n = this.ChildState();
+                        Board n = this.ChildState();
                         n.action = c;
                         n.agentRow = newAgentRow;
                         n.agentCol = newAgentCol;

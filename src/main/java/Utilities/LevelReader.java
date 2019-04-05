@@ -14,7 +14,8 @@ public abstract class LevelReader {
     private static String levelName;
     private static String colors;
     private static String initial;
-    private static String goal;
+    private static String goals;
+
 
     public static String getDomain() {
         return domain;
@@ -32,8 +33,8 @@ public abstract class LevelReader {
         return initial;
     }
 
-    public static String getGoal() {
-        return goal;
+    public static String getGoals() {
+        return goals;
     }
 
     public static void stringCreator(List<String> message) {
@@ -79,7 +80,7 @@ public abstract class LevelReader {
        domain = stringBuilderDomain.toString();
        levelName = stringBuilderLevelName.toString();
        initial = stringBuilderInitial.toString();
-       goal = stringBuilderGoal.toString();
+       goals = stringBuilderGoal.toString();
        colors = stringBuilderColors.toString();
 
     }

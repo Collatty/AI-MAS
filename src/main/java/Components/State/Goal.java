@@ -1,4 +1,4 @@
-package Components;
+package Components.State;
 
 public class Goal {
 
@@ -27,6 +27,11 @@ public class Goal {
         return yCoordinate;
     }
     //END GETTERS
+
+    @Override
+    public String toString() {
+        return this.color.substring(0,1).toLowerCase();
+    }
 
 
 }

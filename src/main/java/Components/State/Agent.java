@@ -1,4 +1,4 @@
-package Components;
+package Components.State;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -55,6 +55,11 @@ public class Agent implements Observer {
     @Override
     public void update(Observable o, Object arg) {
 
+    }
+
+    @Override
+    public String toString() {
+        return Character.toString(this.name);
     }
 
 
