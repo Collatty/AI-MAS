@@ -9,15 +9,15 @@ public class Agent implements Observer {
 
     private final char name;
     private final String color;
-    private int yCoord;
-    private int xCoord;
+    private int row;
+    private int column;
 
 
-    public Agent (char name, String color, int xCoord, int yCoord){
+    public Agent (char name, String color, int column, int row){
         this.name = name;
         this.color = color;
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+        this.column = column;
+        this.row = row;
 
 
     }
@@ -32,23 +32,23 @@ public class Agent implements Observer {
         return color;
     }
 
-    public int getxCoord() {
-        return xCoord;
+    public int getColumn() {
+        return column;
     }
 
-    public int getyCoord() {
-        return yCoord;
+    public int getRow() {
+        return row;
     }
     //END GETTERS
 
 
     //SETTERS
-    public void setxCoord(int xCoord) {
-        this.xCoord = xCoord;
+    public void setColumn(int column) {
+        this.column = column;
     }
 
-    public void setyCoord(int yCoord) {
-        this.yCoord = yCoord;
+    public void setRow(int row) {
+        this.row = row;
     }
     //END SETTERS
 
