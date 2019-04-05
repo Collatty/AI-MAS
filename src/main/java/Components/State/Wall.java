@@ -2,21 +2,21 @@ package Components.State;
 
 public class Wall {
 
-    private final int xCoordinate;
-    private final int yCoordinate;
+    private final int column;
+    private final int row;
 
-    public Wall(final int xCoordinate, final int yCoordinate) {
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+    public Wall(final int column, final int row) {
+        this.column = column;
+        this.row = row;
     }
 
 
-    public int getxCoordinate() {
-        return xCoordinate;
+    public int getColumn() {
+        return column;
     }
 
-    public int getyCoordinate() {
-        return yCoordinate;
+    public int getRow() {
+        return row;
     }
 
     @Override

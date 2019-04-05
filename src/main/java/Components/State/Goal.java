@@ -3,14 +3,14 @@ package Components.State;
 public class Goal {
 
     private final String color;
-    private final int xCoordinate;
-    private final int yCoordinate;
+    private final int column;
+    private final int row;
 
 
-    public Goal(String color, int xCoordinate, int yCoordinate) {
+    public Goal(String color, int column, int row) {
         this.color = color;
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+        this.column = column;
+        this.row = row;
 
     }
 
@@ -19,12 +19,12 @@ public class Goal {
         return color;
     }
 
-    public int getxCoordinate() {
-        return xCoordinate;
+    public int getColumn() {
+        return column;
     }
 
-    public int getyCoordinate() {
-        return yCoordinate;
+    public int getRow() {
+        return row;
     }
     //END GETTERS
 
