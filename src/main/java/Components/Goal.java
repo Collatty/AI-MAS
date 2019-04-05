@@ -3,8 +3,8 @@ package Components;
 public class Goal {
 
     private final String color;
-    private int xCoordinate;
-    private int yCoordinate;
+    private final int xCoordinate;
+    private final int yCoordinate;
 
 
     public Goal(String color, int xCoordinate, int yCoordinate) {
@@ -27,16 +27,6 @@ public class Goal {
         return yCoordinate;
     }
     //END GETTERS
-
-    //SETTERS
-    public void setxCoordinate(int xCoordinate) {
-        this.xCoordinate = xCoordinate;
-    }
-
-    public void setyCoordinate(int yCoordinate) {
-        this.yCoordinate = yCoordinate;
-    }
-    //END SETTERS
 
 
 }
