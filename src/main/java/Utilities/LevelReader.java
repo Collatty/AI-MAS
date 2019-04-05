@@ -2,34 +2,41 @@ package Utilities;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.Buffer;
-import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class LevelReader {
+public abstract class LevelReader {
 
 
 
-    public static String domain;
-    public static String levelName;
-    public static String colors;
-    public static String initial;
-    public static String goal;
+    private static String domain;
+    private static String levelName;
+    private static String colors;
+    private static String initial;
+    private static String goal;
 
-    public static List<String> message;
-
-    public static BufferedReader bufferedReader;
-
-    public LevelReader(BufferedReader reader) throws IOException{
-        message = readAllLines(reader);
-        stringCreator();
-
+    public static String getDomain() {
+        return domain;
     }
 
-    private void stringCreator() {
+    public static String getLevelName() {
+        return levelName;
+    }
+
+    public static String getColors() {
+        return colors;
+    }
+
+    public static String getInitial() {
+        return initial;
+    }
+
+    public static String getGoal() {
+        return goal;
+    }
+
+    public static void stringCreator(List<String> message) {
         StringBuilder stringBuilderDomain = new StringBuilder();
         StringBuilder stringBuilderLevelName = new StringBuilder();
         StringBuilder stringBuilderColors = new StringBuilder();
@@ -78,7 +85,6 @@ public class LevelReader {
     }
 
     public static List<String> readAllLines(BufferedReader reader) throws IOException {
-        StringBuilder content = new StringBuilder();
         String line;
         List<String> message = new ArrayList<>();
         while (!(line = reader.readLine()).contains("#end")) {
