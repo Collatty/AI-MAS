@@ -1,21 +1,30 @@
 package Components;
 
+import Components.State.Board;
+import Components.State.Goal;
 import Components.State.State;
+import Components.State.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubGoalPlanner {
 
-    private State state;
-    private List<Object> goals = new ArrayList<Object>();
+/*
+* The purpose of this class is to check if there needs to be a strict order in which the goals of the level needs to
+* be solved in order for the level to actually be completed.
+*
+*
+*
+* */
+public abstract class SubGoalPlanner {
 
-    public SubGoalPlanner(State initialState) {
-        this.state = initialState;
-    }
+    private List<List<Tile>> initialState = System.arraycopy();
+    private List<Goal> goals = Board.getGoals();
+
+
 
     public void postToBlackBoard() {
-        BlackBoard.addElementToList(this.goals);
+        //TODO
     }
 
     public void serializeGoals(State initialState){
