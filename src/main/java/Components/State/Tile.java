@@ -5,10 +5,11 @@ import java.util.Collection;
 
 public class Tile {
 
-    private final int xCoordinate;
-    private final int yCoordinate;
+    private final int column;
+    private final int row;
 
     private Object tileOccupant;
+    private Goal goal;
 
     private Tile northNeighbor;
     private Tile southNeighbor;
@@ -18,24 +19,30 @@ public class Tile {
     public static Collection<Tile> neighbors = new ArrayList<>();
 
 
-    public Tile(final int xCoordinate, final int yCoordinate) {
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+    public Tile(final int row, final int column) {
+        this.column = row;
+        this.row = column;
         this.tileOccupant = null;
+        this.goal = null;
+
 
     }
 
     //GETTERS
-    public int getxCoordinate() {
-        return xCoordinate;
+    public int getColumn() {
+        return column;
     }
 
-    public int getyCoordinate() {
-        return yCoordinate;
+    public int getRow() {
+        return row;
     }
 
     public Object getTileOccupant() {
         return tileOccupant;
+    }
+
+    public Tile getTile() {
+        return this;
     }
 
     public Tile getNorthNeighbor() {
@@ -60,6 +67,10 @@ public class Tile {
         this.tileOccupant = tileOccupant;
     }
 
+    public void setGoal(Goal goal) {
+        this.goal = goal;
+    }
+
     public void setWestNeighbor(Tile westNeighbor) {
         this.westNeighbor = westNeighbor;
     }
@@ -82,12 +93,12 @@ public class Tile {
         this.tileOccupant = null;
     }
 
-    public boolean isWall() {
-        return this.tileOccupant instanceof Wall;
+    public boolean isGoal() {
+        return this.goal != null;
     }
 
-    public boolean isGoal() {
-        return this.tileOccupant instanceof Goal;
+    public boolean isWall() {
+        return this.tileOccupant instanceof Wall;
     }
 
     public boolean isBox() {
@@ -104,7 +115,13 @@ public class Tile {
 
     @Override
     public String toString() {
-        return this.isFree() ? "-" : this.tileOccupant.toString();
+        if (this.isFree()) {
+            if (this.isGoal()) {
+                return this.goal.toString();
+            }
+            return "-";
+        }
+        return this.tileOccupant.toString();
     }
 
 }
