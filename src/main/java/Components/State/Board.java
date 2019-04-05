@@ -83,6 +83,10 @@ public class Board {
 
     //GETTERS
 
+    public static List<List<Tile>> getTiles() {
+        return tiles;
+    }
+
     public static List<Goal> getGoals() {
         return GOALS;
     }
