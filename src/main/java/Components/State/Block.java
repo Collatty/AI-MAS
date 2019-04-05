@@ -5,22 +5,22 @@ public class Block {
 
 
     private final String color;
-    private int xCoordinate;
-    private int yCoordinate;
+    private int column;
+    private int row;
 
-    public Block(String color, int xCoordinate, int yCoordinate) {
+    public Block(String color, int column, int row) {
         this.color = color;
-        this.xCoordinate = xCoordinate;
-        this.yCoordinate = yCoordinate;
+        this.column = column;
+        this.row = row;
     }
 
     //GETTERS
-    public int getxCoordinate() {
-        return xCoordinate;
+    public int getColumn() {
+        return column;
     }
 
-    public int getyCoordinate() {
-        return yCoordinate;
+    public int getRow() {
+        return row;
     }
 
     public String getColor() {
@@ -29,12 +29,12 @@ public class Block {
     // END GETTERS
 
     //SETTERS
-    public void setxCoordinate(int xCoordinate) {
-        this.xCoordinate = xCoordinate;
+    public void setColumn(int column) {
+        this.column = column;
     }
 
-    public void setyCoordinate(int yCoordinate) {
-        this.yCoordinate = yCoordinate;
+    public void setRow(int row) {
+        this.row = row;
     }
     //END SETTERS
 
