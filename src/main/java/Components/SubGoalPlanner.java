@@ -1,11 +1,7 @@
 package Components;
 
-import Components.State.Board;
-import Components.State.Goal;
-import Components.State.State;
-import Components.State.Tile;
+import Components.State.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,8 +14,11 @@ import java.util.List;
 * */
 public abstract class SubGoalPlanner {
 
-    private List<List<Tile>> initialState;
-    private List<Goal> goals = Board.getGoals();
+    private List<List<Tile>> copyOfInitialState = State.copyState(State.getTiles());
+
+
+
+    private List<Goal> goals = State.getGoals();
 
 
 
@@ -27,7 +26,7 @@ public abstract class SubGoalPlanner {
         //TODO
     }
 
-    public void serializeGoals(State initialState){
+    public void serializeGoals(oldState initialOldState){
         //TODO: This is where we sort out which order our goals have to be completed in
 
     }
