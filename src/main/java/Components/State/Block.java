@@ -3,13 +3,13 @@ package Components.State;
 public class Block {
 
 
-    private char name;
+    private char type;
     private final String color;
     private int column;
     private int row;
 
-    public Block(char name, String color, int row, int column) {
-        this.name = name;
+    public Block(char type, String color, int row, int column) {
+        this.type = type;
         this.color = color;
         this.row = row;
         this.column = column;
@@ -28,8 +28,8 @@ public class Block {
         return color;
     }
 
-    public char getName() {
-        return name;
+    public char getType() {
+        return type;
     }
     // END GETTERS
 

@@ -7,16 +7,18 @@ import java.util.List;
 
 public class State {
 
-    private final static List<List<Tile>> tiles = new ArrayList<>();
+    private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
+    private final static List<Goal> GOALS = new ArrayList<>();
+    private List<List<Tile>> state;
 
-    //INITIAL STATE STORED HERE
+    //INITIAL STATE STRINGS STORED HERE
     private final static String STRING_DOMAIN = LevelReader.getDomain();
     private final static String STRING_LEVEL_NAME = LevelReader.getLevelName();
     private final static String STRING_COLORS = LevelReader.getColors();
     private final static String STRING_INITIAL = LevelReader.getInitial();
     private final static String STRING_GOALS = LevelReader.getGoals();
 
-    private final static List<Goal> GOALS = new ArrayList<>();
+
 
     public State() {
 
@@ -28,7 +30,7 @@ public class State {
             if (character == '\n') {
                 col = 0;
                 row++;
-                tiles.add(currentList);
+                INITIAL_STATE.add(currentList);
                 currentList = new ArrayList<>();
                 continue;
             }
@@ -43,7 +45,7 @@ public class State {
                 currentList.add(tile);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(col, row);
-                tile.setTileOccupant(new Block(character, getColorBlockOrGoal(character), col, row));
+                tile.setTileOccupant(new Block(character, getColorBlock(character), col, row));
                 currentList.add(tile);
             }  else if (character == ' ') {
                 Tile tile = new Tile(col, row);
@@ -56,26 +58,23 @@ public class State {
         }
         col = 0;
         row = 0;
-        currentList = new ArrayList<>();
 
         for (char character : STRING_GOALS.toCharArray()) {
 
             if (character == '\n') {
                 col = 0;
                 row++;
-                tiles.add(currentList);
-                currentList = new ArrayList<>();
                 continue;
             }
             if ('A' <= character && character <= 'Z') { // Goal.
-                Goal goal = new Goal(getColorBlockOrGoal(character), col, row);
-                tiles.get(row).get(col).setGoal(goal);
+                Goal goal = new Goal(character, col, row);
+                INITIAL_STATE.get(row).get(col).setGoal(goal);
                 GOALS.add(goal);
             }
             col++;
         }
         //REITERATING THROUGH TILES TO "CONNECT" THE BOARD
-        setNeighbors(tiles);
+        setNeighbors(INITIAL_STATE);
     }
 
     public static List<List<Tile>> copyState(List<List<Tile>> tiles) {
@@ -85,7 +84,7 @@ public class State {
             for (Tile tile : row) {
                 Tile copyTile = new Tile(tile.getRow(), tile.getColumn());
                 if (tile.isGoal()) {
-                    copyTile.setGoal(new Goal(tile.getGoal().getColor(), tile.getGoal().getRow(),
+                    copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getRow(),
                             tile.getGoal().getColumn()));
                 }
                 if (tile.isWall()) {
@@ -95,7 +94,7 @@ public class State {
                 }
                 if (tile.hasBlock()) {
                     copyTile.setTileOccupant(new Block(
-                            ((Block) tile.getTileOccupant()).getName(),
+                            ((Block) tile.getTileOccupant()).getType(),
                             ((Block) tile.getTileOccupant()).getColor(),
                             ((Block) tile.getTileOccupant()).getRow(),
                             ((Block) tile.getTileOccupant()).getColumn()));
@@ -118,8 +117,8 @@ public class State {
 
     //GETTERS
 
-    public static List<List<Tile>> getTiles() {
-        return tiles;
+    public static List<List<Tile>> getInitialState() {
+        return INITIAL_STATE;
     }
 
     public static List<Goal> getGoals() {
@@ -158,7 +157,7 @@ public class State {
         return "NA";
     }
 
-    private String getColorBlockOrGoal(char block) {
+    private String getColorBlock(char block) {
         String[] colorsSplitted = STRING_COLORS.split("\n");
         for (String string : colorsSplitted) {
             String[] splittedEvenMore = string.split(":");

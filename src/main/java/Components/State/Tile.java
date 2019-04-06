@@ -2,8 +2,9 @@ package Components.State;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
-public class Tile implements Cloneable{
+public class Tile {
 
 
     private final int column;
@@ -17,8 +18,23 @@ public class Tile implements Cloneable{
     private Tile eastNeighbor;
     private Tile westNeighbor;
 
-    public static Collection<Tile> neighbors = new ArrayList<>();
+    public Collection<Tile> getNeighbors() {
 
+        Collection<Tile> neighbors = new HashSet<>();
+        if (this.northNeighbor != null) {
+            neighbors.add(this.northNeighbor);
+        }
+        if (this.southNeighbor != null) {
+            neighbors.add(this.southNeighbor);
+        }
+        if (this.eastNeighbor != null) {
+            neighbors.add(this.eastNeighbor);
+        }
+        if (this.westNeighbor != null) {
+            neighbors.add(this.westNeighbor);
+        }
+        return neighbors;
+    }
 
     public Tile(final int row, final int column) {
         this.row = column;
@@ -116,6 +132,13 @@ public class Tile implements Cloneable{
 
     public boolean isFree() {
         return this.tileOccupant == null;
+    }
+
+    public boolean isCompletedGoal () {
+        if (this.isGoal() && this.hasBlock()){
+            return this.goal.getType() == ((Block) this.getTileOccupant()).getType();
+        }
+        return false;
     }
 
     @Override
