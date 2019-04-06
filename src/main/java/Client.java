@@ -1,5 +1,5 @@
 import Components.BlackBoard;
-import Components.State.State;
+import Components.State.oldState;
 import Utilities.LevelReader;
 import Components.Task;
 import java.io.BufferedReader;
@@ -23,7 +23,7 @@ public class Client {
         //READING IN LEVEL INFORMATION FROM SERVER
         LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-            State initialState = new State(LevelReader.getInitial(), LevelReader.getGoals());
+            oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
         } catch (Exception e) {
             e.printStackTrace();
         }

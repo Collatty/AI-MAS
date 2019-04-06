@@ -7,10 +7,10 @@ public class Goal {
     private final int row;
 
 
-    public Goal(String color, int column, int row) {
+    public Goal(String color, int row, int column) {
         this.color = color;
-        this.column = column;
         this.row = row;
+        this.column = column;
 
     }
 

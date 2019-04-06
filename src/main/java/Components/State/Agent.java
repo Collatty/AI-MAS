@@ -13,13 +13,11 @@ public class Agent implements Observer {
     private int column;
 
 
-    public Agent (char name, String color, int column, int row){
+    public Agent (char name, String color, int row, int column){
         this.name = name;
         this.color = color;
-        this.column = column;
         this.row = row;
-
-
+        this.column = column;
     }
 
 

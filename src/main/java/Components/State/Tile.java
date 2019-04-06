@@ -3,7 +3,8 @@ package Components.State;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Tile {
+public class Tile implements Cloneable{
+
 
     private final int column;
     private final int row;
@@ -20,8 +21,8 @@ public class Tile {
 
 
     public Tile(final int row, final int column) {
-        this.column = row;
         this.row = column;
+        this.column = row;
         this.tileOccupant = null;
         this.goal = null;
 
@@ -43,6 +44,10 @@ public class Tile {
 
     public Tile getTile() {
         return this;
+    }
+
+    public Goal getGoal() {
+        return goal;
     }
 
     public Tile getNorthNeighbor() {
@@ -101,11 +106,11 @@ public class Tile {
         return this.tileOccupant instanceof Wall;
     }
 
-    public boolean isBox() {
+    public boolean hasBlock() {
         return this.tileOccupant instanceof Block;
     }
 
-    public boolean isAgent() {
+    public boolean hasAgent() {
         return this.tileOccupant instanceof Agent;
     }
 
