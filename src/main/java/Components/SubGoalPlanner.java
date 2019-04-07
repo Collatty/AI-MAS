@@ -29,7 +29,7 @@ public abstract class SubGoalPlanner {
 
     }
 
-    public static boolean searchForBlock(Goal goal) {
+    private static boolean searchForBlock(Goal goal) {
         Collection<Tile> exploredTiles = new HashSet<>();
         Stack<Tile> frontier = new Stack<>(); //TODO: Look into whether this is best data structure. Think it's
         // indifferent, but have not slept for a while now.
@@ -39,6 +39,7 @@ public abstract class SubGoalPlanner {
                 Tile expolringTile = frontier.pop();
                 if (expolringTile.hasBlock() && ((Block) expolringTile.getTileOccupant()).getType() == goal.getType()) {
                     goalTile.setTileOccupant(new Wall(goalTile.getRow(), goalTile.getColumn()));
+                    expolringTile.setTileOccupant(null); //BLOCK IS NOW "USED"
                     return true;
                 }
                 for (Tile neighbor : expolringTile.getNeighbors()) {
@@ -57,6 +58,8 @@ public abstract class SubGoalPlanner {
         // SOLVABLE AT ALL
     }
 
+
+    //TODO: figure out the serialize method
     public static boolean serialize() {
 
         for (Goal goal : goals) {

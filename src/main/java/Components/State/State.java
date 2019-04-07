@@ -67,7 +67,7 @@ public class State {
                 continue;
             }
             if ('A' <= character && character <= 'Z') { // Goal.
-                Goal goal = new Goal(character, col, row);
+                final Goal goal = new Goal(character, col, row);
                 INITIAL_STATE.get(row).get(col).setGoal(goal);
                 GOALS.add(goal);
             }

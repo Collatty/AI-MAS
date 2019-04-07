@@ -10,7 +10,7 @@ public class Goal {
     private final int column;
     private final int row;
 
-    public Collection<Goal> predonditions = new HashSet<>();
+    private Collection<Goal> predonditions = new HashSet<>();
 
 
     public Goal(char type, int row, int column) {
@@ -37,6 +37,10 @@ public class Goal {
         return this.predonditions;
     }
     //END GETTERS
+
+    public void setPredondition(Goal goal){
+        this.predonditions.add(goal);
+    }
 
     @Override
     public String toString() {
