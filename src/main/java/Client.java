@@ -1,5 +1,5 @@
 import Components.BlackBoard;
-import Components.State;
+import Components.State.oldState;
 import Utilities.LevelReader;
 import Components.Task;
 import java.io.BufferedReader;
@@ -19,9 +19,11 @@ public class Client {
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
 
-        LevelReader levelReader = new LevelReader(serverMessages);
+
+        //READING IN LEVEL INFORMATION FROM SERVER
+        LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-            State initialState = new State(levelReader.initial, levelReader.goal);
+            oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
         } catch (Exception e) {
             e.printStackTrace();
         }

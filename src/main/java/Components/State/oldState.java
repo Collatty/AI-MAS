@@ -1,12 +1,18 @@
-package Components;
+package Components.State;
 
-import java.io.BufferedReader;
+import Components.Action;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-public class State {
+
+/*
+*
+* DO NOT DELETE. STILL USED FOR INSPIRATION*/
+
+public class oldState {
 
 
     private static final Random RNG = new Random(1);
@@ -46,14 +52,14 @@ public class State {
 
 
 
-    public State parent;
+    public oldState parent;
     public Action action;
 
     private int g;
 
     private int _hash = 0;
 
-    public State(State parent) {
+    public oldState(oldState parent) {
         this.parent = parent;
         if (parent == null) {
             this.g = 0;
@@ -62,7 +68,7 @@ public class State {
         }
     }
 
-    public State(String initialState, String goals) throws Exception {
+    public oldState(String initialState, String goals) throws Exception {
 
         int row = 0;
         int col = 0;
@@ -76,7 +82,7 @@ public class State {
                 }
 
                 if (character == '+') { // Wall.
-                    State.walls[row][col] = true;
+                    oldState.walls[row][col] = true;
                 } else if ('0' <= character && character <= '9') { // Agent.
                     this.agents[row][col] = character;
                 } else if ('A' <= character && character <= 'Z') { // Box.
@@ -89,7 +95,7 @@ public class State {
                 }
                 col++;
             }
-        State.setMaxRow(row+1);
+        oldState.setMaxRow(row+1);
 
         col = 0;
         row = 0;
@@ -102,7 +108,7 @@ public class State {
                     continue;
                 }
                 if ('A' <= character && character <= 'Z') { // Goal.
-                    State.goals[row][col] = Character.toLowerCase(character);
+                    oldState.goals[row][col] = Character.toLowerCase(character);
                 }
             col++;
             }
@@ -193,8 +199,8 @@ public class State {
         return this.boxes[row][col] > 0;
     }
 
-    private State ChildState() {
-        State copy = new State(this);
+    private oldState ChildState() {
+        oldState copy = new oldState(this);
         for (int row = 0; row < MAX_ROW; row++) {
             System.arraycopy(this.walls[row], 0, copy.walls[row], 0, MAX_COL);
             System.arraycopy(this.boxes[row], 0, copy.boxes[row], 0, MAX_COL);
@@ -203,9 +209,9 @@ public class State {
         return copy;
     }
 
-    public ArrayList<State> extractPlan() {
-        ArrayList<State> plan = new ArrayList<>();
-        State n = this;
+    public ArrayList<oldState> extractPlan() {
+        ArrayList<oldState> plan = new ArrayList<>();
+        oldState n = this;
         while (!n.isInitialState()) {
             plan.add(n);
             n = n.parent;
@@ -236,7 +242,7 @@ public class State {
             return false;
         if (this.getClass() != obj.getClass())
             return false;
-        State other = (State) obj;
+        oldState other = (oldState) obj;
         if (!Arrays.deepEquals(this.agents, other.agents))
             return false;
         if (!Arrays.deepEquals(this.boxes, other.boxes))
