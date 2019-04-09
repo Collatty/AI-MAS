@@ -1,6 +1,9 @@
-package main.java.AI;
+package AI;
 
-import Components.State;
+import Components.State.Block;
+import Components.State.State;
+import Components.State.Agent;
+import Components.State.Goal;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -9,71 +12,50 @@ import java.util.List;
 
 public abstract class Heuristic implements Comparator<State> {
 
-    private List<Point2D.Double> goals = new ArrayList<>();
+    private List<Goal> goals;// = new ArrayList<>();
 
 
-    public Heuristic(State initialState) {
-        for (int i = 0; i<initialState.MAX_ROW; i++) {
-            for (int j = 0; j<initialState.MAX_COL; j++) {
-                if (initialState.goals[i][j] <= 'z' && initialState.goals[i][j] >= 'a') {
-                    //change goal state representation according to haakon
-                    goals.add(new Point2D.Double(i, j));
-                }
-            }
-        }
+    public Heuristic() {
+        goals = State.getGoals();
     }
 
     public int h(State n) {
         int heuristicValue = 0;
-        double distanceToAgent = 10000;
-        List<Point2D.Double> boxes = new ArrayList<>();
-        //List<Point2D.Double> boxesNotOnGoals = new ArrayList<>();
-        //List<Point2D.Double> goalsWithBox = new ArrayList<>();
-        Point2D.Double agent = new Point2D.Double(n.agentRow, n.agentCol);
-        for (int i = 0; i < n.MAX_ROW; i++) {
-            for (int j = 0; j < n.MAX_COL; j++) {
-                if (n.boxes[i][j] <= 'Z' && n.boxes[i][j] >= 'A') {
-                    boxes.add(new Point2D.Double(i, j));
-                }
-            }
-        }
-/*
-        for (Point2D.Double box: boxes) {
-            boolean onGoal = false;
-            for (Point2D.Double goal: goals) {
-                if ((box.getX() == goal.getX())&&(box.getY()==goal.getY())) {
-                    onGoal = true;
-                    goalsWithBox.add(goal);
-                }
-            }
-            if (onGoal == false) {
-                boxesNotOnGoals.add(box);
-            }
+        List<Block> blocks = n.getBlocks();
+        List<Agent> agents = n.getAgents();
 
-        }
+        //only use unfinished goal?
 
-        *///List<Point2D.Double> unfinishedGoals = new ArrayList<>();
-        //goals.removeAll(goalsWithBox);
-        for (Point2D.Double box : boxes) {
-
-
+        for (Block block : blocks) {
             double distance = 10000;
-
-            if (manhattanDistance(agent.getX(), agent.getY(), box.getX(), box.getY()) > distanceToAgent) {
-                distanceToAgent = manhattanDistance(agent.getX(), agent.getY(), box.getX(), box.getY());
+            double distanceToAgent = 10000;
+            String blockColor = block.getColor();
+            char blockType = block.getType();
+            for (Agent agent : agents) {
+                //check if same color - if same color calculate
+                String agentColor = agent.getColor();
+                if(agentColor.equals(blockColor)){
+                    if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
+                        distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow());
+                    }
+                }
             }
-            for (Point2D.Double goal : goals) {
-                if (manhattanDistance(goal.getX(), goal.getY(), box.getX(), box.getY()) < distance) {
-                    distance = manhattanDistance(goal.getX(), goal.getY(), box.getX(), box.getY());
-                } if (manhattanDistance(goal.getX(), goal.getY(), box.getX(), box.getY()) == 0) {
-                    distance = -100;
+            for (Goal goal : goals) {
+                //check if same type (character) - if same character calculate
+                char goalType = goal.getType();
+                if(goalType == blockType) {
+                    if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) < distance) {
+                        distance = manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow());
+                    }
+                    if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
+                        distance = -100;
+                    }
                 }
 
             }
+            heuristicValue += Math.round(distanceToAgent);
             heuristicValue += Math.round(distance);
-
         }
-        heuristicValue += Math.round(distanceToAgent);
 
         return heuristicValue;
     }
@@ -90,7 +72,7 @@ public abstract class Heuristic implements Comparator<State> {
         return (Math.abs(goalCordX-boxCordX) + Math.abs(goalCordY-boxCordY));
     }
 
-    public abstract int f(State n);
+    /*public abstract int f(State n);
 
     @Override
     public int compare(State n1, State n2) {
@@ -147,4 +129,5 @@ public abstract class Heuristic implements Comparator<State> {
             return "Greedy evaluation";
         }
     }
+    */
 }
