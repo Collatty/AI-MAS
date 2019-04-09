@@ -1,7 +1,17 @@
 package Components;
 
-enum Color {
+public enum Color {
     BLUE,
+    RED,
+    CYAN,
+    PURPLE,
     GREEN,
-    RED
+    ORANGE,
+    PINK,
+    GREY,
+    LIGHTBLUE,
+    BROWN
 }
+
+
+
