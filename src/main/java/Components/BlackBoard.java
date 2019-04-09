@@ -1,5 +1,7 @@
 package Components;
 
+import Components.State.Goal;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
@@ -8,14 +10,13 @@ import java.util.concurrent.SubmissionPublisher;
 public class BlackBoard implements Runnable  {
 
     private Thread t;
-    HashSet<Task> todo = new HashSet<>();
+    HashMap<Long, Task> todoMap = new HashMap<>();
     HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
     HashSet<Plan> planProposals = new HashSet<>();
-    ArrayList<HashSet<Message>> agentChannels = new ArrayList<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     ArrayList<Task> tasks;
     ArrayList<Agent> agents;
-    SubmissionPublisher<Task> publisher = new SubmissionPublisher<>();
+    SubmissionPublisher<MessageToAgent> publisher = new SubmissionPublisher<>();
     long taskCounter; // TODO: If more tasks than long can hold, problems can occur
     HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
 
@@ -66,10 +67,13 @@ public class BlackBoard implements Runnable  {
 
         Collections.sort(hpArray, (hp1, hp2) -> hp1.h - hp2.h);
 
+
         for(HeuristicProposal hp : hpArray){
             hp.print();
             if(!hp.a.getWorking()){
-
+                MessageToAgent messageToAgent = new MessageToAgent(null, null, hp.a.getAgentNumber(), MessageType.PLAN, todoMap.get(hp.taskID));
+                todoMap.remove(hp.taskID);
+                publisher.submit(messageToAgent);
             }
         }
 
@@ -98,9 +102,10 @@ public class BlackBoard implements Runnable  {
             if(t.dependencies.isEmpty()){
                 t.id = taskCounter;
                 taskCounter++;
-                todo.add(t);
+                todoMap.put(t.id, t);
                 System.out.println("Blackboard submits task with id " + t.id);
-                publisher.submit(t);
+                MessageToAgent messageToAgent = new MessageToAgent(null, t.color, null, MessageType.HEURISTIC, t);
+                publisher.submit(messageToAgent);
                 //tasks.remove(t);
             }
         }

@@ -1,16 +1,14 @@
 package Components;
-import Components.Color;
-import Components.Task;
 import java.util.concurrent.Flow.*;
 import java.util.Random;
 
-public class Agent implements Subscriber<Task> {
+public class Agent implements Subscriber<MessageToAgent> {
 
     private final int agentNumber;
     private final Color color;
     private int x;
     private int y;
-    private Subscription todoSub;
+    private Subscription blackboardChannel;
     private BlackBoard blackBoard;
     private boolean working;
 
@@ -25,16 +23,25 @@ public class Agent implements Subscriber<Task> {
 
     @Override
     public void onSubscribe(Subscription subscription) {
-        this.todoSub = subscription;
-        this.todoSub.request(1);
+        this.blackboardChannel = subscription;
+        this.blackboardChannel.request(1);
     }
 
     @Override
-    public void onNext(Task task) {
-        if(task.color == color){
-            proposeHeuristic(calculateHeuristic(task), task);
+    public void onNext(MessageToAgent message) {
+
+        if(message.toAll != null && message.toAll || message.toColor != null && message.toColor == color
+                || message.toAgent != null && message.toAgent == agentNumber) {
+
+            if(message.messageType==MessageType.HEURISTIC){
+                proposeHeuristic(calculateHeuristic(message.task), message.task);
+            } else if(message.messageType==MessageType.PLAN){
+                //TODO: Make awesome plan
+                System.out.println("Agent " + agentNumber + " is planning");
+                //System.out.println("Agent " + agentNumber + " makes plan for task " + message.task.id);
+            }
         }
-        this.todoSub.request(1);
+        this.blackboardChannel.request(1);
     }
 
     private void proposeHeuristic(int h, Task t) {
