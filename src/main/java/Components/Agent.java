@@ -23,19 +23,14 @@ public class Agent implements Subscriber<Task> {
 
     @Override
     public void onSubscribe(Subscription subscription) {
-        System.out.println("Subscribed");
         this.todoSub = subscription;
         this.todoSub.request(1);
-        System.out.println("Agent " + agentNumber + ": onSubscribe request 1 task");
     }
 
     @Override
     public void onNext(Task task) {
-        System.out.println("Agent " + agentNumber + " with color " + color + " checks task with color " + task.color);
         if(task.color == color){
             proposeHeuristic(calculateHeuristic(task), task);
-            System.out.println("Agent " + agentNumber + " suggest heuristic " + calculateHeuristic(task) + " for task "
-                    + task.id);
         }
         this.todoSub.request(1);
     }

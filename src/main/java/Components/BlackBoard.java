@@ -9,7 +9,7 @@ public class BlackBoard implements Runnable  {
 
     private Thread t;
     HashSet<Task> todo = new HashSet<>();
-    HashSet<HeuristicProposal> heuristicProposal = new HashSet<>();
+    HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
     HashSet<Plan> planProposals = new HashSet<>();
     ArrayList<HashSet<Message>> agentChannels = new ArrayList<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
@@ -17,6 +17,7 @@ public class BlackBoard implements Runnable  {
     ArrayList<Agent> agents;
     SubmissionPublisher<Task> publisher = new SubmissionPublisher<>();
     long taskCounter; // TODO: If more tasks than long can hold, problems can occur
+    HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
 
     public BlackBoard(ArrayList<Task> tasks){
         taskCounter = 0;
@@ -30,10 +31,25 @@ public class BlackBoard implements Runnable  {
 
         while(true) {
             //TODO: Consider not to "sleep"
+            //TODO: Handle message
             while ((nextMessage = messagesToBlackboard.poll()) != null) {
-                System.out.println("Removed: " + nextMessage.toString());
-                //TODO: Handle message
 
+                String messageType = nextMessage.getClass().getSimpleName();
+
+                if (messageType == HeuristicProposal.class.getSimpleName()){
+                    HeuristicProposal hp = (HeuristicProposal) nextMessage;
+                    System.out.println("Agent " + hp.a.getAgentNumber() + " propose " + hp.h + " for task " + hp.taskID);
+                    ArrayList<HeuristicProposal> hpArray = new ArrayList<>();
+                    if(heuristicProposalMap.containsKey(hp.taskID)){
+                        hpArray = heuristicProposalMap.get(hp.taskID);
+                    }
+                    hpArray.add(hp);
+                    heuristicProposalMap.put(hp.taskID, hpArray);
+
+                    if(colorAgentAmountMap.get(hp.a.getColor())==hpArray.size()){
+                        delegateTask(hpArray);
+                    }
+                }
 
 
             }
@@ -45,6 +61,12 @@ public class BlackBoard implements Runnable  {
         }
     }
 
+    private void delegateTask(ArrayList<HeuristicProposal> hpArray) {
+        HeuristicProposal bestHeuristicProposal =  Collections.min(hpArray, Comparator.comparing(hp -> hp.h));
+        System.out.println("Agent " + bestHeuristicProposal.a.getAgentNumber() + " had the best h with value "
+        + bestHeuristicProposal.h + " for task " + bestHeuristicProposal.taskID);
+    }
+
     public void start () {
         if (t == null) {
             t = new Thread(this);
@@ -54,6 +76,8 @@ public class BlackBoard implements Runnable  {
 
     public void setAgents(ArrayList<Agent> agents) {
         this.agents = agents;
+
+        calculateColorAgentAmountMap(agents);
 
         for(Agent a : agents){
             publisher.subscribe(a);
@@ -67,6 +91,17 @@ public class BlackBoard implements Runnable  {
                 System.out.println("Blackboard submits task with id " + t.id);
                 publisher.submit(t);
                 //tasks.remove(t);
+            }
+        }
+    }
+
+    //TODO: make nicer
+    public void calculateColorAgentAmountMap(ArrayList<Agent> agents){
+        for(Agent a : agents){
+            if(!colorAgentAmountMap.containsKey(a.getColor())){
+                colorAgentAmountMap.put(a.getColor(),1);
+            } else {
+                colorAgentAmountMap.put(a.getColor(), colorAgentAmountMap.get(a.getColor())+1);
             }
         }
     }
