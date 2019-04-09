@@ -107,10 +107,10 @@ public class State {
                 }
                 if (tile.hasAgent()) {
                     copyTile.setTileOccupant(new Agent(
-                            ((Agent) tile.getTileOccupant()).getName(),
+                            ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
-                            ((Agent) tile.getTileOccupant()).getRow(),
-                            ((Agent) tile.getTileOccupant()).getColumn()));
+                            ((Agent) tile.getTileOccupant()).getX(),
+                            ((Agent) tile.getTileOccupant()).getY()));
                 }
                 copyRow.add(copyTile);
             }
