@@ -1,4 +1,4 @@
-package AI;
+package main.java.AI;
 
 import Components.State;
 
