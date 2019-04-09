@@ -12,6 +12,7 @@ public class Agent implements Subscriber<Task> {
     private int y;
     private Subscription todoSub;
     private BlackBoard blackBoard;
+    private boolean working;
 
     public Agent (int agentNumber, Color color, int x, int y, BlackBoard blackBoard){
         this.agentNumber = agentNumber;
@@ -19,6 +20,7 @@ public class Agent implements Subscriber<Task> {
         this.x = x;
         this.y = y;
         this.blackBoard = blackBoard;
+        this.working = false;
     }
 
     @Override
@@ -72,6 +74,8 @@ public class Agent implements Subscriber<Task> {
     public int getX() {
         return x;
     }
+
+    public boolean getWorking() { return working; }
     //END GETTERS
 
 
@@ -83,6 +87,9 @@ public class Agent implements Subscriber<Task> {
     public void setX(int x) {
         this.x = x;
     }
+
+    public void setWorking(boolean working) { this.working = working; }
+
     //END SETTERS
 
 }
