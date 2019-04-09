@@ -1,65 +1,70 @@
 package Components.State;
+import Components.Color;
+import Components.Task;
+import java.util.concurrent.Flow.*;
 
-import java.util.Observable;
-import java.util.Observer;
+public class Agent implements Subscriber<Task> {
 
-public class Agent implements Observer {
-
-
-
-    private final char name;
-    private final String color;
-    private int row;
-    private int column;
+    private final int agentNumber;
+    private final Color color;
+    private int x;
+    private int y;
 
 
-    public Agent (char name, String color, int row, int column){
-        this.name = name;
+    public Agent (int agentNumber, Color color, int x, int y){
+        this.agentNumber = agentNumber;
         this.color = color;
-        this.row = row;
-        this.column = column;
+        this.x = x;
+        this.y = y;
     }
 
+    @Override
+    public void onSubscribe(Subscription subscription) {
+
+    }
+
+    @Override
+    public void onNext(Task item) {
+
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+
+    }
+
+    @Override
+    public void onComplete() {
+
+    }
 
     //GETTERS
-    public char getName() {
-        return name;
+    public int getAgentNumber() {
+        return agentNumber;
     }
 
-    public String getColor() {
+    public Color getColor() {
         return color;
     }
 
-    public int getColumn() {
-        return column;
+    public int getY() {
+        return y;
     }
 
-    public int getRow() {
-        return row;
+    public int getX() {
+        return x;
     }
     //END GETTERS
 
 
     //SETTERS
-    public void setColumn(int column) {
-        this.column = column;
+    public void setY(int y) {
+        this.y = y;
     }
 
-    public void setRow(int row) {
-        this.row = row;
+    public void setX(int x) {
+        this.x = x;
     }
     //END SETTERS
 
-    @Override
-    public void update(Observable o, Object arg) {
-
-    }
-
-    @Override
-    public String toString() {
-        return Character.toString(this.name);
-    }
-
-
-    //TODO implement agents
 }
