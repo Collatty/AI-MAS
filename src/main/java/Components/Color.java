@@ -2,8 +2,15 @@ package Components;
 
 public enum Color {
     BLUE,
+    RED,
+    CYAN,
+    PURPLE,
     GREEN,
-    RED
+    ORANGE,
+    PINK,
+    GREY,
+    LIGHTBLUE,
+    BROWN
 }
 
 

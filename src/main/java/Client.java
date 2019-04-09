@@ -50,15 +50,14 @@ public class Client {
         ArrayList<Task> tasks = new ArrayList<>();
 
         Task t1 = new Task(4,1, Color.RED, new ArrayList<>());
-        Task t2 = new Task(1,3, Color.GREEN, new ArrayList<>());
+        Task t2 = new Task(1,3, Color.RED, new ArrayList<>());
         tasks.add(t1);
         tasks.add(t2);
 
         BlackBoard blackboard = new BlackBoard(tasks);
 
-
         Agent a0 = new Agent(0, Color.RED, 1, 1, blackboard);
-        Agent a1 = new Agent(1, Color.GREEN, 4, 3, blackboard);
+        Agent a1 = new Agent(1, Color.RED, 4, 3, blackboard);
         ArrayList<Agent> agents = new ArrayList<>();
         agents.add(a0);
         agents.add(a1);
