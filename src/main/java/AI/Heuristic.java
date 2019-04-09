@@ -1,4 +1,6 @@
-package main.java.AI;
+package AI;
+
+import Components.State;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
