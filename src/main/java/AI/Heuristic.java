@@ -19,7 +19,7 @@ public abstract class Heuristic implements Comparator<State> {
         goals = State.getGoals();
     }
 
-    public int h(State n) {
+    /*public int h(State n) {
         int heuristicValue = 0;
         List<Block> blocks = n.getBlocks();
         List<Agent> agents = n.getAgents();
@@ -37,10 +37,11 @@ public abstract class Heuristic implements Comparator<State> {
                 String agentColor = agent.getColor();
                 if(agentColor.equals(blockColor)){
                     if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
-                        distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow());
-                        /*System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
+                        distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(),
+                                block.getRow()) -1;
+                        System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
                         ": " + distanceToAgent);
-                        */
+
                     }
                 }
             }
@@ -49,13 +50,14 @@ public abstract class Heuristic implements Comparator<State> {
                 char goalType = goal.getType();
                 if(goalType == blockType) {
                     if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) < distance) {
-                        distance = manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow());
+                        distance = manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(),
+                                block.getRow());
                     }
                     if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
                         distance = -100;
                     }
-                    /*System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
-                    ": " + distance);*/
+                    System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                    ": " + distance);
                 }
 
             }
@@ -68,7 +70,59 @@ public abstract class Heuristic implements Comparator<State> {
 
         this.heuristic = heuristicValue;
         return heuristicValue;
+    }*/
+
+    //must change heuristic to loop through goals
+    public int h(State n){
+        int heuristicValue = 0;
+        List<Block> blocks = n.getBlocks();
+        List<Agent> agents = n.getAgents();
+
+        for (Goal goal : goals) {
+            char goalType = goal.getType();
+            double distanceToBlock = 10000;
+            double distanceToAgent = 10000;
+
+            //CALCULATING DISTANCE FROM GOAL TO NEAREST POSSIBLE BLOCK
+            for (Block block : blocks) {
+                String blockColor = block.getColor();
+                char blockType = block.getType();
+
+                if(blockType == goalType) {
+                    if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) < distanceToBlock) {
+                        distanceToBlock = manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow());
+                    }
+                    if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
+                        distanceToBlock = -100;
+                    }
+                    System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                    ": " + distanceToBlock);
+                }
+
+                //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
+                for (Agent agent : agents) {
+                    String agentColor = agent.getColor();
+                    if(agentColor.equals(blockColor)){
+                        if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
+                            distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(),
+                                    block.getRow()) -1;
+                            System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
+                                    ": " + distanceToAgent);
+
+                        }
+                    }
+                }
+            }
+            System.err.println("Distance to Agent: " + distanceToAgent);
+            System.err.println("Distance to Block: " + distanceToBlock);
+            heuristicValue += distanceToBlock;
+            heuristicValue += distanceToAgent;
+        }
+        this.heuristic = heuristicValue;
+        return heuristicValue;
     }
+
+
 
     @Override
     public String toString() {

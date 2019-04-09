@@ -41,7 +41,7 @@ public class Client {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Move(W);Move(E)");
+        //System.out.println("Move(W);Move(E)");
         String response = serverMessages.readLine();
         System.err.println("Serverresponse is: " + response);
 
