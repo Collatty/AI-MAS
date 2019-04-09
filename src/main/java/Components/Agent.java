@@ -6,17 +6,17 @@ import java.util.concurrent.Flow.Subscription;
 public class Agent implements Subscriber<MessageToAgent> {
     private final int agentNumber;
     private final Color color;
-    private int x;
-    private int y;
+    private int col;
+    private int row;
     private Subscription blackboardChannel;
     private BlackBoard blackBoard;
     private boolean working;
 
-    public Agent (int agentNumber, Color color, int x, int y, BlackBoard blackBoard) {
+    public Agent (int agentNumber, Color color, int col, int row, BlackBoard blackBoard) {
         this.agentNumber = agentNumber;
         this.color = color;
-        this.x = x;
-        this.y = y;
+        this.col = col;
+        this.row = row;
         this.blackBoard = blackBoard;
         this.working = false;
     }
@@ -73,12 +73,12 @@ public class Agent implements Subscriber<MessageToAgent> {
         return color;
     }
 
-    public int getY() {
-        return y;
+    public int getRow() {
+        return row;
     }
 
-    public int getX() {
-        return x;
+    public int getCol() {
+        return col;
     }
 
     public boolean getWorking() { return working; }
@@ -86,16 +86,15 @@ public class Agent implements Subscriber<MessageToAgent> {
 
 
     //SETTERS
-    public void setY(int y) {
-        this.y = y;
+    public void setRow(int row) {
+        this.row = row;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setCol(int col) {
+        this.col = col;
     }
 
     public void setWorking(boolean working) { this.working = working; }
-
     //END SETTERS
 
 }

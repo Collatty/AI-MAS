@@ -1,11 +1,14 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import AI.Heuristic;
+import Components.Agent;
 import Components.BlackBoard;
-import Components.Color;
 import Components.Task;
-import Components.State.Agent;
+import Components.State.State;
+import Utilities.LevelReader;
 
 public class Client {
 

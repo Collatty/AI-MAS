@@ -109,8 +109,8 @@ public class State {
                     copyTile.setTileOccupant(new Agent(
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
-                            ((Agent) tile.getTileOccupant()).getX(),
-                            ((Agent) tile.getTileOccupant()).getY(),
+                            ((Agent) tile.getTileOccupant()).getCol(),
+                            ((Agent) tile.getTileOccupant()).getRow(),
                             null));
                 }
                 copyRow.add(copyTile);
