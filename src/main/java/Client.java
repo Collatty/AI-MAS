@@ -36,7 +36,7 @@ public class Client {
             };
 
             heuristic.h(state);
-            System.err.println(heuristic.toString());
+            System.err.println("Heuristic: " + heuristic.toString());
 
         } catch (Exception e) {
             e.printStackTrace();

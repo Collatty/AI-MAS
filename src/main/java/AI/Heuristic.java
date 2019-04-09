@@ -31,18 +31,21 @@ public abstract class Heuristic implements Comparator<State> {
             double distanceToAgent = 10000;
             String blockColor = block.getColor();
             char blockType = block.getType();
+
+            //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
             for (Agent agent : agents) {
-                //check if same color - if same color calculate
                 String agentColor = agent.getColor();
                 if(agentColor.equals(blockColor)){
                     if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
                         distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow());
-                        System.err.println(agent.toString() + ": " + distanceToAgent);
+                        /*System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
+                        ": " + distanceToAgent);
+                        */
                     }
                 }
             }
+            //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE GOAL
             for (Goal goal : goals) {
-                //check if same type (character) - if same character calculate
                 char goalType = goal.getType();
                 if(goalType == blockType) {
                     if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) < distance) {
@@ -51,12 +54,13 @@ public abstract class Heuristic implements Comparator<State> {
                     if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
                         distance = -100;
                     }
-                    System.err.println(goal.toString() + ": " + distance);
+                    /*System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                    ": " + distance);*/
                 }
 
             }
-            System.err.println("FinalDistToAgent: " + distanceToAgent);
-            System.err.println("FinalDist: " + distanceToAgent);
+            //System.err.println("FinalDistToAgent: " + distanceToAgent);
+            //System.err.println("FinalDist: " + distanceToAgent);
 
             heuristicValue += Math.round(distanceToAgent);
             heuristicValue += Math.round(distance);
