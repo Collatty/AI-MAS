@@ -1,9 +1,9 @@
 package Components;
-import java.util.concurrent.Flow.*;
 import java.util.Random;
+import java.util.concurrent.Flow.Subscriber;
+import java.util.concurrent.Flow.Subscription;
 
 public class Agent implements Subscriber<MessageToAgent> {
-
     private final int agentNumber;
     private final Color color;
     private int x;
@@ -12,7 +12,7 @@ public class Agent implements Subscriber<MessageToAgent> {
     private BlackBoard blackBoard;
     private boolean working;
 
-    public Agent (int agentNumber, Color color, int x, int y, BlackBoard blackBoard){
+    public Agent (int agentNumber, Color color, int x, int y, BlackBoard blackBoard) {
         this.agentNumber = agentNumber;
         this.color = color;
         this.x = x;
@@ -29,16 +29,15 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     @Override
     public void onNext(MessageToAgent message) {
-
-        if(message.toAll != null && message.toAll || message.toColor != null && message.toColor == color
-                || message.toAgent != null && message.toAgent == agentNumber) {
-
-            if(message.messageType==MessageType.HEURISTIC){
-                proposeHeuristic(calculateHeuristic(message.task), message.task);
-            } else if(message.messageType==MessageType.PLAN){
+        if (message.toAll != null && message.toAll
+        		|| message.toColor != null && message.toColor == color
+                || message.toAgent != null && message.toAgent == agentNumber) {        	
+            if (message.messageType == MessageType.HEURISTIC) {
+                proposeHeuristic(calculateHeuristic(message.task), message.task);            
+            } else if (message.messageType == MessageType.PLAN) {
                 //TODO: Make awesome plan
-                System.out.println("Agent " + agentNumber + " is planning");
-                //System.out.println("Agent " + agentNumber + " makes plan for task " + message.task.id);
+                System.err.println("Agent " + agentNumber + " is planning");
+                //System.err.println("Agent " + agentNumber + " makes plan for task " + message.task.id);
             }
         }
         this.blackboardChannel.request(1);
@@ -56,13 +55,13 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     @Override
     public void onError(Throwable e) {
-        System.out.println("Some error happened");
+        System.err.println("Some error happened in agent " + agentNumber + " subscription:");
         e.printStackTrace();
     }
 
     @Override
     public void onComplete() {
-        System.out.println("All Processing Done");
+        // System.out.println("All Processing Done");
     }
 
     //GETTERS
