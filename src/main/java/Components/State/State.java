@@ -1,9 +1,11 @@
 package Components.State;
 
-import Utilities.LevelReader;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import Components.Agent;
+import Components.Color;
+import Utilities.LevelReader;
 
 public class State {
 
@@ -19,8 +21,6 @@ public class State {
     private final static String STRING_COLORS = LevelReader.getColors();
     private final static String STRING_INITIAL = LevelReader.getInitial();
     private final static String STRING_GOALS = LevelReader.getGoals();
-
-
 
     public State() {
 
@@ -43,7 +43,7 @@ public class State {
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(col, row);
-                Agent agt = new Agent(character, getColorAgent(character), col, row);
+                Agent agt = new Agent(Character.getNumericValue(character), convertFromStringToColor(getColorAgent(character)), col, row, null);
                 tile.setTileOccupant(agt);
                 currentList.add(tile);
                 agents.add(agt);
@@ -110,7 +110,8 @@ public class State {
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
                             ((Agent) tile.getTileOccupant()).getX(),
-                            ((Agent) tile.getTileOccupant()).getY()));
+                            ((Agent) tile.getTileOccupant()).getY(),
+                            null));
                 }
                 copyRow.add(copyTile);
             }
@@ -209,7 +210,17 @@ public class State {
         }
     }
 
+    private Color convertFromStringToColor(String stringColor){
+        switch ( stringColor ) {
+            case "green":
+                return Color.GREEN;
+            case "blue":
+                return Color.BLUE;
+            case "red":
+                return Color.RED;
+            default:
+                throw new RuntimeException("Color unknown: " + stringColor);
 
-
-
+        }
+    }
 }
