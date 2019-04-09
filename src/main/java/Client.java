@@ -1,4 +1,6 @@
+import AI.Heuristic;
 import Components.BlackBoard;
+import Components.State.State;
 import Components.State.oldState;
 import Utilities.LevelReader;
 import Components.Task;
@@ -23,7 +25,19 @@ public class Client {
         //READING IN LEVEL INFORMATION FROM SERVER
         LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-            oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
+            //oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
+            State state = new State();
+
+            Heuristic heuristic = new Heuristic() {
+                @Override
+                public int compare(State o1, State o2) {
+                    return 0;
+                }
+            };
+
+            heuristic.h(state);
+            System.err.println(heuristic.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
         }

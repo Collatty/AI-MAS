@@ -5,7 +5,6 @@ import Components.State.State;
 import Components.State.Agent;
 import Components.State.Goal;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -13,6 +12,7 @@ import java.util.List;
 public abstract class Heuristic implements Comparator<State> {
 
     private List<Goal> goals;// = new ArrayList<>();
+    private int heuristic = -1;
 
 
     public Heuristic() {
@@ -37,6 +37,7 @@ public abstract class Heuristic implements Comparator<State> {
                 if(agentColor.equals(blockColor)){
                     if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
                         distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow());
+                        System.err.println(agent.toString() + ": " + distanceToAgent);
                     }
                 }
             }
@@ -50,16 +51,25 @@ public abstract class Heuristic implements Comparator<State> {
                     if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
                         distance = -100;
                     }
+                    System.err.println(goal.toString() + ": " + distance);
                 }
 
             }
+            System.err.println("FinalDistToAgent: " + distanceToAgent);
+            System.err.println("FinalDist: " + distanceToAgent);
+
             heuristicValue += Math.round(distanceToAgent);
             heuristicValue += Math.round(distance);
         }
 
+        this.heuristic = heuristicValue;
         return heuristicValue;
     }
 
+    @Override
+    public String toString() {
+        return Integer.toString(this.heuristic);
+    }
 
     //euclidian distance
     public double euclidianDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY){
