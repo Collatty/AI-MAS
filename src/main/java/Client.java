@@ -1,3 +1,4 @@
+import Components.Agent;
 import Components.BlackBoard;
 import Components.Color;
 import Components.State.oldState;
@@ -16,6 +17,7 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException{
+        /*
 
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
@@ -31,6 +33,7 @@ public class Client {
         System.out.println("Move(W);Move(E)");
         String response = serverMessages.readLine();
         System.err.println("Serverresponse is: " + response);
+        */
 
 
         //TODO: Get subGoals from Planner
@@ -42,7 +45,17 @@ public class Client {
         tasks.add(t2);
 
         BlackBoard blackboard = new BlackBoard(tasks);
+
+
+        Agent a0 = new Agent(0, Color.RED, 1, 1, blackboard);
+        Agent a1 = new Agent(1, Color.GREEN, 4, 3, blackboard);
+        ArrayList<Agent> agents = new ArrayList<>();
+        agents.add(a0);
+        agents.add(a1);
+
+        blackboard.setAgents(agents);
         blackboard.start();
+
 
         //Client client = new Client(serverMessages);
 

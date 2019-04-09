@@ -1,6 +1,7 @@
 package Components.State;
 
-import java.util.ArrayList;
+import Components.Agent;
+
 import java.util.Collection;
 import java.util.HashSet;
 

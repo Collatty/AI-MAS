@@ -1,5 +1,8 @@
 package Components.State;
 
+import Components.Agent;
+import Components.BlackBoard;
+import Components.Color;
 import Utilities.LevelReader;
 
 import java.util.ArrayList;
@@ -17,8 +20,6 @@ public class State {
     private final static String STRING_COLORS = LevelReader.getColors();
     private final static String STRING_INITIAL = LevelReader.getInitial();
     private final static String STRING_GOALS = LevelReader.getGoals();
-
-
 
     public State() {
 
@@ -41,7 +42,7 @@ public class State {
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(col, row);
-                tile.setTileOccupant(new Agent(character, getColorAgent(character), col, row));
+                tile.setTileOccupant(new Agent(Character.getNumericValue(character), convertFromStringToColor(getColorAgent(character)), col, row, null));
                 currentList.add(tile);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(col, row);
@@ -104,7 +105,8 @@ public class State {
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
                             ((Agent) tile.getTileOccupant()).getX(),
-                            ((Agent) tile.getTileOccupant()).getY()));
+                            ((Agent) tile.getTileOccupant()).getY(),
+                            null));
                 }
                 copyRow.add(copyTile);
             }
@@ -199,7 +201,17 @@ public class State {
         }
     }
 
+    private Color convertFromStringToColor(String stringColor){
+        switch ( stringColor ) {
+            case "green":
+                return Color.GREEN;
+            case "blue":
+                return Color.BLUE;
+            case "red":
+                return Color.RED;
+            default:
+                throw new RuntimeException("Color unknown: " + stringColor);
 
-
-
+        }
+    }
 }
