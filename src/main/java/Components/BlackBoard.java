@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
 
-
+//TODO test if BlackBoard should implement SubmissionPublisher
 public class BlackBoard implements Runnable  {
 
     private Thread t;
@@ -62,9 +62,20 @@ public class BlackBoard implements Runnable  {
     }
 
     private void delegateTask(ArrayList<HeuristicProposal> hpArray) {
-        HeuristicProposal bestHeuristicProposal =  Collections.min(hpArray, Comparator.comparing(hp -> hp.h));
-        System.out.println("Agent " + bestHeuristicProposal.a.getAgentNumber() + " had the best h with value "
-        + bestHeuristicProposal.h + " for task " + bestHeuristicProposal.taskID);
+        //hpArray.sort(Comparator.comparingInt(HeuristicProposal::getH));
+
+        Collections.sort(hpArray, (hp1, hp2) -> hp1.h - hp2.h);
+
+        for(HeuristicProposal hp : hpArray){
+            hp.print();
+            if(!hp.a.getWorking()){
+
+            }
+        }
+
+        //HeuristicProposal bestHeuristicProposal =  Collections.min(hpArray, Comparator.comparing(hp -> hp.h));
+        //System.out.println("Agent " + bestHeuristicProposal.a.getAgentNumber() + " had the best h with value "
+        //+ bestHeuristicProposal.h + " for task " + bestHeuristicProposal.taskID);
     }
 
     public void start () {

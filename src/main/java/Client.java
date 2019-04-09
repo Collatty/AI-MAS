@@ -58,9 +58,18 @@ public class Client {
 
         Agent a0 = new Agent(0, Color.RED, 1, 1, blackboard);
         Agent a1 = new Agent(1, Color.RED, 4, 3, blackboard);
+        Agent a2 = new Agent(2, Color.RED, 2, 3, blackboard);
+        Agent a3 = new Agent(3, Color.RED, 3, 2, blackboard);
+        Agent a4 = new Agent(4, Color.RED, 7, 1, blackboard);
+        Agent a5 = new Agent(5, Color.RED, 6, 3, blackboard);
+
         ArrayList<Agent> agents = new ArrayList<>();
         agents.add(a0);
         agents.add(a1);
+        agents.add(a2);
+        agents.add(a3);
+        agents.add(a4);
+        agents.add(a5);
 
         blackboard.setAgents(agents);
         blackboard.start();

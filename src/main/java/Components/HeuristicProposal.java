@@ -11,4 +11,8 @@ public class HeuristicProposal extends Message {
         this.taskID = taskID;
     }
 
+    public void print(){
+        System.out.println("Agent " + a.getAgentNumber() + " has heuristic h=" + h + " for task " + taskID);
+    }
+
 }
