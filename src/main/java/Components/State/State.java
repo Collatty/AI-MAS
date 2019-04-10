@@ -88,22 +88,22 @@ public class State {
         for (List<Tile> row: tiles) {
             ArrayList<Tile> copyRow = new ArrayList<>();
             for (Tile tile : row) {
-                Tile copyTile = new Tile(tile.getRow(), tile.getColumn());
+                Tile copyTile = new Tile(tile.getRow(), tile.getCol());
                 if (tile.isGoal()) {
                     copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getRow(),
-                            tile.getGoal().getColumn()));
+                            tile.getGoal().getCol()));
                 }
                 if (tile.isWall()) {
                     copyTile.setTileOccupant(new Wall(
                             ((Wall) tile.getTileOccupant()).getRow(),
-                            ((Wall) tile.getTileOccupant()).getColumn()));
+                            ((Wall) tile.getTileOccupant()).getCol()));
                 }
                 if (tile.hasBlock()) {
                     copyTile.setTileOccupant(new Block(
                             ((Block) tile.getTileOccupant()).getType(),
                             ((Block) tile.getTileOccupant()).getColor(),
                             ((Block) tile.getTileOccupant()).getRow(),
-                            ((Block) tile.getTileOccupant()).getColumn()));
+                            ((Block) tile.getTileOccupant()).getCol()));
                 }
                 if (tile.hasAgent()) {
                     copyTile.setTileOccupant(new Agent(
@@ -183,25 +183,25 @@ public class State {
         for (List<Tile> row : tiles) {
             for (Tile tile : row) {
                 try {
-                    tile.setNorthNeighbor(tiles.get(tile.getRow()-1).get(tile.getColumn()).getTile());
+                    tile.setNorthNeighbor(tiles.get(tile.getRow()-1).get(tile.getCol()).getTile());
                 } catch (Exception e) {
                     tile.setNorthNeighbor(null);
                     e.printStackTrace();
                 }
                 try {
-                    tile.setWestNeighbor(tiles.get(tile.getRow()).get(tile.getColumn()-1).getTile());
+                    tile.setWestNeighbor(tiles.get(tile.getRow()).get(tile.getCol()-1).getTile());
                 } catch (Exception e) {
                     tile.setWestNeighbor(null);
                     e.printStackTrace();
                 }
                 try {
-                    tile.setEastNeighbor(tiles.get(tile.getRow()).get(tile.getColumn()+1).getTile());
+                    tile.setEastNeighbor(tiles.get(tile.getRow()).get(tile.getCol()+1).getTile());
                 } catch (Exception e) {
                     tile.setEastNeighbor(null);
                     e.printStackTrace();
                 }
                 try {
-                    tile.setSouthNeighbor(tiles.get(tile.getRow()+1).get(tile.getColumn()).getTile());
+                    tile.setSouthNeighbor(tiles.get(tile.getRow()+1).get(tile.getCol()).getTile());
                 } catch (Exception e) {
                     tile.setSouthNeighbor(null);
                     e.printStackTrace();

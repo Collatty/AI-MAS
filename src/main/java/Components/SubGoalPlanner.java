@@ -33,12 +33,12 @@ public abstract class SubGoalPlanner {
         Collection<Tile> exploredTiles = new HashSet<>();
         Stack<Tile> frontier = new Stack<>(); //TODO: Look into whether this is best data structure. Think it's
         // indifferent, but have not slept for a while now.
-            Tile goalTile = copyOfInitialState.get(goal.getRow()).get(goal.getColumn());
+            Tile goalTile = copyOfInitialState.get(goal.getRow()).get(goal.getCol());
             frontier.push(goalTile);
             while (!frontier.isEmpty()) {
                 Tile expolringTile = frontier.pop();
                 if (expolringTile.hasBlock() && ((Block) expolringTile.getTileOccupant()).getType() == goal.getType()) {
-                    goalTile.setTileOccupant(new Wall(goalTile.getRow(), goalTile.getColumn()));
+                    goalTile.setTileOccupant(new Wall(goalTile.getRow(), goalTile.getCol()));
                     expolringTile.setTileOccupant(null); //BLOCK IS NOW "USED"
                     return true;
                 }

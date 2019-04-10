@@ -7,16 +7,16 @@ import java.util.List;
 public class Goal {
 
     private final char type;
-    private final int column;
+    private final int col;
     private final int row;
 
     private Collection<Goal> predonditions = new HashSet<>();
 
 
-    public Goal(char type, int row, int column) {
+    public Goal(char type, int col, int row) {
         this.type = type;
         this.row = row;
-        this.column = column;
+        this.col = col;
 
     }
 
@@ -25,8 +25,8 @@ public class Goal {
         return type;
     }
 
-    public int getColumn() {
-        return column;
+    public int getCol() {
+        return col;
     }
 
     public int getRow() {
