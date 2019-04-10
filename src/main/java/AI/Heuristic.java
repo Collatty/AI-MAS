@@ -45,10 +45,11 @@ public abstract class Heuristic implements Comparator<State> {
 
                     //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
                     for (Agent agent : agents) {
-                        String agentColor = agent.getColor();
+                        //blockColor should be consistent with enum color of agent
+                        String agentColor = agent.getColor().toString().toLowerCase();
                         if (agentColor.equals(blockColor)) {
-                            if (manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
-                                distanceToAgent = manhattanDistance(agent.getColumn(), agent.getRow(), block.getColumn(),
+                            if (manhattanDistance(agent.getCol(), agent.getRow(), block.getColumn(), block.getRow()) < distanceToAgent) {
+                                distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getColumn(),
                                         block.getRow()) - 1;
                                 /*System.err.println("Distance from agent " + agent.toString() + " to block " + block
                                 .toString() + ": " + distanceToAgent);*/
