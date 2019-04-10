@@ -1,13 +1,12 @@
 package AI;
 
-import Components.State.Block;
-import Components.State.State;
-import Components.State.Agent;
-import Components.State.Goal;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import Components.Agent;
+import Components.State.Block;
+import Components.State.Goal;
+import Components.State.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
