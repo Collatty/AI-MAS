@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import AI.Heuristic;
 import Components.Agent;
 import Components.BlackBoard;
+import Components.SubGoalPlanner;
 import Components.Task;
 import Components.State.State;
 import Utilities.LevelReader;
@@ -46,8 +47,7 @@ public class Client {
         System.err.println("Serverresponse is: " + response);
 
 
-        //TODO: Get subGoals from Planner
-        ArrayList<Task> tasks = new ArrayList<>();
+
         ArrayList<Agent> agents = new ArrayList<>();
 
         // HARDCODED TEST
@@ -56,7 +56,7 @@ public class Client {
 //        tasks.add(t1);
 //        tasks.add(t2);
 
-        BlackBoard blackboard = new BlackBoard(tasks);
+        BlackBoard blackboard = new BlackBoard(SubGoalPlanner.convertToTask());
 
         // HARDCODED TEST
 //        Agent a0 = new Agent(0, Color.RED, 1, 1, blackboard);
