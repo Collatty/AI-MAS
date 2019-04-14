@@ -44,7 +44,7 @@ public class Agent implements Subscriber<MessageToAgent> {
     }
 
     private void proposeHeuristic(int h, Task t) {
-        blackBoard.messagesToBlackboard.add(new HeuristicProposal(h,this, t.id));
+        blackBoard.messagesToBlackboard.add(new HeuristicProposal(h,this, t.getId()));
     }
 
     private int calculateHeuristic(Task task) {
