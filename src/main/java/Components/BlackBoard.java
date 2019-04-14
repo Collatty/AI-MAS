@@ -1,9 +1,6 @@
 package Components;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
 
@@ -15,11 +12,11 @@ public class BlackBoard implements Runnable {
     HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     SubmissionPublisher<MessageToAgent> publisher = new SubmissionPublisher<>();
-    ArrayList<Task> tasks;
+    List<Task> tasks;
     ArrayList<Agent> agents;
     long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
 
-    public BlackBoard(ArrayList<Task> tasks) {
+    public BlackBoard(List<Task> tasks) {
         taskCounter = 0;
         this.tasks = tasks;
     }
@@ -79,12 +76,12 @@ public class BlackBoard implements Runnable {
         }
 
         for(Task t : tasks) {
-            if (t.dependencies.isEmpty()) {
-                t.id = taskCounter;
+            if (t.getDependencies().isEmpty()) {
+                t.setId(taskCounter);
                 taskCounter++;
-                todoMap.put(t.id, t);
+                todoMap.put(t.getId(), t);
                 // System.err.println("Blackboard submits task with id " + t.id);
-                MessageToAgent messageToAgent = new MessageToAgent(null, t.color, null, MessageType.HEURISTIC, t);
+                MessageToAgent messageToAgent = new MessageToAgent(null, t.getColor(), null, MessageType.HEURISTIC, t);
                 publisher.submit(messageToAgent);
                 // tasks.remove(t); TODO: This doesn't work. Find another way.
             }
