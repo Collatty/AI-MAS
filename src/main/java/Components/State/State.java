@@ -39,7 +39,7 @@ public class State {
 
             if (character == '+') { // Wall.
                 Tile tile = new Tile(col, row);
-                tile.setTileOccupant(new Wall(col, row));
+                tile.setWall(true);
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(col, row);
@@ -94,9 +94,7 @@ public class State {
                             tile.getGoal().getCol()));
                 }
                 if (tile.isWall()) {
-                    copyTile.setTileOccupant(new Wall(
-                            ((Wall) tile.getTileOccupant()).getRow(),
-                            ((Wall) tile.getTileOccupant()).getCol()));
+                    copyTile.setWall(true);
                 }
                 if (tile.hasBlock()) {
                     copyTile.setTileOccupant(new Block(
@@ -120,6 +118,16 @@ public class State {
         setNeighbors(copy);
 
         return copy;
+    }
+
+    public static List<Goal> copyGoals(List<Goal> goals) {
+        List<Goal> copyGoals = new ArrayList<>();
+        for (Goal goal : goals) {
+            Goal copiedGoal = new Goal(goal.getType(), goal.getCol(), goal.getRow());
+            copyGoals.add(copiedGoal);
+
+        }
+        return copyGoals;
     }
 
     //GETTERS
@@ -155,6 +163,7 @@ public class State {
     public static String getStringGoals() {
         return STRING_GOALS;
     }
+
 
     // There should be no other numbers in the color string besides the agents
     private String getColorAgent(char agent) {
