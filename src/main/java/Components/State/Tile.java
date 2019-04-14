@@ -13,6 +13,7 @@ public class Tile {
 
     private Object tileOccupant;
     private Goal goal;
+    private boolean isWall;
 
     private Tile northNeighbor;
     private Tile southNeighbor;
@@ -109,6 +110,10 @@ public class Tile {
         this.southNeighbor = southNeighbor;
     }
 
+    public void setWall (boolean isWall) {
+        this.isWall = isWall;
+    }
+
     //END SETTERS
 
     public void removeTileOccupant() {
@@ -120,7 +125,7 @@ public class Tile {
     }
 
     public boolean isWall() {
-        return this.tileOccupant instanceof Wall;
+        return this.isWall;
     }
 
     public boolean hasBlock() {
