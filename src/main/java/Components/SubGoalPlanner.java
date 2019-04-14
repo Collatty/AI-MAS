@@ -15,19 +15,13 @@ import java.util.*;
 public abstract class SubGoalPlanner {
 
     private static List<List<Tile>> copyOfInitialState = State.copyState(State.getInitialState());
-    private static List<Goal> goals = State.getGoals();
-    private static List<List<Goal>> orderOfGoals = new ArrayList<>();
 
+    private static List<Goal> goals = State.copyGoals(State.getGoals());
 
-
-    public static void postToBlackBoard() {
-        //TODO
+    public static List<Task> postToBlackBoard() {
+        return convertToTask();
     }
 
-    public static void serializeGoals(oldState initialOldState){
-        //TODO: This is where we sort out which order our goals have to be completed in
-
-    }
 
     private static boolean searchForBlock(Goal goal) {
         Collection<Tile> exploredTiles = new HashSet<>();
@@ -35,14 +29,15 @@ public abstract class SubGoalPlanner {
         // indifferent, but have not slept for a while now.
             Tile goalTile = copyOfInitialState.get(goal.getRow()).get(goal.getCol());
             frontier.push(goalTile);
+            Goal neighborGoal = null;
             while (!frontier.isEmpty()) {
-                Tile expolringTile = frontier.pop();
-                if (expolringTile.hasBlock() && ((Block) expolringTile.getTileOccupant()).getType() == goal.getType()) {
-                    goalTile.setTileOccupant(new Wall(goalTile.getRow(), goalTile.getCol()));
-                    expolringTile.setTileOccupant(null); //BLOCK IS NOW "USED"
+                Tile exploringTile = frontier.pop();
+                if (exploringTile.hasBlock() && ((Block) exploringTile.getTileOccupant()).getType() == goal.getType()) {
+                    //goalTile.setTileOccupant(new Wall(goalTile.getRow(), goalTile.getCol()));
+                    //exploringTile.setTileOccupant(null); //BLOCK IS NOW "USED"
                     return true;
                 }
-                for (Tile neighbor : expolringTile.getNeighbors()) {
+                for (Tile neighbor : exploringTile.getNeighbors()) {
                     if (exploredTiles.contains(neighbor)) {
                         continue;
                     }
@@ -51,30 +46,91 @@ public abstract class SubGoalPlanner {
                     }
                     frontier.push(neighbor);
                 }
-                exploredTiles.add(expolringTile);
+                exploredTiles.add(exploringTile);
 
             }
         return false; // NO BLOCK WAS FOUND FOR THE GOAL AND THE LEVEL NEEDS TO BE SOLVED IN ANOTHER ORDER OR IS NOT
         // SOLVABLE AT ALL
     }
 
+    private static List<Goal> searchForGoal(Goal goal) {
+        Collection<Tile> exploredTiles = new HashSet<>();
+        Stack<Tile> frontier = new Stack<>();
+        Tile goalTile = copyOfInitialState.get(goal.getRow()).get(goal.getCol());
+        frontier.push(goalTile);
+        List<Goal> neighborGoals = null;
+        while (!frontier.isEmpty()) {
+            Tile exploringTile = frontier.pop();
+            for (Tile neighbor : exploringTile.getNeighbors()) {
+                if (exploredTiles.contains(neighbor)) {
+                    continue;
+                }
+                if (neighbor.isGoal()) {
+                    neighborGoals.add( copyOfInitialState.get(neighbor.getRow()).get(neighbor.getCol()).getGoal());
+                }
+                if (neighbor.isWall()) {
+                    continue;
+                }
 
-    //TODO: figure out the serialize method
-    public static boolean serialize() {
+                frontier.push(neighbor);
+            }
+            exploredTiles.add(exploringTile);
+
+        }
+        return neighborGoals;
+
+    }
+
+
+    //Think this should work reasonably well
+    public static void serialize() {
+        List<List<Tile>> copyState = State.copyState(copyOfInitialState);
 
         for (Goal goal : goals) {
-            if (!searchForBlock(goal)) {
-                SubGoalPlanner.reset();
-                Goal iffyGoal = goals.get(goals.indexOf(goal));
-                goals.remove(iffyGoal);
-                goals.add(iffyGoal);
-                return SubGoalPlanner.serialize();
+            copyState.get(goal.getRow()).get(goal.getCol()).setWall(true);
+        }
+
+        for (Goal goal : goals ) {
+            if (searchForBlock(goal)) {
+                goal.setPrecondition(null);
+            } else { // if the previous statement isn't true we either have a precondition, or the level is insolvable.
+                List<Goal> preconditions = searchForGoal(goal);
+                if (preconditions!=null) {
+                    for (Goal goal2 : preconditions)
+                    goal.setPrecondition(goal2);
+                } else {
+                    System.err.println("Level is not fucking solvable");
+                }
+
             }
         }
-        return true;
+
+        for (Goal goal : goals) {
+            goal.accumulatePreconditions();
+        }
+
     }
 
     private static void reset() {
         copyOfInitialState=State.copyState(State.getInitialState());
+    }
+
+    public static List<Task> convertToTask() {
+        List<Task> tasks = new ArrayList<>();
+        HashMap<Goal, Task> mapping = new HashMap<>();
+        for (Goal goal : goals) {
+            Task task = new Task(goal.getRow(), goal.getCol(), null);
+            tasks.add(task);
+            mapping.put(goal, task);
+        }
+        for (Goal goal : goals) {
+            List<Task> depTasks = new ArrayList<>();
+            for (Goal goal2 : goal.getPreconditions()) {
+                depTasks.add(mapping.get(goal2));
+            }
+            mapping.get(goal).setDependencies(depTasks);
+
+        }
+        return tasks;
     }
 }
