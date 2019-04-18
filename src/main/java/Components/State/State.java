@@ -1,17 +1,18 @@
 package Components.State;
 
-import Components.Agent;
-import Components.BlackBoard;
-import Components.Color;
-import Utilities.LevelReader;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import Components.Agent;
+import Components.Color;
+import Utilities.LevelReader;
 
 public class State {
 
     private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private final static List<Goal> GOALS = new ArrayList<>();
+    private List<Agent> agents = new ArrayList<>();
+    private List<Block> blocks = new ArrayList<>();
     private List<List<Tile>> state;
 
     //INITIAL STATE STRINGS STORED HERE
@@ -42,12 +43,16 @@ public class State {
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(col, row);
-                tile.setTileOccupant(new Agent(Character.getNumericValue(character), convertFromStringToColor(getColorAgent(character)), col, row, null));
+                Agent agt = new Agent(Character.getNumericValue(character), convertFromStringToColor(getColorAgent(character)), col, row, null);
+                tile.setTileOccupant(agt);
                 currentList.add(tile);
+                agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(col, row);
-                tile.setTileOccupant(new Block(character, getColorBlock(character), col, row));
+                Block box = new Block(character, getColorBlock(character), col, row);
+                tile.setTileOccupant(box);
                 currentList.add(tile);
+                blocks.add(box);
             }  else if (character == ' ') {
                 Tile tile = new Tile(col, row);
                 currentList.add(tile);
@@ -104,8 +109,8 @@ public class State {
                     copyTile.setTileOccupant(new Agent(
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
-                            ((Agent) tile.getTileOccupant()).getX(),
-                            ((Agent) tile.getTileOccupant()).getY(),
+                            ((Agent) tile.getTileOccupant()).getCol(),
+                            ((Agent) tile.getTileOccupant()).getRow(),
                             null));
                 }
                 copyRow.add(copyTile);
@@ -126,6 +131,10 @@ public class State {
     public static List<Goal> getGoals() {
         return GOALS;
     }
+
+    public List<Agent> getAgents() { return agents; }
+
+    public List<Block> getBlocks() { return blocks; }
 
     public static String getStringDomain() {
         return STRING_DOMAIN;

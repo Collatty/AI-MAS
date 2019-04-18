@@ -2,7 +2,7 @@ package Components.State;
 
 public class Block {
 
-
+	// TODO: Consider changing color to our type Color
     private char type;
     private final String color;
     private int column;
