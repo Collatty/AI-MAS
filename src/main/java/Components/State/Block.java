@@ -5,19 +5,20 @@ public class Block {
 	// TODO: Consider changing color to our type Color
     private char type;
     private final String color;
-    private int column;
     private int row;
+    private int col;
 
-    public Block(char type, String color, int row, int column) {
+
+    public Block(char type, String color, int col, int row) {
         this.type = type;
         this.color = color;
         this.row = row;
-        this.column = column;
+        this.col = col;
     }
 
     //GETTERS
-    public int getColumn() {
-        return column;
+    public int getCol() {
+        return col;
     }
 
     public int getRow() {
@@ -34,8 +35,8 @@ public class Block {
     // END GETTERS
 
     //SETTERS
-    public void setColumn(int column) {
-        this.column = column;
+    public void setCol(int col) {
+        this.col = col;
     }
 
     public void setRow(int row) {

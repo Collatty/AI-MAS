@@ -8,11 +8,12 @@ import java.util.HashSet;
 public class Tile {
 
 
-    private final int column;
+    private final int col;
     private final int row;
 
     private Object tileOccupant;
     private Goal goal;
+    private boolean isWall;
 
     private Tile northNeighbor;
     private Tile southNeighbor;
@@ -37,9 +38,9 @@ public class Tile {
         return neighbors;
     }
 
-    public Tile(final int row, final int column) {
-        this.row = column;
-        this.column = row;
+    public Tile(final int col, final int row) {
+        this.row = row;
+        this.col = col;
         this.tileOccupant = null;
         this.goal = null;
 
@@ -47,8 +48,8 @@ public class Tile {
     }
 
     //GETTERS
-    public int getColumn() {
-        return column;
+    public int getCol() {
+        return col;
     }
 
     public int getRow() {
@@ -109,6 +110,10 @@ public class Tile {
         this.southNeighbor = southNeighbor;
     }
 
+    public void setWall (boolean isWall) {
+        this.isWall = isWall;
+    }
+
     //END SETTERS
 
     public void removeTileOccupant() {
@@ -120,7 +125,7 @@ public class Tile {
     }
 
     public boolean isWall() {
-        return this.tileOccupant instanceof Wall;
+        return this.isWall;
     }
 
     public boolean hasBlock() {

@@ -5,17 +5,17 @@ package Components.State;
 //TODO: MAYBE REFACTOR TO BOOLEAN VALUE IN TILE
 public class Wall {
 
-    private final int column;
+    private final int col;
     private final int row;
 
-    public Wall(final int row, final int column) {
+    public Wall(final int col, final int row) {
         this.row = row;
-        this.column = column;
+        this.col = col;
     }
 
 
-    public int getColumn() {
-        return column;
+    public int getCol() {
+        return col;
     }
 
     public int getRow() {

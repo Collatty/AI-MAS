@@ -1,22 +1,24 @@
 package Components.State;
 
+import Components.Task;
+
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public class Goal {
 
     private final char type;
-    private final int column;
+    private final int col;
     private final int row;
 
-    private Collection<Goal> predonditions = new HashSet<>();
+    //By preconditions we mean goals that cannot be completed prior to this goal's attempted completion
+    private Collection<Goal> preconditions = new HashSet<>();
 
 
-    public Goal(char type, int row, int column) {
+    public Goal(char type, int col, int row) {
         this.type = type;
+        this.col = col;
         this.row = row;
-        this.column = column;
 
     }
 
@@ -25,21 +27,31 @@ public class Goal {
         return type;
     }
 
-    public int getColumn() {
-        return column;
+    public int getCol() {
+        return col;
     }
 
     public int getRow() {
         return row;
     }
 
-    public Collection<Goal> getPredonditions() {
-        return this.predonditions;
+    public Collection<Goal> getPreconditions() {
+        return this.preconditions;
     }
     //END GETTERS
 
-    public void setPredondition(Goal goal){
-        this.predonditions.add(goal);
+    public void setPrecondition(Goal goal){
+        this.preconditions.add(goal);
+    }
+
+    public Collection<Goal> accumulatePreconditions() {
+        Collection<Goal> accumulatedPreconditions = new HashSet<>();
+        for (Goal goal : this.preconditions) {
+            if (goal.getPreconditions() != null)
+                accumulatedPreconditions.addAll(goal.accumulatePreconditions());
+        }
+        this.preconditions.addAll(accumulatedPreconditions);
+        return this.preconditions;
     }
 
     @Override
