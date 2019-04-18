@@ -26,7 +26,7 @@ public class Action {
 
     }
 
-    private Action(Type t, Dir d1, Dir d2) {
+    public Action(Type t, Dir d1, Dir d2) {
         this.actionType = t;
         this.dir1 = d1;
         this.dir2 = d2;

@@ -1,7 +1,9 @@
 package Components;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
+
 
 public class Agent implements Subscriber<MessageToAgent> {
     private final int agentNumber;
@@ -36,11 +38,29 @@ public class Agent implements Subscriber<MessageToAgent> {
                 proposeHeuristic(calculateHeuristic(message.task), message.task);            
             } else if (message.messageType == MessageType.PLAN) {
                 //TODO: Make awesome plan
-                System.err.println("Agent " + agentNumber + " is planning");
+                System.err.println("Agent " + agentNumber + " is planning for task " + message.task.getId());
+                createPlan(message.task);
                 //System.err.println("Agent " + agentNumber + " makes plan for task " + message.task.id);
             }
         }
         this.blackboardChannel.request(1);
+    }
+
+    private void createPlan(Task task) {
+        //TODO: implement properly
+        if(task.getId()==1){
+            ArrayList<Action> actions = new ArrayList<>();
+            Action a = new Action(Action.Type.Push, Action.Dir.W, Action.Dir.W);
+            actions.add(a);
+            PlanProposal pp1 = new PlanProposal(actions, this, task.getId());
+            blackBoard.messagesToBlackboard.add(pp1);
+        } else { // when task.getId() is 2
+            ArrayList<Action> actions = new ArrayList<>();
+            Action a = new Action(Action.Type.Push, Action.Dir.E, Action.Dir.E);
+            actions.add(a);
+            PlanProposal pp2 = new PlanProposal(actions, this, task.getId());
+            blackBoard.messagesToBlackboard.add(pp2);
+        }
     }
 
     private void proposeHeuristic(int h, Task t) {

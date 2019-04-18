@@ -1,5 +1,6 @@
 package Components;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
@@ -8,7 +9,7 @@ public class BlackBoard implements Runnable {
     private Thread t;
     HashMap<Long, Task> todoMap = new HashMap<>();
     HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
-    HashSet<Plan> planProposals = new HashSet<>();
+    HashMap<Integer, ArrayList<Action>> planProposalsMap = new HashMap<>();
     HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     SubmissionPublisher<MessageToAgent> publisher = new SubmissionPublisher<>();
@@ -33,7 +34,7 @@ public class BlackBoard implements Runnable {
                 // Heuristic proposal received
                 if (messageType == HeuristicProposal.class.getSimpleName()) {
                     HeuristicProposal hp = (HeuristicProposal) nextMessage;
-//                    System.err.println("Agent " + hp.a.getAgentNumber() + " propose " + hp.h + " for task " + hp.taskID);
+                    System.err.println("Agent " + hp.a.getAgentNumber() + " propose " + hp.h + " for task " + hp.taskID);
                     ArrayList<HeuristicProposal> hpArray = new ArrayList<>();
                     if (heuristicProposalMap.containsKey(hp.taskID)) {
                         hpArray = heuristicProposalMap.get(hp.taskID);
@@ -41,9 +42,21 @@ public class BlackBoard implements Runnable {
                     hpArray.add(hp);
                     heuristicProposalMap.put(hp.taskID, hpArray);
 
+                    //TODO: subtract the number of unavailable agents
                     if (colorAgentAmountMap.get(hp.a.getColor()) == hpArray.size()) {
                         delegateTask(hpArray);
                     }
+                } else if (messageType == PlanProposal.class.getSimpleName()) {
+                    PlanProposal pp = (PlanProposal) nextMessage;
+
+                    ArrayList<Action> currentActions = planProposalsMap.get(pp.a.getAgentNumber());
+                    ArrayList<Action> newActions = pp.actions;
+                    ArrayList<Action> allActions = new ArrayList<>();
+
+                    allActions.addAll(currentActions);
+                    allActions.addAll(newActions);
+                    System.err.println("Agent " + pp.a.getAgentNumber() + " propose action list " + allActions.toString());
+                    planProposalsMap.put(pp.a.getAgentNumber(), pp.actions);
                 }
             }
             try {
@@ -60,9 +73,11 @@ public class BlackBoard implements Runnable {
         for (HeuristicProposal hp : hpArray) {
             // hp.print();
             if (!hp.a.getWorking()) {
-                MessageToAgent messageToAgent = new MessageToAgent(null, null, hp.a.getAgentNumber(), MessageType.PLAN, todoMap.get(hp.taskID));
+                MessageToAgent messageToAgent = new MessageToAgent(null, null, hp.a.getAgentNumber(),
+                        MessageType.PLAN, todoMap.get(hp.taskID));
                 todoMap.remove(hp.taskID);
                 publisher.submit(messageToAgent);
+                break;
             }
         }
     }
@@ -73,6 +88,8 @@ public class BlackBoard implements Runnable {
 
         for(Agent a : agents) {
             publisher.subscribe(a);
+            ArrayList<Action> actions = new ArrayList<>();
+            planProposalsMap.put(a.getAgentNumber(), actions);
         }
 
         for(Task t : tasks) {
