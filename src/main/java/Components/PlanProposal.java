@@ -6,15 +6,18 @@ public class PlanProposal extends Message {
     ArrayList<Action> actions;
     Agent a;
     long taskID;
+    int startIndex;
+    int endIndex;
 
-    public PlanProposal(ArrayList<Action> actions, Agent a, long taskID) {
+    public PlanProposal(ArrayList<Action> actions, Agent a, long taskID, int startIndex, int endIndex) {
         this.actions = actions;
         this.a = a;
         this.taskID = taskID;
+        this.startIndex = startIndex;
+        this.endIndex = endIndex;
     }
 
-    public void print() {
-        //TODO: implement properly
-        System.err.println("Agent " + a.getAgentNumber() + " has plan of actions ");
+    public String toString() {
+        return "Agent " + a.getAgentNumber() + " has plan for task  " + taskID + " with start index " + startIndex + " and end index " + endIndex + " and the actions: " + actions.toString();
     }
 }

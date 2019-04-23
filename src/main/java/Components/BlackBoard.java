@@ -1,6 +1,7 @@
 package Components;
 
-import java.lang.reflect.Array;
+import Components.State.State;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
@@ -9,28 +10,32 @@ public class BlackBoard implements Runnable {
     private Thread t;
     HashMap<Long, Task> todoMap = new HashMap<>();
     HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
-    HashMap<Integer, ArrayList<Action>> planProposalsMap = new HashMap<>();
+    HashMap<Integer, ArrayList<Action>> acceptedActionsMap = new HashMap<>();
     HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     SubmissionPublisher<MessageToAgent> publisher = new SubmissionPublisher<>();
     List<Task> tasks;
     ArrayList<Agent> agents;
     long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
+    ArrayList<State> stateSequence = new ArrayList<>();
+    private HashMap<Long, PlanProposal> acceptedPlansMap = new HashMap<>();
 
+
+    //TODO: add something like State initState to constructor
     public BlackBoard(List<Task> tasks) {
         taskCounter = 0;
         this.tasks = tasks;
+        //stateSequence.add(initState);
     }
 
     @Override
-    public void run() {
+    public void run(){
         Message nextMessage;
 
         while (true) {
             //TODO: Consider smarter solution than "sleep"
             while ((nextMessage = messagesToBlackboard.poll()) != null) {
                 String messageType = nextMessage.getClass().getSimpleName();
-                
                 // Heuristic proposal received
                 if (messageType == HeuristicProposal.class.getSimpleName()) {
                     HeuristicProposal hp = (HeuristicProposal) nextMessage;
@@ -49,16 +54,42 @@ public class BlackBoard implements Runnable {
                 } else if (messageType == PlanProposal.class.getSimpleName()) {
                     PlanProposal pp = (PlanProposal) nextMessage;
 
-                    ArrayList<Action> currentActions = planProposalsMap.get(pp.a.getAgentNumber());
-                    ArrayList<Action> newActions = pp.actions;
-                    ArrayList<Action> allActions = new ArrayList<>();
+                    //TODO check for conflict before adding to plan map
 
-                    allActions.addAll(currentActions);
-                    allActions.addAll(newActions);
-                    System.err.println("Agent " + pp.a.getAgentNumber() + " propose action list " + allActions.toString());
-                    planProposalsMap.put(pp.a.getAgentNumber(), pp.actions);
+                    //If there is no conflict, input the new actions in the plan map
+                    if(!conflict(pp.a.getAgentNumber(), pp.actions)) {
+                    	System.err.println(pp.toString());
+                    	// Add NoOps if necessary 
+                        int numberOfNoOps = pp.startIndex - acceptedActionsMap.get(pp.a.getAgentNumber()).size();
+                        if (numberOfNoOps >= 0) {
+	    					Action[] noOpArr = new Action[numberOfNoOps];
+	                        Arrays.fill(noOpArr, new Action(Action.Type.NoOp, null, null));
+	                        acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(Arrays.asList(noOpArr));
+	
+	                        // Add actions to accepted actions
+	                        acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(pp.actions);
+	                        
+	                        // Add plan to accepted plans
+	                        acceptedPlansMap.put(pp.taskID, pp);
+	                        
+	                        // TODO: Delete other heuristics received from this agent
+	                        
+	                        System.err.print("Current actions planned: ");
+	                        System.err.println(acceptedActionsMap.toString());
+
+	                        for (Task task : tasks) {
+	                        	if (task.getDependencies().contains(pp.taskID) && acceptedPlansMap.keySet().containsAll(task.getDependencies())) {
+                        			System.err.println("All dependencies solved for a task!");
+                        			broadcastTask(task);		
+	                        	}
+	                        }
+                        } else {
+                        	//TODO: Agent has actions where this plan starts. Deny plan
+                        }
+                    }
                 }
             }
+            
             try {
                 Thread.sleep(100);
             } catch (Exception ex) {
@@ -89,20 +120,24 @@ public class BlackBoard implements Runnable {
         for(Agent a : agents) {
             publisher.subscribe(a);
             ArrayList<Action> actions = new ArrayList<>();
-            planProposalsMap.put(a.getAgentNumber(), actions);
+            acceptedActionsMap.put(a.getAgentNumber(), actions);
         }
 
         for(Task t : tasks) {
             if (t.getDependencies().isEmpty()) {
-                t.setId(taskCounter);
-                taskCounter++;
-                todoMap.put(t.getId(), t);
-                // System.err.println("Blackboard submits task with id " + t.id);
-                MessageToAgent messageToAgent = new MessageToAgent(null, t.getColor(), null, MessageType.HEURISTIC, t);
-                publisher.submit(messageToAgent);
-                // tasks.remove(t); TODO: This doesn't work. Find another way.
+            	broadcastTask(t);
             }
         }
+    }
+    
+    private void broadcastTask(Task task) {
+        task.setId(taskCounter);
+        taskCounter++;
+        todoMap.put(task.getId(), task);
+        System.err.println("Blackboard submits task with id " + task.getId());
+        MessageToAgent messageToAgent = new MessageToAgent(null, task.getColor(), null, MessageType.HEURISTIC, task);
+        publisher.submit(messageToAgent);
+        // tasks.remove(task); TODO: This doesn't work. Find another way.
     }
 
     //TODO: Make nicer
@@ -116,11 +151,23 @@ public class BlackBoard implements Runnable {
         }
     }
 
+    //
+    public boolean conflict(int agentNumber, ArrayList<Action> actions){
+        //TODO: implement
+    	//TODO: Update state list if no conflict
+
+        return false;
+    }
+
     public void start() {
     	if (t == null) {
     		t = new Thread(this);
     		t.start();
     	}
+    }
+
+    public PlanProposal getAcceptedPlan(long taskID) {
+        return acceptedPlansMap.get(taskID);
     }
 }
 

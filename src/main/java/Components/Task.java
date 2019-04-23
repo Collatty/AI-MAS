@@ -10,7 +10,7 @@ public class Task {
     private int row;
     private int col;
     private Color color;
-    private List<Task> dependencies;
+    private List<Long> dependencies;
     private TaskType taskType;
 
     public long getId() {
@@ -45,11 +45,11 @@ public class Task {
         this.color = color;
     }
 
-    public List<Task> getDependencies() {
+    public List<Long> getDependencies() {
         return dependencies;
     }
 
-    public void setDependencies(List<Task> dependencies) {
+    public void setDependencies(List<Long> dependencies) {
         this.dependencies = dependencies;
     }
 
@@ -62,7 +62,7 @@ public class Task {
     }
 
 
-    public Task(int row, int col, List<Task> dependencies) {
+    public Task(int row, int col, List<Long> dependencies) {
         this.row = row;
         this.col = col;
         this.dependencies = dependencies;

@@ -12,7 +12,7 @@ public class Agent implements Subscriber<MessageToAgent> {
     private int row;
     private Subscription blackboardChannel;
     private BlackBoard blackBoard;
-    private boolean working;
+    private boolean workingOnPlan;
 
     public Agent (int agentNumber, Color color, int col, int row, BlackBoard blackBoard) {
         this.agentNumber = agentNumber;
@@ -20,7 +20,7 @@ public class Agent implements Subscriber<MessageToAgent> {
         this.col = col;
         this.row = row;
         this.blackBoard = blackBoard;
-        this.working = false;
+        this.workingOnPlan = false;
     }
 
     @Override
@@ -47,20 +47,32 @@ public class Agent implements Subscriber<MessageToAgent> {
     }
 
     private void createPlan(Task task) {
-        //TODO: implement properly
-        if(task.getId()==1){
-            ArrayList<Action> actions = new ArrayList<>();
-            Action a = new Action(Action.Type.Push, Action.Dir.W, Action.Dir.W);
-            actions.add(a);
-            PlanProposal pp1 = new PlanProposal(actions, this, task.getId());
-            blackBoard.messagesToBlackboard.add(pp1);
-        } else { // when task.getId() is 2
-            ArrayList<Action> actions = new ArrayList<>();
-            Action a = new Action(Action.Type.Push, Action.Dir.E, Action.Dir.E);
-            actions.add(a);
-            PlanProposal pp2 = new PlanProposal(actions, this, task.getId());
-            blackBoard.messagesToBlackboard.add(pp2);
+    	workingOnPlan = true;
+        int startIndex = 0;
+        for(Long dependencyId : task.getDependencies()) {
+            PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
+            if (acceptedPlan != null) {
+                startIndex = Math.max(startIndex, acceptedPlan.endIndex + 1);
+            }
         }
+
+        ArrayList<Action> actions = new ArrayList<>();
+
+        //TODO: implement properly
+        if(task.getId() == 1) {
+            Action a = new Action(Action.Type.Push, Action.Dir.W, Action.Dir.W);
+            boolean add = actions.add(a);
+        } else { // when task.getId() is 2
+            Action a = new Action(Action.Type.Push, Action.Dir.E, Action.Dir.E);
+            Action a2 = new Action(Action.Type.Push, Action.Dir.E, Action.Dir.E);
+            actions.add(a);
+            actions.add(a2);
+        }
+
+        int endIndex = startIndex + actions.size() - 1;
+        PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
+        blackBoard.messagesToBlackboard.add(pp);
+        workingOnPlan = false;
     }
 
     private void proposeHeuristic(int h, Task t) {
@@ -101,7 +113,7 @@ public class Agent implements Subscriber<MessageToAgent> {
         return col;
     }
 
-    public boolean getWorking() { return working; }
+    public boolean getWorking() { return workingOnPlan; }
     //END GETTERS
 
 
@@ -114,7 +126,7 @@ public class Agent implements Subscriber<MessageToAgent> {
         this.col = col;
     }
 
-    public void setWorking(boolean working) { this.working = working; }
+    public void setWorking(boolean working) { this.workingOnPlan = working; }
     //END SETTERS
 
 }
