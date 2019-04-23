@@ -23,7 +23,6 @@ public class State {
     private final static String STRING_GOALS = LevelReader.getGoals();
 
     public State() {
-
         int row = 0;
         int col = 0;
         List<Tile> currentList = new ArrayList<>();

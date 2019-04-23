@@ -4,6 +4,8 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
 public class Agent implements Subscriber<MessageToAgent> {
+
+
     private final int agentNumber;
     private final Color color;
     private int col;
