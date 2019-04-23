@@ -17,6 +17,51 @@ public abstract class Heuristic implements Comparator<State> {
         goals = State.getGoals();
     }
 
+    public int h_ag(State n, Agent agent, Goal goal){
+        List<Block> blocks = n.getBlocks();
+        char goalType = goal.getType();
+        String agentColor = agent.getColor().toString().toLowerCase();
+
+        int heuristicValue = 10000;
+        int tempHeuristicValue = 10000;
+
+        for (Block block : blocks){
+          String blockColor = block.getColor();
+          char blockType = block.getType();
+
+          if(blockType == goalType && agentColor.equals(blockColor)) {
+            tempHeuristicValue = 0;
+            double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+                      block.getRow());
+            tempHeuristicValue += distToBlock;
+            System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                    ": " + distToBlock +
+                    "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
+                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+              //IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
+              if(distToBlock == 0){ //could change to: if tempHeuristicvalue == 0 ?
+                break;
+              }
+
+            //CALCULATING DISTANCE FROM BLOCK TO AGENT
+            //blockColor should be consistent with enum color of agent
+            double distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
+                        block.getRow()) - 1;
+            tempHeuristicValue += distanceToAgent;
+            System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
+                    ": " + distanceToAgent +
+                    "\t" + "Agent: [" + agent.getCol() + "," + agent.getRow() + "]" +
+                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+
+            if(tempHeuristicValue < heuristicValue){
+              heuristicValue = tempHeuristicValue;
+            }
+          }
+        }
+        this.heuristic = heuristicValue;
+        return heuristicValue;
+    }
+
     public int h(State n){
         int heuristicValue = 0;
         List<Block> blocks = n.getBlocks();
@@ -33,17 +78,31 @@ public abstract class Heuristic implements Comparator<State> {
                 char blockType = block.getType();
 
                 if(blockType == goalType) {
-                    if (manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(), block.getRow()) < distanceToBlock) {
-                        distanceToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(), block.getRow());
+                    double manDistToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+                            block.getRow());
+                    if (manDistToBlock < distanceToBlock) {
+                        distanceToBlock = manDistToBlock;
+                        System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                                ": " + distanceToBlock +
+                                "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
+                                "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+
+                        //IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
+                        if(distanceToBlock == 0){
+                            distanceToAgent = 0;
+                            break;
+                        }
                     }
                     /*if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
                         distanceToBlock = -100;
                     }*/
-                    System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+
+                    /*System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
                             ": " + distanceToBlock +
                             "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
                             "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
 
+                    */
 
                     //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
                     for (Agent agent : agents) {

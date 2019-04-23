@@ -2,6 +2,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
+import java.time.Instant;
+import java.time.Duration;
 
 import AI.Heuristic;
 import Components.Agent;
@@ -18,7 +22,7 @@ public class Client {
 
     }
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, ParseException{
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
 
@@ -36,8 +40,13 @@ public class Client {
                 }
             };
 
+            Instant start = Instant.now();
+            //MEASURE RUN TIME OF HEURISTIC
             heuristic.h(state);
-            System.err.println("Heuristic: " + heuristic.toString());
+            Instant finish = Instant.now();
+            long timeElapsed = Duration.between(start, finish).toMillis();
+            System.err.println("Heuristic: " + heuristic.toString() + "\t" + timeElapsed + "ms");
+
 
         } catch (Exception e) {
             e.printStackTrace();

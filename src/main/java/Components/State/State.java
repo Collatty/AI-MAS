@@ -220,16 +220,11 @@ public class State {
     }
 
     private Color convertFromStringToColor(String stringColor){
-        switch ( stringColor ) {
-            case "green":
-                return Color.GREEN;
-            case "blue":
-                return Color.BLUE;
-            case "red":
-                return Color.RED;
-            default:
-                throw new RuntimeException("Color unknown: " + stringColor);
-
+        for (Color enumColor : Color.values()){
+            if(stringColor.toUpperCase().equals(enumColor.toString())){
+                return enumColor;
+            }
         }
+        throw new RuntimeException("Color unknown: " + stringColor);
     }
 }
