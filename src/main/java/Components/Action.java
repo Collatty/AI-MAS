@@ -16,7 +16,13 @@ public class Action {
     }
 
     public enum Type {
-        Move, Push, Pull //, NoOp
+        Move, Push, Pull, NoOp
+    }
+
+    private Action() {
+        this.actionType = Type.NoOp;
+        this.dir1 = null;
+        this.dir2 = null;
     }
 
     private Action(Dir d) {
@@ -59,6 +65,9 @@ public class Action {
             cmds.add(new Action(d));
         }
 
+        //Adding NoOp action
+        cmds.add(new Action());
+
         // add every possible action to static final list of action objects
         EVERY = cmds.toArray(new Action[0]);
     }
@@ -97,7 +106,9 @@ public class Action {
 
     @Override
     public String toString() {
-        if (this.actionType == Type.Move)
+        if (this.actionType == Type.NoOp)
+            return "[NoOp]";
+        else if (this.actionType == Type.Move)
             return String.format("[%s(%s)]", this.actionType.toString(), this.dir1.toString());
         else
             return String.format("[%s(%s,%s)]", this.actionType.toString(), this.dir1.toString(), this.dir2.toString());

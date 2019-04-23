@@ -9,6 +9,8 @@ import Components.State.Goal;
 
 
 public class Agent implements Subscriber<MessageToAgent> {
+
+
     private final int agentNumber;
     private final Color color;
     private int col;
