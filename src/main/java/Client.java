@@ -9,7 +9,9 @@ import java.time.Duration;
 
 import AI.Heuristic;
 import Components.Agent;
+import Components.State.Goal;
 import Components.BlackBoard;
+import Components.Color;
 import Components.SubGoalPlanner;
 import Components.Task;
 import Components.State.State;
@@ -32,6 +34,9 @@ public class Client {
         try {
             //oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
             State state = new State();
+            BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
+            Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
+            Goal g = new Goal('B',1,5);
 
             Heuristic heuristic = new Heuristic() {
                 @Override
@@ -40,11 +45,19 @@ public class Client {
                 }
             };
 
-            Instant start = Instant.now();
             //MEASURE RUN TIME OF HEURISTIC
-            heuristic.h(state);
+            System.err.println("Heuristic w/ agent and goal:");
+            Instant start = Instant.now();
+            heuristic.h_ag(state,agt,g);
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
+            System.err.println("Heuristic: " + heuristic.toString() + "\t" + timeElapsed + "ms");
+
+            System.err.println("Heuristic for state:");
+            start = Instant.now();
+            heuristic.h(state);
+            finish = Instant.now();
+            timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic.toString() + "\t" + timeElapsed + "ms");
 
 

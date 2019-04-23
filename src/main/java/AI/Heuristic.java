@@ -93,16 +93,6 @@ public abstract class Heuristic implements Comparator<State> {
                             break;
                         }
                     }
-                    /*if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
-                        distanceToBlock = -100;
-                    }*/
-
-                    /*System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
-                            ": " + distanceToBlock +
-                            "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
-                            "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
-
-                    */
 
                     //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
                     for (Agent agent : agents) {
