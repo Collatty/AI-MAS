@@ -1,6 +1,7 @@
 package Components;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -61,14 +62,39 @@ public class BlackBoard implements Runnable {
 
 		    // If there is no conflict, input the new actions in the plan map
 		    if (!conflict(pp.a.getAgentNumber(), pp.actions)) {
-
-			int numberOfNoOps = pp.startIndex - acceptedActionsMap.get(pp.a.getAgentNumber()).size();
-
 			System.err.println(pp.toString());
-			acceptedActionsMap.put(pp.a.getAgentNumber(), pp.actions);
+			// Add NoOps if necessary
+			int numberOfNoOps = pp.startIndex - acceptedActionsMap.get(pp.a.getAgentNumber()).size();
+			if (numberOfNoOps >= 0) {
+			    Action[] noOpArr = new Action[numberOfNoOps];
+			    Arrays.fill(noOpArr, new Action(Action.Type.NoOp, null, null));
+			    acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(Arrays.asList(noOpArr));
+
+			    // Add actions to accepted actions
+			    acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(pp.actions);
+
+			    // Add plan to accepted plans
+			    acceptedPlansMap.put(pp.taskID, pp);
+
+			    // TODO: Delete other heuristics received from this agent
+
+			    System.err.print("Current actions planned: ");
+			    System.err.println(acceptedActionsMap.toString());
+
+			    for (Task task : tasks) {
+				if (task.getDependencies().contains(pp.taskID)
+					&& acceptedPlansMap.keySet().containsAll(task.getDependencies())) {
+				    System.err.println("All dependencies solved for a task!");
+				    broadcastTask(task);
+				}
+			    }
+			} else {
+			    // TODO: Agent has actions where this plan starts. Deny plan
+			}
 		    }
 		}
 	    }
+
 	    try {
 		Thread.sleep(100);
 	    } catch (Exception ex) {
@@ -104,15 +130,19 @@ public class BlackBoard implements Runnable {
 
 	for (Task t : tasks) {
 	    if (t.getDependencies().isEmpty()) {
-		t.setId(taskCounter);
-		taskCounter++;
-		todoMap.put(t.getId(), t);
-		// System.err.println("Blackboard submits task with id " + t.id);
-		MessageToAgent messageToAgent = new MessageToAgent(null, t.getColor(), null, MessageType.HEURISTIC, t);
-		publisher.submit(messageToAgent);
-		// tasks.remove(t); TODO: This doesn't work. Find another way.
+		broadcastTask(t);
 	    }
 	}
+    }
+
+    private void broadcastTask(Task task) {
+	task.setId(taskCounter);
+	taskCounter++;
+	todoMap.put(task.getId(), task);
+	System.err.println("Blackboard submits task with id " + task.getId());
+	MessageToAgent messageToAgent = new MessageToAgent(null, task.getColor(), null, MessageType.HEURISTIC, task);
+	publisher.submit(messageToAgent);
+	// tasks.remove(task); TODO: This doesn't work. Find another way.
     }
 
     // TODO: Make nicer
@@ -129,6 +159,7 @@ public class BlackBoard implements Runnable {
     //
     public boolean conflict(int agentNumber, ArrayList<Action> actions) {
 	// TODO: implement
+	// TODO: Update state list if no conflict
 
 	return false;
     }
@@ -144,3 +175,4 @@ public class BlackBoard implements Runnable {
 	return acceptedPlansMap.get(taskID);
     }
 }
+
