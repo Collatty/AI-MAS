@@ -20,7 +20,7 @@ public abstract class Heuristic implements Comparator<State> {
     public int h_ag(State n, Agent agent, Goal goal){
         List<Block> blocks = n.getBlocks();
         char goalType = goal.getType();
-        String agentColor = agent.getColor().toString().toLowerCase();
+        String agentColor = agent.getColor().toString();
 
         int heuristicValue = 10000;
         int tempHeuristicValue = 10000;
@@ -30,11 +30,11 @@ public abstract class Heuristic implements Comparator<State> {
           char blockType = block.getType();
 
           if(blockType == goalType && agentColor.equals(blockColor)) {
-            tempHeuristicValue = 0;
-            double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+              tempHeuristicValue = 0;
+              double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
                       block.getRow());
-            tempHeuristicValue += distToBlock;
-            System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+              tempHeuristicValue += distToBlock;
+              System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
                     ": " + distToBlock +
                     "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
                     "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
@@ -97,7 +97,7 @@ public abstract class Heuristic implements Comparator<State> {
                     //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
                     for (Agent agent : agents) {
                         //blockColor should be consistent with enum color of agent
-                        String agentColor = agent.getColor().toString().toLowerCase();
+                        String agentColor = agent.getColor().toString();
                         if (agentColor.equals(blockColor)) {
                             if (manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(), block.getRow()) < distanceToAgent) {
                                 distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
