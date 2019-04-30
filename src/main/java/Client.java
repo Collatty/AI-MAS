@@ -36,30 +36,15 @@ public class Client {
             State state = new State();
             BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
             Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
-            Goal g = new Goal('B',1,5);
-
-            Heuristic heuristic = new Heuristic() {
-                @Override
-                public int compare(State o1, State o2) {
-                    return 0;
-                }
-            };
+            Goal goal = new Goal('B',1,5);
 
             //MEASURE RUN TIME OF HEURISTIC
             System.err.println("Heuristic w/ agent and goal:");
             Instant start = Instant.now();
-            heuristic.h_ag(state,agt,g);
+            int heuristic = agt.getHeuristic(state, goal);
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
-            System.err.println("Heuristic: " + heuristic.toString() + "\t" + timeElapsed + "ms");
-
-            System.err.println("Heuristic for state:");
-            start = Instant.now();
-            heuristic.h(state);
-            finish = Instant.now();
-            timeElapsed = Duration.between(start, finish).toMillis();
-            System.err.println("Heuristic: " + heuristic.toString() + "\t" + timeElapsed + "ms");
-
+            System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
 
         } catch (Exception e) {
             e.printStackTrace();

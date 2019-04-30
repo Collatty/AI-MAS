@@ -3,6 +3,11 @@ import java.util.Random;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
+import AI.Heuristic;
+import Components.State.State;
+import Components.State.Goal;
+
+
 public class Agent implements Subscriber<MessageToAgent> {
     private final int agentNumber;
     private final Color color;
@@ -51,6 +56,10 @@ public class Agent implements Subscriber<MessageToAgent> {
         //TODO: update function with actual heuristic calculation
         Random rand = new Random();
         return rand.nextInt((10 - 1) + 1) + 1; //Random number between 1 and 10
+    }
+
+    public int getHeuristic(State state, Goal goal){
+        return Heuristic.h(state, this, goal);
     }
 
     @Override
