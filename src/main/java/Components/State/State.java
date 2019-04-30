@@ -49,7 +49,7 @@ public class State {
                 agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(col, row);
-                Block box = new Block(character, getColorBlock(character), col, row);
+                Block box = new Block(character, convertFromStringToColor(getColorBlock(character)), col, row);
                 tile.setTileOccupant(box);
                 currentList.add(tile);
                 blocks.add(box);

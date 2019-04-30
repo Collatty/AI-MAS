@@ -26,7 +26,7 @@ public abstract class Heuristic implements Comparator<State> {
         int tempHeuristicValue = 10000;
 
         for (Block block : blocks){
-          String blockColor = block.getColor();
+          String blockColor = block.getColor().toString();
           char blockType = block.getType();
 
           if(blockType == goalType && agentColor.equals(blockColor)) {
@@ -74,7 +74,7 @@ public abstract class Heuristic implements Comparator<State> {
 
             //CALCULATING DISTANCE FROM GOAL TO NEAREST POSSIBLE BLOCK
             for (Block block : blocks) {
-                String blockColor = block.getColor();
+                String blockColor = block.getColor().toString();
                 char blockType = block.getType();
 
                 if(blockType == goalType) {
