@@ -13,25 +13,19 @@ public class BFS {
 
     private int max_col;
     private int max_row;
-    private int[][] shortestPathLenght;
     private boolean[][] walls;
-    private static List<List<Tile>> state;
     private int[][] bfsMatrix;
     private LinkedList<Point2D.Float> queue;
     private boolean[][] visited;
     private int move_count;
     private int nodes_left_in_layer;
     private int nodes_in_next_layer;
-    private boolean reached_end;
     private Point2D.Float field;
 
-
     public BFS(Point2D.Float start){
-        this.state = State.getInitialState();
-        this.max_row = state.size();
-        this.max_col = state.get(0).size();
-        this.walls = new boolean[max_row][max_col];
-        createWallBoard();
+        this.walls = State.getWallMatrix();
+        this.max_row = walls.length;
+        this.max_col = walls[0].length;
         bfsMatrix = solveBFS(start);
 
         //solveBFS(new Point2D.Float(3,5), new Point2D.Float(1,5))
@@ -46,7 +40,6 @@ public class BFS {
         queue = new LinkedList<>();
         field = start;
         visited = new boolean[max_row][max_col];
-        reached_end = false;
 
         visited[(int) field.y][(int) field.x] = true;
         queue.add(field);
@@ -113,21 +106,5 @@ public class BFS {
                 bfsMatrix[i][j] = -1;
             }
         }
-    }
-
-    private void createWallBoard(){
-        boolean[][] newWalls = new boolean[this.max_row][this.max_col];
-        int i_row = 0;
-        int i_col;
-        for(List<Tile> row : state){
-            i_col = 0;
-            for(Tile col : row){
-                if(col.isWall()){newWalls[i_row][i_col] = true;}
-                else{newWalls[i_row][i_col] = false;}
-                i_col++;
-            }
-            i_row++;
-        }
-        this.walls = newWalls;
     }
 }
