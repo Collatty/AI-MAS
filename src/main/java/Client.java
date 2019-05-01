@@ -44,9 +44,9 @@ public class Client {
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
-            BFS bfs = new BFS();
-            System.err.println(bfs.solveBFS(new Point2D.Float(3,5), new Point2D.Float(1,5)));
-            
+            BFS bfs = new BFS(new Point2D.Float(3,5));
+            System.err.println(bfs.toString());
+
         } catch (Exception e) {
             e.printStackTrace();
         }
