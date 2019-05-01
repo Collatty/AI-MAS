@@ -66,6 +66,7 @@ public abstract class Heuristic implements Comparator<State> {
         return (Math.abs(goalCordX-boxCordX) + Math.abs(goalCordY-boxCordY));
     }
 
+
 /*public abstract int f(State n);
 
     @Override

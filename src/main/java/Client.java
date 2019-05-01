@@ -3,19 +3,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.text.ParseException;
-import java.util.concurrent.TimeUnit;
 import java.time.Instant;
 import java.time.Duration;
 
-import AI.Heuristic;
 import Components.Agent;
 import Components.State.Goal;
 import Components.BlackBoard;
 import Components.Color;
 import Components.SubGoalPlanner;
-import Components.Task;
 import Components.State.State;
+import AI.BFS;
 import Utilities.LevelReader;
+import java.awt.geom.Point2D;
 
 public class Client {
 
@@ -45,7 +44,9 @@ public class Client {
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
-
+            BFS bfs = new BFS();
+            System.err.println(bfs.solveBFS(new Point2D.Float(3,5), new Point2D.Float(1,5)));
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
