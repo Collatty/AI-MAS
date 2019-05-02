@@ -1,5 +1,7 @@
 package Components;
 
 enum TaskType {
-    GOAL
+    GOAL,
+    MOVE_AGENT,
+    MOVE_BOX
 }

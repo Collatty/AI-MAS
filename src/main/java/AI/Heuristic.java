@@ -103,8 +103,8 @@ public abstract class Heuristic implements Comparator<State> {
         return this.f(n1) - this.f(n2);
     }
 
-    public static class AStar extends Heuristic {
-        public AStar(State initialState) {
+    public static class AStarSearch extends Heuristic {
+        public AStarSearch(State initialState) {
             super(initialState);
         }
 

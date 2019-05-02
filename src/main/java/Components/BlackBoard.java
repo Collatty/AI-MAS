@@ -1,5 +1,7 @@
 package Components;
 
+import AI.Plan;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;

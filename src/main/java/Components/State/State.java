@@ -17,6 +17,13 @@ public class State {
     private List<List<Tile>> state;
 
 
+    public static int getMaxCol() {
+        return maxCol;
+    }
+
+    private static int maxCol = 0;
+
+
     //INITIAL STATE STRINGS STORED HERE
     private final static String STRING_DOMAIN = LevelReader.getDomain();
     private final static String STRING_LEVEL_NAME = LevelReader.getLevelName();
@@ -31,6 +38,9 @@ public class State {
 
         for (char character : STRING_INITIAL.toCharArray()){
             if (character == '\n') {
+                if (col > maxCol) {
+                    maxCol = col;
+                }
                 col = 0;
                 row++;
                 INITIAL_STATE.add(currentList);
