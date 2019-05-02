@@ -31,9 +31,11 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     @Override
     public void onNext(MessageToAgent message) {
+	System.err.println("Agent " + agentNumber + " received a message " + message.toColor);
 	if (message.toAll != null && message.toAll || message.toColor != null && message.toColor == color
 		|| message.toAgent != null && message.toAgent == agentNumber) {
 	    if (message.messageType == MessageType.HEURISTIC) {
+		System.err.println("Agent " + agentNumber + " creates h for task " + message.task.getId());
 		proposeHeuristic(calculateHeuristic(message.task), message.task);
 	    } else if (message.messageType == MessageType.PLAN) {
 		// TODO: Make awesome plan
@@ -48,7 +50,7 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     private void createPlan(Task task) {
 	workingOnPlan = true;
-	int startIndex = 0;
+	long startIndex = 0;
 	for (Long dependencyId : task.getDependencies()) {
 	    PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
 	    if (acceptedPlan != null) {
@@ -69,7 +71,7 @@ public class Agent implements Subscriber<MessageToAgent> {
 	    actions.add(a2);
 	}
 
-	int endIndex = startIndex + actions.size() - 1;
+	long endIndex = startIndex + actions.size() - 1;
 	PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
 	blackBoard.messagesToBlackboard.add(pp);
 	workingOnPlan = false;
