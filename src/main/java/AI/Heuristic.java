@@ -1,5 +1,6 @@
 package AI;
 
+import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.List;
 
@@ -13,6 +14,8 @@ public abstract class Heuristic implements Comparator<State> {
     public Heuristic(){}
 
     public static int h(State n, Agent agent, Goal goal){
+
+
         List<Block> blocks = n.getBlocks();
         char goalType = goal.getType();
         String agentColor = agent.getColor().toString();
@@ -26,7 +29,9 @@ public abstract class Heuristic implements Comparator<State> {
 
           if(blockType == goalType && agentColor.equals(blockColor)) {
               tempHeuristicValue = 0;
-              double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+              //double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+              //        block.getRow());
+              double distToBlock = bfs(goal.getCol(), goal.getRow(), block.getCol(),
                       block.getRow());
               tempHeuristicValue += distToBlock;
               System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
@@ -40,7 +45,9 @@ public abstract class Heuristic implements Comparator<State> {
 
             //CALCULATING DISTANCE FROM BLOCK TO AGENT
             //blockColor should be consistent with enum color of agent
-            double distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
+            //double distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
+            //            block.getRow()) - 1;
+            double distanceToAgent = bfs(agent.getCol(), agent.getRow(), block.getCol(),
                         block.getRow()) - 1;
             tempHeuristicValue += distanceToAgent;
             System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
@@ -56,14 +63,36 @@ public abstract class Heuristic implements Comparator<State> {
         return heuristicValue;
     }
 
+    //CHOOSE HEURISTIC
+
+   /* private static float chooseHeuristic(char method, float goalCordX, float goalCordY, float boxCordX, float boxCordY){
+        method = Character.toLowerCase(method);
+        switch(method) { //e=euclidianDistance, b = bfs, m = manhattanDistance
+            case 'e':
+              return (float) euclidianDistance(goalCordX, goalCordY, boxCordX, boxCordY);
+            case 'b':
+              return bfs(goalCordX, goalCordY, boxCordX, boxCordY);
+            default:
+              return manhattanDistance(goalCordX, goalCordY, boxCordX, boxCordY);
+          }
+    }*/
+
     //EUCLIDEAN DISTANCE
     private static double euclidianDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY){
         return Math.hypot( (goalCordX-boxCordX), (goalCordY-boxCordY));
     }
 
     //MANHATTAN DISTANCE
-    private static double manhattanDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY) {
+    private static float manhattanDistance (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
         return (Math.abs(goalCordX-boxCordX) + Math.abs(goalCordY-boxCordY));
+    }
+
+    //BFS
+    private static float bfs (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
+        AllPairsShortestPath apsp = new AllPairsShortestPath();
+        Point2D.Float start = new Point2D.Float(goalCordX, goalCordY);
+        Point2D.Float end = new Point2D.Float(boxCordX, boxCordY);
+        return apsp.getHeuristic(start, end);
     }
 
 
