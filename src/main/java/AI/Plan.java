@@ -1,7 +1,6 @@
 package AI;
 
 import Components.Action;
-import Components.ActionsRetake;
 import Components.State.State;
 
 import java.util.ArrayList;
@@ -16,11 +15,11 @@ public abstract class Plan {
     protected final int endCol;
     protected Node[][] nodes;
 
-    public List<ActionsRetake> getPlan() {
+    public List<Action> getPlan() {
         return plan;
     }
 
-    protected List<ActionsRetake> plan = new ArrayList<>();
+    protected List<Action> plan = new ArrayList<>();
 
     public Plan(int startRow, int startCol, int endRow, int endCol) {
         this.startRow = startRow;
@@ -89,7 +88,7 @@ public abstract class Plan {
             for (Node step : searchResults) {
                 if (previous != null){
                     this.plan.add(
-                            new ActionsRetake(
+                            new Action(
                                     State.getInitialState().get(previous.getRow()).get(previous.getCol()),
                                     State.getInitialState().get(step.getRow()).get(step.getCol())
                             ));
@@ -121,13 +120,13 @@ public abstract class Plan {
         public void calculatePlan() {
             MovePlan movePlan = new MovePlan(this.startRow, this.startCol, this.endRow, this.endCol);
             movePlan.calculatePlan();
-            List<ActionsRetake> partialPlan = movePlan.getPlan();
+            List<Action> partialPlan = movePlan.getPlan();
             partialPlan.remove(partialPlan.size()-1); // Removing the move moving the agent into the box
             List<Node> searchResults = aStarSearch(this.startBoxRow, this.startBoxCol, this.endRow, this.endCol);
             Node previous = null;
             for (Node step : searchResults) {
                 if (previous != null) {
-                    partialPlan.add(new ActionsRetake(State.getInitialState().get(previous.getRow()).get(previous.getCol()),
+                    partialPlan.add(new Action(State.getInitialState().get(previous.getRow()).get(previous.getCol()),
                                     State.getInitialState().get(step.getRow()).get(step.getCol()),
                             partialPlan.get(partialPlan.size()-1).getEndAgent()));
                 }

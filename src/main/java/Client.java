@@ -89,7 +89,5 @@ public class Client {
 
 
         //Client client = new Client(serverMessages);
-
-        //TODO main method for running client program
     }
 }

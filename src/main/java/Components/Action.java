@@ -1,118 +1,91 @@
 package Components;
 
-import java.util.ArrayList;
+import Components.State.State;
+import Components.State.Tile;
+
+import static Components.Action.ActionType.*;
+
 
 public class Action {
 
-    //TODO implement actions, push pull move
-
-    public final Type actionType;
-    public final Dir dir1;
-    public final Dir dir2;
-
-    // Order of enum is used for determining opposite actions
-    public enum Dir {
-        N, W, E, S
+    public ActionType getActionType() {
+        return actionType;
     }
 
-    public enum Type {
-        Move, Push, Pull, NoOp
+    public Tile getStartAgent() {
+        return startAgent;
     }
 
-    private Action() {
-        this.actionType = Type.NoOp;
-        this.dir1 = null;
-        this.dir2 = null;
+    public Tile getEndAgent() {
+        return endAgent;
     }
 
-    private Action(Dir d) {
-        this.actionType = Type.Move;
-        this.dir1 = d;
-        this.dir2 = null;
+    public Tile getStartBox() {
+        return startBox;
+    }
+
+    public Tile getEndBox() {
+        return endBox;
+    }
+
+    private ActionType actionType;
+    private Tile startAgent;
+    private Tile endAgent;
+    private Tile startBox;
+    private Tile endBox;
+
+    public enum ActionType{
+        MOVE,
+        PUSH,
+        PULL,
+        NOOP
+    }
+
+    public Action(Tile startAgent, Tile endAgent) {
+        this.actionType = MOVE;
+        this.startAgent = startAgent;
+        this.endAgent = endAgent;
 
     }
 
-    private Action(Type t, Dir d1, Dir d2) {
-        this.actionType = t;
-        this.dir1 = d1;
-        this.dir2 = d2;
-    }
-
-
-    public static final Action[] EVERY;
-    static {
-        ArrayList<Action> cmds = new ArrayList<>();
-
-        //push
-        for (Dir d1 : Dir.values()) {
-            for (Dir d2 : Dir.values()) {
-                if (!Action.isOpposite(d1, d2)) {
-                    cmds.add(new Action(Type.Push, d1, d2));
+    public Action(Tile startBox, Tile endBox, Tile startAgent) {
+        this.startAgent = startAgent;
+        this.startBox = startBox;
+        this.endBox = endBox;
+        if (startAgent.getRow() == endBox.getRow() && startAgent.getCol() == endBox.getCol()) {
+            this.actionType = PULL;
+                if (startBox.getRow() - endBox.getRow() == 0) {
+                    if(!endBox.getNorthNeighbor().isWall()) {
+                        this.endAgent = endBox.getNorthNeighbor();
+                    } else if (!endBox.getSouthNeighbor().isWall()) {
+                        this.endAgent = endBox.getSouthNeighbor();
+                    } else {
+                        this.endAgent =
+                                State.getInitialState()
+                                        .get(startAgent.getRow() + (endBox.getRow()-startBox.getRow())).get(startAgent.getCol()
+                                        + (endBox.getCol() - startBox.getCol()));
+                    }
+                } else {
+                    if(!endBox.getEastNeighbor().isWall()) {
+                        this.endAgent = endBox.getEastNeighbor();
+                    } else if (!endBox.getWestNeighbor().isWall()) {
+                        this.endAgent = endBox.getWestNeighbor();
+                    } else {
+                        this.endAgent =
+                                State.getInitialState()
+                                        .get(startAgent.getRow() + (endBox.getRow()-startBox.getRow())).get(startAgent.getCol()
+                                        + (endBox.getCol() - startBox.getCol()));
+                    }
                 }
-            }
-        }
-        //pull
-        for (Dir d1 : Dir.values()) {
-            for (Dir d2 : Dir.values()) {
-                if (d1 != d2) {
-                    cmds.add(new Action(Type.Pull, d1, d2));
-                }
-            }
-        }
-
-        //Move
-        for (Dir d : Dir.values()) {
-            cmds.add(new Action(d));
-        }
-
-        //Adding NoOp action
-        cmds.add(new Action());
-
-        // add every possible action to static final list of action objects
-        EVERY = cmds.toArray(new Action[0]);
-    }
-
-    // check if direction are opposite of each other. i.e. if N-S, S-N, W-E or E-W
-    private static boolean isOpposite(Dir d1, Dir d2) {
-        return d1.ordinal() + d2.ordinal() == 3;
-    }
-
-    //convert N, S to row coordinates
-    public static int dirToRowChange(Dir d) {
-        // South is down one row (1), north is up one row (-1).
-        switch (d) {
-            case S:
-                return 1;
-            case N:
-                return -1;
-            default:
-                return 0;
+        } else {
+            this.actionType = PUSH;
+            this.endAgent = startBox;
         }
     }
 
-    //convert W, E to col coordinates
-    public static int dirToColChange(Dir d) {
-        // East is right one column (1), west is left one column (-1).
-        switch (d) {
-            case E:
-                return 1;
-            case W:
-                return -1;
-            default:
-                return 0;
-        }
+    public Action() {
+        this.actionType = NOOP;
     }
 
 
-    @Override
-    public String toString() {
-        if (this.actionType == Type.NoOp)
-            return "[NoOp]";
-        else if (this.actionType == Type.Move)
-            return String.format("[%s(%s)]", this.actionType.toString(), this.dir1.toString());
-        else
-            return String.format("[%s(%s,%s)]", this.actionType.toString(), this.dir1.toString(), this.dir2.toString());
-    }
 }
-
-
