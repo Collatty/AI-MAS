@@ -22,7 +22,7 @@ public class BFS {
     private int nodes_in_next_layer;
     private Point2D.Float field;
 
-    public BFS(Point2D.Float start){
+    public BFS(Point2D.Float start) {
         this.walls = State.getWallMatrix();
         this.max_row = walls.length;
         this.max_col = walls[0].length;
@@ -43,28 +43,27 @@ public class BFS {
 
         visited[(int) field.y][(int) field.x] = true;
         queue.add(field);
-        bfsMatrix[(int) field.y][(int) field.x] = 0;
+        //bfsMatrix[(int) field.y][(int) field.x] = 0;
 
         while(queue.size() > 0){
             field = queue.poll();
-            System.err.println(field.y + ", "+ field.x);
             bfsMatrix[(int) field.y][(int) field.x] = move_count;
             explore_neigbours((int) field.y, (int) field.x);
             nodes_left_in_layer--;
-            if(nodes_left_in_layer == 0){
-              nodes_left_in_layer = nodes_in_next_layer;
-              nodes_in_next_layer = 0;
-              move_count++;
+            if (nodes_left_in_layer == 0) {
+                nodes_left_in_layer = nodes_in_next_layer;
+                nodes_in_next_layer = 0;
+                move_count++;
             }
         }
         return bfsMatrix;
     }
 
     private void explore_neigbours(int r, int c){
-      int[] dr = {-1, 1, 0, 0};
-      int[] dc = {0, 0, 1, -1};
+      int[] dr = {0, -1, 1, 0, 0};
+      int[] dc = {0,0 , 0, 1, -1};
 
-      for(int i=0; i < 4; i++){
+      for(int i=0; i < 5; i++){
           int rr = r + dr[i];
           int cc = c + dc[i];
 
@@ -77,7 +76,7 @@ public class BFS {
           }
           //Skip visitd locations or wall cells
           if (visited[rr][cc]){continue;}
-          if (walls[rr][cc] == true){continue;}
+          if (walls[rr][cc]){continue;}
           //(rr, cc) is a neighbouring cell of (r,c)
 
           queue.add(new Point2D.Float(cc, rr));
@@ -89,7 +88,7 @@ public class BFS {
 
     @Override
     public String toString() {
-        String out = "-BFS Matrix- \n";
+        String out = "---BFS Matrix--- \n";
         for(int i = 0; i < bfsMatrix.length; i++){
             for(int j = 0; j < bfsMatrix[0].length; j++){
                 out += bfsMatrix[i][j] + "\t";
@@ -106,5 +105,9 @@ public class BFS {
                 bfsMatrix[i][j] = -1;
             }
         }
+    }
+
+    public int[][] getBfsMatrix(){
+        return bfsMatrix;
     }
 }

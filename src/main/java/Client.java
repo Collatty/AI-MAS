@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.Duration;
 
+import AI.AllPairsShortestPath;
 import Components.Agent;
 import Components.State.Goal;
 import Components.BlackBoard;
@@ -44,8 +45,12 @@ public class Client {
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
-            BFS bfs = new BFS(new Point2D.Float(3,5));
-            System.err.println(bfs.toString());
+            //BFS bfs = new BFS(new Point2D.Float(3,5));
+            //System.err.println(bfs.toString());
+
+            AllPairsShortestPath apsp = new AllPairsShortestPath();
+            System.err.println(apsp.getHeuristic(new Point2D.Float(1,5), new Point2D.Float(10,1)));
+            //System.err.println(apsp.toString());
 
         } catch (Exception e) {
             e.printStackTrace();
