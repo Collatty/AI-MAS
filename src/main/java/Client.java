@@ -59,9 +59,9 @@ public class Client {
 	ArrayList<Task> tasks = new ArrayList<>();
 
 	// HARDCODED TEST
-	Task t1 = new Task(0, 4, 1, new ArrayList<>());
-	Task t2 = new Task(1, 1, 3, new ArrayList<>());
-	Task t3 = new Task(2, 2, 3, new ArrayList<>());
+	Task t1 = new Task(4, 1, new ArrayList<>());
+	Task t2 = new Task(1, 3, new ArrayList<>());
+	Task t3 = new Task(2, 3, new ArrayList<>());
 	t1.setColor(Color.RED);
 	t2.setColor(Color.BLUE);
 	t3.setColor(Color.BLUE);

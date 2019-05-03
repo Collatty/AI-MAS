@@ -6,7 +6,7 @@ import Components.State.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
-
+    static long nextLong = (long) 0;
     private long id;
     private int row;
     private int col;
@@ -63,17 +63,12 @@ public class Task {
 	this.taskType = taskType;
     }
 
-    public Task(long id, int row, int col, List<Long> dependencies) {
-	this.id = id;
+    public Task(int row, int col, List<Long> dependencies) {
+	this.id = nextLong;
 	this.row = row;
 	this.col = col;
 	this.dependencies = dependencies;
-    }
-
-    public Task(int row, int col, List<Long> dependencies) { // TODO: Remove this
-	this.row = row;
-	this.col = col;
-	this.dependencies = dependencies;
+	nextLong++;
     }
 
     public State getPrestate() {
