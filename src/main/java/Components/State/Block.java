@@ -1,15 +1,16 @@
 package Components.State;
+import Components.Color;
 
 public class Block {
 
 	// TODO: Consider changing color to our type Color
     private char type;
-    private final String color;
+    private final Color color;
     private int row;
     private int col;
 
 
-    public Block(char type, String color, int col, int row) {
+    public Block(char type, Color color, int col, int row) {
         this.type = type;
         this.color = color;
         this.row = row;
@@ -25,7 +26,7 @@ public class Block {
         return row;
     }
 
-    public String getColor() {
+    public Color getColor() {
         return color;
     }
 
@@ -46,7 +47,7 @@ public class Block {
 
     @Override
     public String toString() {
-        return this.color.substring(0,1).toUpperCase();
+        return this.color.toString().substring(0,1).toUpperCase();
     }
 
 

@@ -1,11 +1,19 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 
 import Components.Agent;
 import Components.BlackBoard;
 import Components.Color;
+import Components.SubGoalPlanner;
 import Components.Task;
+import Components.State.Goal;
+import Components.State.State;
+import Utilities.LevelReader;
 
 public class Client {
 
@@ -14,36 +22,38 @@ public class Client {
 
     }
 
-    public static void main(String[] args) throws IOException {
-	/*
-	 * BufferedReader serverMessages = new BufferedReader(new
-	 * InputStreamReader(System.in)); System.out.println("Ballefrans"); //CLIENTNAME
-	 * - INITATING SERVER COMMUNICATION
-	 * 
-	 * 
-	 * //READING IN LEVEL INFORMATION FROM SERVER
-	 * LevelReader.stringCreator(LevelReader.readAllLines(serverMessages)); try {
-	 * //oldState initialOldState = new oldState(LevelReader.getInitial(),
-	 * LevelReader.getGoals());
-	 * 
-	 * State state = new State();
-	 * 
-	 * Heuristic heuristic = new Heuristic() {
-	 * 
-	 * @Override public int compare(State o1, State o2) { return 0; } };
-	 * 
-	 * heuristic.h(state);
-	 * 
-	 * System.err.println("Heuristic: " + heuristic.toString());
-	 * 
-	 * 
-	 * } catch (Exception e) { e.printStackTrace(); }
-	 * //System.out.println("Move(W);Move(E)"); String response =
-	 * serverMessages.readLine(); System.err.println("Serverresponse is: " +
-	 * response);
-	 * 
-	 * 
-	 */
+    public static void main(String[] args) throws IOException, ParseException {
+	BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
+	System.out.println("Ballefrans"); // CLIENTNAME - INITATING SERVER COMMUNICATION
+
+	// READING IN LEVEL INFORMATION FROM SERVER
+	LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
+	try {
+	    // oldState initialOldState = new oldState(LevelReader.getInitial(),
+	    // LevelReader.getGoals());
+	    State state = new State();
+	    BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
+	    Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
+	    Goal goal = new Goal('B', 1, 5);
+
+	    // MEASURE RUN TIME OF HEURISTIC
+	    System.err.println("Heuristic w/ agent and goal:");
+	    Instant start = Instant.now();
+	    int heuristic = agt.getHeuristic(state, goal);
+	    Instant finish = Instant.now();
+	    long timeElapsed = Duration.between(start, finish).toMillis();
+	    System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
+	    // BFS bfs = new BFS(new Point2D.Float(3,5));
+	    // System.err.println(Heuristic.h_bfs(new Point2D.Float(1,5), new
+	    // Point2D.Float(10,1)));
+	    // System.err.println(apsp.toString());
+
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	// System.out.println("Move(W);Move(E)");
+	String response = serverMessages.readLine();
+	System.err.println("Serverresponse is: " + response);
 
 	ArrayList<Agent> agents = new ArrayList<>();
 	ArrayList<Task> tasks = new ArrayList<>();

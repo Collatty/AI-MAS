@@ -11,9 +11,11 @@ public class State {
 
     private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private final static List<Goal> GOALS = new ArrayList<>();
+    private static boolean[][] wallMatrix;
     private List<Agent> agents = new ArrayList<>();
     private List<Block> blocks = new ArrayList<>();
     private List<List<Tile>> state;
+
 
     //INITIAL STATE STRINGS STORED HERE
     private final static String STRING_DOMAIN = LevelReader.getDomain();
@@ -49,7 +51,7 @@ public class State {
                 agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(col, row);
-                Block box = new Block(character, getColorBlock(character), col, row);
+                Block box = new Block(character, convertFromStringToColor(getColorBlock(character)), col, row);
                 tile.setTileOccupant(box);
                 currentList.add(tile);
                 blocks.add(box);
@@ -81,6 +83,7 @@ public class State {
         }
         //REITERATING THROUGH TILES TO "CONNECT" THE BOARD
         setNeighbors(INITIAL_STATE);
+        wallMatrix = createWallBoard(INITIAL_STATE);
     }
 
     public static List<List<Tile>> copyState(List<List<Tile>> tiles) {
@@ -140,9 +143,14 @@ public class State {
         return GOALS;
     }
 
+    public static boolean[][] getWallMatrix(){
+        return wallMatrix;
+    }
+
     public List<Agent> getAgents() { return agents; }
 
     public List<Block> getBlocks() { return blocks; }
+
 
     public static String getStringDomain() {
         return STRING_DOMAIN;
@@ -219,17 +227,30 @@ public class State {
         }
     }
 
-    private Color convertFromStringToColor(String stringColor){
-        switch ( stringColor ) {
-            case "green":
-                return Color.GREEN;
-            case "blue":
-                return Color.BLUE;
-            case "red":
-                return Color.RED;
-            default:
-                throw new RuntimeException("Color unknown: " + stringColor);
-
+    private boolean[][] createWallBoard(List<List<Tile>> state){
+        int max_row = state.size();
+        int max_col = state.get(0).size();
+        boolean[][] walls = new boolean[max_row][max_col];
+        int i_row = 0;
+        int i_col;
+        for(List<Tile> row : state){
+            i_col = 0;
+            for(Tile col : row){
+                if(col.isWall()){walls[i_row][i_col] = true;}
+                else{walls[i_row][i_col] = false;}
+                i_col++;
+            }
+            i_row++;
         }
+        return walls;
+    }
+
+    private Color convertFromStringToColor(String stringColor){
+        for (Color enumColor : Color.values()){
+            if(stringColor.toUpperCase().equals(enumColor.toString())){
+                return enumColor;
+            }
+        }
+        throw new RuntimeException("Color unknown: " + stringColor);
     }
 }

@@ -1,5 +1,6 @@
 package AI;
 
+import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.List;
 
@@ -10,83 +11,92 @@ import Components.State.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
-    private List<Goal> goals;
-    private int heuristic = -1;
+    public Heuristic(){}
 
-    public Heuristic() {
-        goals = State.getGoals();
-    }
+    public static int h(State n, Agent agent, Goal goal){
 
-    public int h(State n){
-        int heuristicValue = 0;
+
         List<Block> blocks = n.getBlocks();
-        List<Agent> agents = n.getAgents();
+        char goalType = goal.getType();
+        String agentColor = agent.getColor().toString();
 
-        for (Goal goal : goals) {
-            char goalType = goal.getType();
-            double distanceToBlock = 10000;
-            double distanceToAgent = 10000;
+        int heuristicValue = 10000;
+        int tempHeuristicValue = 10000;
 
-            //CALCULATING DISTANCE FROM GOAL TO NEAREST POSSIBLE BLOCK
-            for (Block block : blocks) {
-                String blockColor = block.getColor();
-                char blockType = block.getType();
+        for (Block block : blocks){
+          String blockColor = block.getColor().toString();
+          char blockType = block.getType();
 
-                if(blockType == goalType) {
-                    if (manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(), block.getRow()) < distanceToBlock) {
-                        distanceToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(), block.getRow());
-                    }
-                    /*if (manhattanDistance(goal.getColumn(), goal.getRow(), block.getColumn(), block.getRow()) == 0) {
-                        distanceToBlock = -100;
-                    }*/
-                    System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
-                            ": " + distanceToBlock +
-                            "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
-                            "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+          if(blockType == goalType && agentColor.equals(blockColor)) {
+              tempHeuristicValue = 0;
+              //double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
+              //        block.getRow());
+              double distToBlock = bfs(goal.getCol(), goal.getRow(), block.getCol(),
+                      block.getRow());
+              tempHeuristicValue += distToBlock;
+              System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
+                    ": " + distToBlock +
+                    "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
+                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+              //IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
+              if(distToBlock == 0){ //could change to: if tempHeuristicvalue == 0 ?
+                break;
+              }
 
+            //CALCULATING DISTANCE FROM BLOCK TO AGENT
+            //blockColor should be consistent with enum color of agent
+            //double distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
+            //            block.getRow()) - 1;
+            double distanceToAgent = bfs(agent.getCol(), agent.getRow(), block.getCol(),
+                        block.getRow()) - 1;
+            tempHeuristicValue += distanceToAgent;
+            System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
+                    ": " + distanceToAgent +
+                    "\t" + "Agent: [" + agent.getCol() + "," + agent.getRow() + "]" +
+                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
 
-                    //CALCULATING DISTANCE FROM BLOCK TO NEAREST POSSIBLE AGENT
-                    for (Agent agent : agents) {
-                        //blockColor should be consistent with enum color of agent
-                        String agentColor = agent.getColor().toString().toLowerCase();
-                        if (agentColor.equals(blockColor)) {
-                            if (manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(), block.getRow()) < distanceToAgent) {
-                                distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
-                                        block.getRow()) - 1;
-                                System.err.println("Distance from agent " + agent.toString() + " to block " + block
-                                .toString() + ": " + distanceToAgent +
-                                        "\t" + "Agent: [" + agent.getCol() + "," + agent.getRow() + "]" +
-                                        "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
-                            }
-                        }
-                    }
-                }
+            if(tempHeuristicValue < heuristicValue){
+              heuristicValue = tempHeuristicValue;
             }
-            System.err.println("Distance to Agent: " + distanceToAgent);
-            System.err.println("Distance to Block: " + distanceToBlock);
-            heuristicValue += distanceToBlock;
-            heuristicValue += distanceToAgent;
+          }
         }
-        this.heuristic = heuristicValue;
         return heuristicValue;
     }
 
-    @Override
-    public String toString() {
-        return Integer.toString(this.heuristic);
-    }
+    //CHOOSE HEURISTIC
+
+   /* private static float chooseHeuristic(char method, float goalCordX, float goalCordY, float boxCordX, float boxCordY){
+        method = Character.toLowerCase(method);
+        switch(method) { //e=euclidianDistance, b = bfs, m = manhattanDistance
+            case 'e':
+              return (float) euclidianDistance(goalCordX, goalCordY, boxCordX, boxCordY);
+            case 'b':
+              return bfs(goalCordX, goalCordY, boxCordX, boxCordY);
+            default:
+              return manhattanDistance(goalCordX, goalCordY, boxCordX, boxCordY);
+          }
+    }*/
 
     //EUCLIDEAN DISTANCE
-    public double euclidianDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY){
+    private static double euclidianDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY){
         return Math.hypot( (goalCordX-boxCordX), (goalCordY-boxCordY));
     }
 
     //MANHATTAN DISTANCE
-    public double manhattanDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY) {
+    private static float manhattanDistance (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
         return (Math.abs(goalCordX-boxCordX) + Math.abs(goalCordY-boxCordY));
     }
 
-    /*public abstract int f(State n);
+    //BFS
+    private static float bfs (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
+        AllPairsShortestPath apsp = new AllPairsShortestPath();
+        Point2D.Float start = new Point2D.Float(goalCordX, goalCordY);
+        Point2D.Float end = new Point2D.Float(boxCordX, boxCordY);
+        return apsp.getHeuristic(start, end);
+    }
+
+
+/*public abstract int f(State n);
 
     @Override
     public int compare(State n1, State n2) {
