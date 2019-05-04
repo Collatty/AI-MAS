@@ -24,8 +24,10 @@ public class Action {
         return startBox;
     }
 
+
     public Tile getEndBox() {
         return endBox;
+
     }
 
     private ActionType actionType;
