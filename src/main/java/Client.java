@@ -37,13 +37,10 @@ public class Client {
             for (Task task : bb.getTasks()) {
                 System.err.println(task.toString());
             }
-            Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
-            Goal goal = new Goal('B',1,5);
-
             //MEASURE RUN TIME OF HEURISTIC
             System.err.println("Heuristic w/ agent and goal:");
             Instant start = Instant.now();
-            int heuristic = agt.getHeuristic(state, goal);
+            int heuristic = state.getAgents().get(0).getHeuristic(state, State.getGoals().get(0));
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");

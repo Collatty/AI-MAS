@@ -62,9 +62,10 @@ public class Task {
     }
 
 
-    public Task(int row, int col, List<Task> dependencies) {
+    public Task(int row, int col, Color color, List<Task> dependencies) {
         this.row = row;
         this.col = col;
+        this.color = color;
         this.dependencies = dependencies;
     }
 

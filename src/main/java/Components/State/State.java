@@ -61,7 +61,7 @@ public class State {
                 agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
-                Block box = new Block(character, convertFromStringToColor(getColorBlock(character)), row, col);
+                Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
                 tile.setTileOccupant(box);
                 currentList.add(tile);
                 blocks.add(box);
@@ -85,7 +85,7 @@ public class State {
                 continue;
             }
             if ('A' <= character && character <= 'Z') { // Goal.
-                final Goal goal = new Goal(character, col, row);
+                final Goal goal = new Goal(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
                 INITIAL_STATE.get(row).get(col).setGoal(goal);
                 GOALS.add(goal);
             }
@@ -103,7 +103,8 @@ public class State {
             for (Tile tile : row) {
                 Tile copyTile = new Tile(tile.getRow(), tile.getCol());
                 if (tile.isGoal()) {
-                    copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getRow(),
+                    copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getColor(),
+                            tile.getGoal().getRow(),
                             tile.getGoal().getCol()));
                 }
                 if (tile.isWall()) {
@@ -136,7 +137,7 @@ public class State {
     public static List<Goal> copyGoals(List<Goal> goals) {
         List<Goal> copyGoals = new ArrayList<>();
         for (Goal goal : goals) {
-            Goal copiedGoal = new Goal(goal.getType(), goal.getCol(), goal.getRow());
+            Goal copiedGoal = new Goal(goal.getType(), goal.getColor(), goal.getRow(), goal.getCol());
             copyGoals.add(copiedGoal);
 
         }
@@ -195,11 +196,11 @@ public class State {
         return "NA";
     }
 
-    private String getColorBlock(char block) {
+    private String getColorBlockAndGoal(char blockAndGoal) {
         String[] colorsSplitted = STRING_COLORS.split("\n");
         for (String string : colorsSplitted) {
             String[] splittedEvenMore = string.split(":");
-            if (splittedEvenMore[1].contains(Character.toString(block).toUpperCase())) {
+            if (splittedEvenMore[1].contains(Character.toString(blockAndGoal).toUpperCase())) {
                 return splittedEvenMore[0];
             }
         }
@@ -213,25 +214,25 @@ public class State {
                     tile.setNorthNeighbor(tiles.get(tile.getRow()-1).get(tile.getCol()).getTile());
                 } catch (Exception e) {
                     tile.setNorthNeighbor(null);
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 try {
                     tile.setWestNeighbor(tiles.get(tile.getRow()).get(tile.getCol()-1).getTile());
                 } catch (Exception e) {
                     tile.setWestNeighbor(null);
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 try {
                     tile.setEastNeighbor(tiles.get(tile.getRow()).get(tile.getCol()+1).getTile());
                 } catch (Exception e) {
                     tile.setEastNeighbor(null);
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 try {
                     tile.setSouthNeighbor(tiles.get(tile.getRow()+1).get(tile.getCol()).getTile());
                 } catch (Exception e) {
                     tile.setSouthNeighbor(null);
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         }

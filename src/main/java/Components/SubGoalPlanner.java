@@ -121,7 +121,7 @@ public abstract class SubGoalPlanner {
         List<Task> tasks = new ArrayList<>();
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : goals) {
-            Task task = new Task(goal.getRow(), goal.getCol(), null);
+            Task task = new Task(goal.getRow(), goal.getCol(), goal.getColor(), null);
             tasks.add(task);
             mapping.put(goal, task);
         }

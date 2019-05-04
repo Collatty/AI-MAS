@@ -47,7 +47,7 @@ public class Block {
 
     @Override
     public String toString() {
-        return this.color.toString().substring(0,1).toUpperCase();
+        return this.color.toString().toUpperCase();
     }
 
 

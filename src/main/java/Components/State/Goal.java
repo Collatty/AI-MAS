@@ -1,5 +1,6 @@
 package Components.State;
 
+import Components.Color;
 import Components.Task;
 
 import java.util.Collection;
@@ -10,13 +11,15 @@ public class Goal {
     private final char type;
     private final int col;
     private final int row;
+    private final Color color;
 
     //By preconditions we mean goals that cannot be completed prior to this goal's attempted completion
     private Collection<Goal> preconditions = new HashSet<>();
 
 
-    public Goal(char type, int row, int col) {
+    public Goal(char type, Color color, int row, int col) {
         this.type = type;
+        this.color = color;
         this.row = row;
         this.col = col;
 
@@ -33,6 +36,10 @@ public class Goal {
 
     public int getRow() {
         return row;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public Collection<Goal> getPreconditions() {
