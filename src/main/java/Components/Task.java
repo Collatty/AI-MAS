@@ -1,76 +1,82 @@
 package Components;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import Components.State.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
-
+    static long nextLong = (long) 0;
     private long id;
     private int row;
     private int col;
     private Color color;
-    private List<Task> dependencies;
+    private List<Long> dependencies;
     private TaskType taskType;
+    private State prestate;
 
     public long getId() {
-        return id;
+	return id;
     }
 
     public void setId(long id) {
-        this.id = id;
+	this.id = id;
     }
 
     public int getRow() {
-        return row;
+	return row;
     }
 
     public void setRow(int row) {
-        this.row = row;
+	this.row = row;
     }
 
     public int getCol() {
-        return col;
+	return col;
     }
 
     public void setCol(int col) {
-        this.col = col;
+	this.col = col;
     }
 
     public Color getColor() {
-        return color;
+	return color;
     }
 
     public void setColor(Color color) {
-        this.color = color;
+	this.color = color;
     }
 
-    public List<Task> getDependencies() {
-        return dependencies;
+    public List<Long> getDependencies() {
+	return dependencies;
     }
 
-    public void setDependencies(List<Task> dependencies) {
-        this.dependencies = dependencies;
+    public void setDependencies(List<Long> dependencies) {
+	this.dependencies = dependencies;
     }
 
     public TaskType getTaskType() {
-        return taskType;
+	return taskType;
     }
 
     public void setTaskType(TaskType taskType) {
-        this.taskType = taskType;
+	this.taskType = taskType;
     }
 
-
-    public Task(int row, int col, List<Task> dependencies) {
-        this.row = row;
-        this.col = col;
-        this.dependencies = dependencies;
+    public Task(int row, int col, List<Long> dependencies) {
+	this.id = nextLong;
+	this.row = row;
+	this.col = col;
+	this.dependencies = dependencies;
+	nextLong++;
     }
 
-    public Task() {
-
+    public State getPrestate() {
+	return prestate;
     }
 
+    public void setPrestate(State prestate) {
+	this.prestate = prestate;
+    }
 
 }
