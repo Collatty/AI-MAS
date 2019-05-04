@@ -75,6 +75,11 @@ public class Agent implements Subscriber<MessageToAgent> {
         // System.out.println("All Processing Done");
     }
 
+    @Override
+    public String toString() {
+        return Integer.toString(getAgentNumber());
+    }
+
     //GETTERS
     public int getAgentNumber() {
         return agentNumber;

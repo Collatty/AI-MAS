@@ -34,7 +34,7 @@ public class AllPairsShortestPath {
             for(int j = 0; j < max_col; j++){
                 if(!wallMatrix[i][j]){
                     adjRowIndex = index_matrix[i][j];
-                    bfs = new BFS(new Point2D.Float(j,i));
+                    bfs = new BFS(new Point2D.Float(i,j));
                     bfsMatrix = bfs.getBfsMatrix();
                     for(int i1 = 0; i1 < max_row; i1++){
                         for(int j1 = 0; j1 < max_row; j1++){
@@ -74,8 +74,8 @@ public class AllPairsShortestPath {
     }
 
     public int getHeuristic(Point2D.Float start, Point2D.Float end){
-        int row = index_matrix[(int) start.y][(int) start.x];
-        int col = index_matrix[(int) end.y][(int) end.x];
+        int row = index_matrix[(int) start.x][(int) start.y];
+        int col = index_matrix[(int) end.x][(int) end.y];
         return allPairsShortestPathMatrix[row][col];
     }
 

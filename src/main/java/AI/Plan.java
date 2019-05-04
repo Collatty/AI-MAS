@@ -69,12 +69,20 @@ public abstract class Plan {
     public int getEndCol() {
         return endCol;
     }
+    //END GETTERS
 
     public Node getFinalNode() {
         return new Node(this.endRow, this.endCol);
     }
 
+
+
+
+
+
+
     public static class MovePlan extends Plan{
+
 
         public MovePlan(int startRow, int startCol, int endRow, int endCol) {
             super(startRow, startCol, endRow, endCol);

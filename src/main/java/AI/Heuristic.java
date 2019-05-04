@@ -31,13 +31,13 @@ public abstract class Heuristic implements Comparator<State> {
               tempHeuristicValue = 0;
               //double distToBlock = manhattanDistance(goal.getCol(), goal.getRow(), block.getCol(),
               //        block.getRow());
-              double distToBlock = bfs(goal.getCol(), goal.getRow(), block.getCol(),
-                      block.getRow());
+              double distToBlock = Math.abs(bfs(goal.getRow(), goal.getCol(), block.getRow(),
+                      block.getCol()));
               tempHeuristicValue += distToBlock;
               System.err.println("Distance from block " + block.toString() + " to goal " + goal.toString() +
                     ": " + distToBlock +
-                    "\t" + "Goal: [" + goal.getCol() + "," + goal.getRow() + "]" +
-                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+                    "\t" + "Goal: [" + goal.getRow() + "," + goal.getCol() + "]" +
+                    "\t" + "Block: [" + block.getRow() + "," + block.getCol() + "]");
               //IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
               if(distToBlock == 0){ //could change to: if tempHeuristicvalue == 0 ?
                 break;
@@ -47,13 +47,13 @@ public abstract class Heuristic implements Comparator<State> {
             //blockColor should be consistent with enum color of agent
             //double distanceToAgent = manhattanDistance(agent.getCol(), agent.getRow(), block.getCol(),
             //            block.getRow()) - 1;
-            double distanceToAgent = bfs(agent.getCol(), agent.getRow(), block.getCol(),
-                        block.getRow()) - 1;
+            double distanceToAgent = Math.abs(bfs(agent.getRow(), agent.getCol(), block.getRow(),
+                        block.getCol()) - 1);
             tempHeuristicValue += distanceToAgent;
             System.err.println("Distance from agent " + agent.toString() + " to block " + block.toString() +
                     ": " + distanceToAgent +
-                    "\t" + "Agent: [" + agent.getCol() + "," + agent.getRow() + "]" +
-                    "\t" + "Block: [" + block.getCol() + "," + block.getRow() + "]");
+                    "\t" + "Agent: [" + agent.getRow() + "," + agent.getCol() + "]" +
+                    "\t" + "Block: [" + block.getRow() + "," + block.getCol() + "]");
 
             if(tempHeuristicValue < heuristicValue){
               heuristicValue = tempHeuristicValue;
@@ -78,20 +78,20 @@ public abstract class Heuristic implements Comparator<State> {
     }*/
 
     //EUCLIDEAN DISTANCE
-    private static double euclidianDistance (double goalCordX, double goalCordY, double boxCordX, double boxCordY){
-        return Math.hypot( (goalCordX-boxCordX), (goalCordY-boxCordY));
+    private static double euclidianDistance (double goalRow, double goalCol, double boxRow, double boxCol){
+        return Math.hypot( (goalRow-boxRow), (goalCol-boxCol));
     }
 
     //MANHATTAN DISTANCE
-    private static float manhattanDistance (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
-        return (Math.abs(goalCordX-boxCordX) + Math.abs(goalCordY-boxCordY));
+    private static float manhattanDistance (float goalRow, float goalCol, float boxRow, float boxCol) {
+        return (Math.abs(goalRow-boxRow) + Math.abs(goalCol-boxCol));
     }
 
     //BFS
-    private static float bfs (float goalCordX, float goalCordY, float boxCordX, float boxCordY) {
+    private static float bfs (float goalRow, float goalCol, float boxRow, float boxCol) {
         AllPairsShortestPath apsp = new AllPairsShortestPath();
-        Point2D.Float start = new Point2D.Float(goalCordX, goalCordY);
-        Point2D.Float end = new Point2D.Float(boxCordX, boxCordY);
+        Point2D.Float start = new Point2D.Float(goalRow, goalCol);
+        Point2D.Float end = new Point2D.Float(boxRow, boxCol);
         return apsp.getHeuristic(start, end);
     }
 

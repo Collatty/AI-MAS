@@ -11,21 +11,17 @@ import java.util.LinkedList;
 
 public class BFS {
 
-    private int max_col;
-    private int max_row;
-    private boolean[][] walls;
+    private static int max_row = State.getWallMatrix().length;
+    private static int max_col = State.getWallMatrix()[0].length;
+    private static boolean[][] walls = State.getWallMatrix();
     private int[][] bfsMatrix;
     private LinkedList<Point2D.Float> queue;
     private boolean[][] visited;
     private int move_count;
     private int nodes_left_in_layer;
     private int nodes_in_next_layer;
-    private Point2D.Float field;
 
     public BFS(Point2D.Float start) {
-        this.walls = State.getWallMatrix();
-        this.max_row = walls.length;
-        this.max_col = walls[0].length;
         bfsMatrix = solveBFS(start);
 
         //solveBFS(new Point2D.Float(3,5), new Point2D.Float(1,5))
@@ -38,17 +34,17 @@ public class BFS {
         nodes_in_next_layer = 0;
 
         queue = new LinkedList<>();
-        field = start;
+        Point2D.Float field = start;
         visited = new boolean[max_row][max_col];
 
-        visited[(int) field.y][(int) field.x] = true;
+        visited[(int) field.x][(int) field.y] = true;
         queue.add(field);
         //bfsMatrix[(int) field.y][(int) field.x] = 0;
 
         while(queue.size() > 0){
             field = queue.poll();
-            bfsMatrix[(int) field.y][(int) field.x] = move_count;
-            explore_neigbours((int) field.y, (int) field.x);
+            bfsMatrix[(int) field.x][(int) field.y] = move_count;
+            explore_neigbours((int) field.x, (int) field.y);
             nodes_left_in_layer--;
             if (nodes_left_in_layer == 0) {
                 nodes_left_in_layer = nodes_in_next_layer;
@@ -79,7 +75,7 @@ public class BFS {
           if (walls[rr][cc]){continue;}
           //(rr, cc) is a neighbouring cell of (r,c)
 
-          queue.add(new Point2D.Float(cc, rr));
+          queue.add(new Point2D.Float(rr, cc));
           bfsMatrix[rr][cc] = move_count+1;
           visited[rr][cc] = true;
           nodes_in_next_layer++;

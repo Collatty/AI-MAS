@@ -6,6 +6,7 @@ import java.util.List;
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
 
+    private static int counter = 0;
     private long id;
     private int row;
     private int col;
@@ -63,6 +64,8 @@ public class Task {
 
 
     public Task(int row, int col, Color color, List<Task> dependencies) {
+        this.id = counter;
+        counter++;
         this.row = row;
         this.col = col;
         this.color = color;
