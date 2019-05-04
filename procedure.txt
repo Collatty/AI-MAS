@@ -1,0 +1,71 @@
+1. Load level.
+2. Subgoal planner creates tasks, and set dependencies to tasks.
+
+# Assigning tasks
+3. Blackboard considers tasks with no dependencies / solved dependencies:
+	3.1 Blackboard provides the state for agents with the color, and ask them to calculate heuristic for this task. 
+	3.2 When all heuristics for a given task are received, blackboard considers the best solution (heuristic + penalty for given agent):
+		3.2.1 Blackboard updates the state by: 
+			- Moving agent to new position near goal solved.
+			- Remove box used by agent.
+			- Change goal solved to wall.
+		3.2.3 Blackboard adds dummy actions to action scheme for the agent solving the task.
+	3.3 Blackboard sets the given agent as "assigned" to this task.
+	3.4 Blackboard sets the state the heuristic was calculated on as pre-state for the task. (Such that the agents know what boxes that are available)
+	3.5 Blackboard considers next task (jump to step 3).
+
+# Planning tasks 
+4. When all tasks are assigned, blackboard set all agents to plan their first task, followed by their second task and so on.   
+5. Blackboard checks received plan for conflicts with the current accepted plans, before accepting it.
+	5.1 If conflict: PANIC!! (TODO) 
+
+
+
+# ASSIGNING EXAMPLE:
+0, 1 = agents, b = box, g = goal, everything has the same color.
+########
+#  b   #
+#      #
+#0    g#
+#1b    #
+#      #
+#      #
+# g    #
+########
+
+Task 1: goal in buttom
+
+agent 0 h(g) = 4  
+agent 1 h(g) = 3
+
+agent 1 gets task 1. 
+
+agent actions:
+agent 0: []
+agent 1: [dummy, dummy, dummy]  
+
+new state:
+########
+#  b   #
+#      #
+#0    g#
+#      #
+#      #
+#  1   #
+# #    #
+########
+
+Task 2: goal in right side
+
+agent 0 h(g) = 6  
+agent 1 h(g) = 8 (plus 3 penalty = 11)
+
+agent 0 gets task 2. 
+
+agent actions:
+agent 0: [dummy, dummy, dummy, dummy, dummy, dummy]  
+agent 1: [dummy, dummy, dummy]
+
+AGENT NEEDS TO KNOW WHICH BOX TO USE, WHEN CREATING A PLAN.
+- Solution: We provide the same state for planing as for calculating heuristic, so unavailable boxes will not be present.
+

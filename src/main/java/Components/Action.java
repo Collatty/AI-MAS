@@ -14,6 +14,7 @@ public class Action {
 
     public Tile getStartAgent() {
         return startAgent;
+
     }
 
     public Tile getEndAgent() {
@@ -22,6 +23,7 @@ public class Action {
 
     public Tile getStartBox() {
         return startBox;
+
     }
 
 
@@ -36,7 +38,7 @@ public class Action {
     private Tile startBox;
     private Tile endBox;
 
-    public enum ActionType{
+    public enum ActionType {
         MOVE,
         PUSH,
         PULL,
@@ -56,38 +58,39 @@ public class Action {
         this.endBox = endBox;
         if (startAgent.getRow() == endBox.getRow() && startAgent.getCol() == endBox.getCol()) {
             this.actionType = PULL;
-                if (startBox.getRow() - endBox.getRow() == 0) {
-                    if(!endBox.getNorthNeighbor().isWall()) {
-                        this.endAgent = endBox.getNorthNeighbor();
-                    } else if (!endBox.getSouthNeighbor().isWall()) {
-                        this.endAgent = endBox.getSouthNeighbor();
-                    } else {
-                        this.endAgent =
-                                State.getInitialState()
-                                        .get(startAgent.getRow() + (endBox.getRow()-startBox.getRow())).get(startAgent.getCol()
-                                        + (endBox.getCol() - startBox.getCol()));
-                    }
+            if (startBox.getRow() - endBox.getRow() == 0) {
+                if (!endBox.getNorthNeighbor().isWall()) {
+                    this.endAgent = endBox.getNorthNeighbor();
+                } else if (!endBox.getSouthNeighbor().isWall()) {
+                    this.endAgent = endBox.getSouthNeighbor();
                 } else {
-                    if(!endBox.getEastNeighbor().isWall()) {
-                        this.endAgent = endBox.getEastNeighbor();
-                    } else if (!endBox.getWestNeighbor().isWall()) {
-                        this.endAgent = endBox.getWestNeighbor();
-                    } else {
-                        this.endAgent =
-                                State.getInitialState()
-                                        .get(startAgent.getRow() + (endBox.getRow()-startBox.getRow())).get(startAgent.getCol()
-                                        + (endBox.getCol() - startBox.getCol()));
-                    }
+                    this.endAgent =
+                            State.getInitialState()
+                                    .get(startAgent.getRow() + (endBox.getRow() - startBox.getRow())).get(startAgent.getCol()
+                                    + (endBox.getCol() - startBox.getCol()));
                 }
+            } else {
+                if (!endBox.getEastNeighbor().isWall()) {
+                    this.endAgent = endBox.getEastNeighbor();
+                } else if (!endBox.getWestNeighbor().isWall()) {
+                    this.endAgent = endBox.getWestNeighbor();
+                } else {
+                    this.endAgent =
+                            State.getInitialState()
+                                    .get(startAgent.getRow() + (endBox.getRow() - startBox.getRow())).get(startAgent.getCol()
+                                    + (endBox.getCol() - startBox.getCol()));
+                }
+            }
         } else {
             this.actionType = PUSH;
             this.endAgent = startBox;
         }
     }
 
+
     public Action() {
         this.actionType = NOOP;
-    }
 
+    }
 
 }

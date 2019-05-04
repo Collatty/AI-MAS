@@ -3,6 +3,7 @@ package Components;
 import Components.State.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /*
@@ -130,7 +131,10 @@ public abstract class SubGoalPlanner {
             for (Goal goal2 : goal.getPreconditions()) {
                 depTasks.add(mapping.get(goal2));
             }
-            mapping.get(goal).setDependencies(depTasks);
+            List<Long> taskIds = depTasks.stream()
+                    .map(Task::getId)
+                    .collect(Collectors.toList());
+            mapping.get(goal).setDependencies(taskIds);
 
         }
         return tasks;
