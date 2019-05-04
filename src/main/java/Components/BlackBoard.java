@@ -15,6 +15,11 @@ import Components.State.State;
 public class BlackBoard implements Runnable {
     private Thread t;
     private List<Task> tasksReadyForSubmit = new ArrayList<>();
+
+    public List<Task> getTasksNotSubmitted() {
+        return tasksNotSubmitted;
+    }
+
     private List<Task> tasksNotSubmitted = new ArrayList<>();
     private HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
     private HashMap<Integer, ArrayList<Action>> acceptedActionsMap = new HashMap<>();

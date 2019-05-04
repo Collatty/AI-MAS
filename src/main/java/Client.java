@@ -6,17 +6,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 
-<<<<<<< HEAD
-import AI.AllPairsShortestPath;
-import AI.Heuristic;
-import Components.*;
-=======
+
 import Components.Agent;
 import Components.BlackBoard;
 import Components.Color;
 import Components.SubGoalPlanner;
 import Components.Task;
->>>>>>> dev
 import Components.State.Goal;
 import Components.State.State;
 import Utilities.LevelReader;
@@ -24,12 +19,12 @@ import Utilities.LevelReader;
 public class Client {
 
     public Client(BufferedReader serverMessages) {
-	System.out.println();
+        System.out.println();
 
     }
 
-<<<<<<< HEAD
-    public static void main(String[] args) throws IOException, ParseException{
+
+    public static void main(String[] args) throws IOException, ParseException {
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
 
@@ -41,7 +36,7 @@ public class Client {
             State state = new State();
             SubGoalPlanner.serialize();
             BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
-            for (Task task : bb.getTasks()) {
+            for (Task task : bb.getTasksNotSubmitted()) {
                 System.err.println(task.toString());
             }
             //MEASURE RUN TIME OF HEURISTIC
@@ -51,9 +46,9 @@ public class Client {
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
-            //BFS bfs = new BFS(new Point2D.Float(3,5));
-            //System.err.println(Heuristic.h_bfs(new Point2D.Float(1,5), new Point2D.Float(10,1)));
-            //System.err.println(apsp.toString());
+
+
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +58,8 @@ public class Client {
         //System.err.println("Serverresponse is: " + response);
 
 
-
+    }
+}
         //ArrayList<Agent> agents = new ArrayList<>();
 
         // HARDCODED TEST
@@ -94,7 +90,7 @@ public class Client {
 
 
         //Client client = new Client(serverMessages);
-=======
+/*
     public static void main(String[] args) throws IOException, ParseException {
 	BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
 	System.out.println("Ballefrans"); // CLIENTNAME - INITATING SERVER COMMUNICATION
@@ -170,6 +166,6 @@ public class Client {
 	// Client client = new Client(serverMessages);
 
 	// TODO main method for running client program
->>>>>>> dev
+
     }
-}
+}*/
