@@ -87,12 +87,14 @@ public abstract class SubGoalPlanner {
         List<List<Tile>> copyState = State.copyState(copyOfInitialState);
 
         for (Goal goal : goals) {
+            System.err.println(goal.toString());
             copyState.get(goal.getRow()).get(goal.getCol()).setWall(true);
         }
 
         for (Goal goal : goals ) {
             if (searchForBlock(goal)) {
-                goal.setPrecondition(null);
+                System.err.println("Found a block for goal: " + goal);
+                //goal.setPrecondition(null);
             } else { // if the previous statement isn't true we either have a precondition, or the level is insolvable.
                 List<Goal> preconditions = searchForGoal(goal);
                 if (preconditions!=null) {

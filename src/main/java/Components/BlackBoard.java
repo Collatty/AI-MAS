@@ -14,7 +14,12 @@ public class BlackBoard implements Runnable {
     HashMap<Color, Integer> colorAgentAmountMap = new HashMap<>();
     ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     SubmissionPublisher<MessageToAgent> publisher = new SubmissionPublisher<>();
-    List<Task> tasks;
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    private List<Task> tasks;
     ArrayList<Agent> agents;
     long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
 

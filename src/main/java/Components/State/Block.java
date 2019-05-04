@@ -10,7 +10,7 @@ public class Block {
     private int col;
 
 
-    public Block(char type, Color color, int col, int row) {
+    public Block(char type, Color color, int row, int col) {
         this.type = type;
         this.color = color;
         this.row = row;

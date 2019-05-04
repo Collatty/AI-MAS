@@ -38,9 +38,9 @@ public class Tile {
         return neighbors;
     }
 
-    public Tile(final int col, final int row) {
-        this.row = row;
+    public Tile(final int row, final int col) {
         this.col = col;
+        this.row = row;
         this.tileOccupant = null;
         this.goal = null;
 

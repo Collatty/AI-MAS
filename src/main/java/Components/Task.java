@@ -72,5 +72,10 @@ public class Task {
 
     }
 
+    @Override
+    public String toString() {
+        return "Task: " + this.id + "of color: " + this.color;
+    }
+
 
 }

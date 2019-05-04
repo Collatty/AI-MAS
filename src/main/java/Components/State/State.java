@@ -49,23 +49,24 @@ public class State {
             }
 
             if (character == '+') { // Wall.
-                Tile tile = new Tile(col, row);
+                Tile tile = new Tile(row, col);
                 tile.setWall(true);
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
-                Tile tile = new Tile(col, row);
-                Agent agt = new Agent(Character.getNumericValue(character), convertFromStringToColor(getColorAgent(character)), col, row, null);
+                Tile tile = new Tile(row, col);
+                Agent agt = new Agent(Character.getNumericValue(character),
+                        convertFromStringToColor(getColorAgent(character)), row, col, null);
                 tile.setTileOccupant(agt);
                 currentList.add(tile);
                 agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
-                Tile tile = new Tile(col, row);
-                Block box = new Block(character, convertFromStringToColor(getColorBlock(character)), col, row);
+                Tile tile = new Tile(row, col);
+                Block box = new Block(character, convertFromStringToColor(getColorBlock(character)), row, col);
                 tile.setTileOccupant(box);
                 currentList.add(tile);
                 blocks.add(box);
             }  else if (character == ' ') {
-                Tile tile = new Tile(col, row);
+                Tile tile = new Tile(row, col);
                 currentList.add(tile);
             } else {
                 System.err.println("Something's fishy at: " + (int) character);
@@ -79,8 +80,8 @@ public class State {
         for (char character : STRING_GOALS.toCharArray()) {
 
             if (character == '\n') {
-                col = 0;
                 row++;
+                col = 0;
                 continue;
             }
             if ('A' <= character && character <= 'Z') { // Goal.

@@ -8,11 +8,8 @@ import java.time.Duration;
 
 import AI.AllPairsShortestPath;
 import AI.Heuristic;
-import Components.Agent;
+import Components.*;
 import Components.State.Goal;
-import Components.BlackBoard;
-import Components.Color;
-import Components.SubGoalPlanner;
 import Components.State.State;
 import AI.BFS;
 import Utilities.LevelReader;
@@ -35,7 +32,11 @@ public class Client {
         try {
             //oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
             State state = new State();
+            SubGoalPlanner.serialize();
             BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
+            for (Task task : bb.getTasks()) {
+                System.err.println(task.toString());
+            }
             Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
             Goal goal = new Goal('B',1,5);
 
@@ -54,12 +55,12 @@ public class Client {
             e.printStackTrace();
         }
         //System.out.println("Move(W);Move(E)");
-        String response = serverMessages.readLine();
-        System.err.println("Serverresponse is: " + response);
+        //String response = serverMessages.readLine();
+        //System.err.println("Serverresponse is: " + response);
 
 
 
-        ArrayList<Agent> agents = new ArrayList<>();
+        //ArrayList<Agent> agents = new ArrayList<>();
 
         // HARDCODED TEST
 //        Task t1 = new Task(4,1, Color.RED, new ArrayList<>());
@@ -67,7 +68,7 @@ public class Client {
 //        tasks.add(t1);
 //        tasks.add(t2);
 
-        BlackBoard blackboard = new BlackBoard(SubGoalPlanner.convertToTask());
+        //BlackBoard blackboard = new BlackBoard(SubGoalPlanner.convertToTask());
 
         // HARDCODED TEST
 //        Agent a0 = new Agent(0, Color.RED, 1, 1, blackboard);
@@ -84,8 +85,8 @@ public class Client {
 //        agents.add(a4);
 //        agents.add(a5);
 
-        blackboard.setAgents(agents);
-        blackboard.start();
+        //blackboard.setAgents(agents);
+        //blackboard.start();
 
 
         //Client client = new Client(serverMessages);

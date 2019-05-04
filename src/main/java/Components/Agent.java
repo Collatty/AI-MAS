@@ -19,11 +19,11 @@ public class Agent implements Subscriber<MessageToAgent> {
     private BlackBoard blackBoard;
     private boolean working;
 
-    public Agent (int agentNumber, Color color, int col, int row, BlackBoard blackBoard) {
+    public Agent (int agentNumber, Color color, int row, int col, BlackBoard blackBoard) {
         this.agentNumber = agentNumber;
         this.color = color;
-        this.col = col;
         this.row = row;
+        this.col = col;
         this.blackBoard = blackBoard;
         this.working = false;
     }

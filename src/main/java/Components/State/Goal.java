@@ -15,10 +15,10 @@ public class Goal {
     private Collection<Goal> preconditions = new HashSet<>();
 
 
-    public Goal(char type, int col, int row) {
+    public Goal(char type, int row, int col) {
         this.type = type;
-        this.col = col;
         this.row = row;
+        this.col = col;
 
     }
 
@@ -46,10 +46,13 @@ public class Goal {
 
     public Collection<Goal> accumulatePreconditions() {
         Collection<Goal> accumulatedPreconditions = new HashSet<>();
-        for (Goal goal : this.preconditions) {
-            if (goal.getPreconditions() != null)
-                accumulatedPreconditions.addAll(goal.accumulatePreconditions());
+        if (!this.preconditions.isEmpty()) {
+            for (Goal goal : this.preconditions) {
+                if (goal.getPreconditions() != null)
+                    accumulatedPreconditions.addAll(goal.accumulatePreconditions());
+            }
         }
+
         this.preconditions.addAll(accumulatedPreconditions);
         return this.preconditions;
     }
