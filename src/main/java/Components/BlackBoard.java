@@ -32,8 +32,8 @@ public class BlackBoard implements Runnable {
     private long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
 
 
-    // TODO: Enable state in constructor
-//    public BlackBoard(List<Task> tasks, State initState) {
+    // TODO: Enable state in constructor //Why? THe blackboard wil only be instantiated once
+
     public BlackBoard(List<Task> tasks) {
 	this.tasksNotSubmitted = tasks;
 	this.taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, task -> task));
@@ -114,72 +114,72 @@ public class BlackBoard implements Runnable {
 
     // Delegate task to agents
     private void delegateTask(ArrayList<HeuristicProposal> hpArray) {
-	HeuristicProposal hpChosen = null;
-	Long minEndIndex = null;
-	Long endIndex = null;
-	long startIndex = 0;
-	long maxDependencyEndIndex = 0;
-	long agentPenalty;
+        HeuristicProposal hpChosen = null;
+        Long minEndIndex = null;
+        Long endIndex = null;
+        long startIndex = 0;
+        long maxDependencyEndIndex = 0;
+        long agentPenalty;
 
-	// Find max endIndex of dependencies
-	for (Long depId : taskMap.get(hpArray.get(0).getTaskID()).getDependencies()) {
-	    maxDependencyEndIndex = Math.max(maxDependencyEndIndex, delegatedTasksMap.get(depId).getEndIndex());
-	}
+        // Find max endIndex of dependencies
+        for (Long depId : taskMap.get(hpArray.get(0).getTaskID()).getDependencies()) {
+            maxDependencyEndIndex = Math.max(maxDependencyEndIndex, delegatedTasksMap.get(depId).getEndIndex());
+        }
 
-	// Find best heuristic proposed
-	for (HeuristicProposal hp : hpArray) {
-	    agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
-	    startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
-	    endIndex = startIndex + hp.getH();
+        // Find best heuristic proposed
+        for (HeuristicProposal hp : hpArray) {
+            agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
+            startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
+            endIndex = startIndex + hp.getH();
 
-	    if (minEndIndex == null || minEndIndex > endIndex) {
-		minEndIndex = endIndex;
-		hpChosen = hp;
-	    }
-	}
+            if (minEndIndex == null || minEndIndex > endIndex) {
+            minEndIndex = endIndex;
+            hpChosen = hp;
+            }
+        }
 
-	System.err.print("Blackboard has chosen a heuristic proposal: ");
-	hpChosen.print();
+        System.err.print("Blackboard has chosen a heuristic proposal: ");
+        hpChosen.print();
 
-	// TODO: Update the currentState:
-	// - Moving agent to new position near goal solved.
-	// - Remove box used by agent.
-	// - Change goal solved to wall.
+        // TODO: Update the currentState:
+        // - Moving agent to new position near goal solved.
+        // - Remove box used by agent.
+        // - Change goal solved to wall.
 
-	// Add NoOps to plan if necessary
-	int numberOfNoOps = (int) (startIndex - heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).size());
-	if (numberOfNoOps > 0) {
-	    Action[] noOpArr = new Action[numberOfNoOps];
-	    Arrays.fill(noOpArr, new Action()); //TODO
-	    heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
-	}
+        // Add NoOps to plan if necessary
+        int numberOfNoOps = (int) (startIndex - heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).size());
+        if (numberOfNoOps > 0) {
+            Action[] noOpArr = new Action[numberOfNoOps];
+            Arrays.fill(noOpArr, new Action()); //TODO
+            heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
+        }
 
-	// Add NoOps instead of real actions
-	Action[] unknArr = new Action[hpChosen.getH()];
-	Arrays.fill(unknArr, new Action()); //TODO
-	ArrayList<Action> unknArrList = new ArrayList<>(Arrays.asList(unknArr));
-	heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(unknArrList);
+        // Add NoOps instead of real actions
+        Action[] unknArr = new Action[hpChosen.getH()];
+        Arrays.fill(unknArr, new Action()); //TODO
+        ArrayList<Action> unknArrList = new ArrayList<>(Arrays.asList(unknArr));
+        heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(unknArrList);
 
-	System.err.println("Actions planed with heuristics: ");
-	for (Integer agentId : heuristicsActionsMap.keySet()) {
-	    System.err.println("Agent " + agentId + ": " + heuristicsActionsMap.get(agentId).toString());
-	}
+        System.err.println("Actions planed with heuristics: ");
+        for (Integer agentId : heuristicsActionsMap.keySet()) {
+            System.err.println("Agent " + agentId + ": " + heuristicsActionsMap.get(agentId).toString());
+        }
 
-	// Save plan
-	delegatedTasksMap.put(hpChosen.getTaskID(),
-		new PlanProposal(unknArrList, hpChosen.getA(), hpChosen.getTaskID(), startIndex, endIndex));
+        // Save plan
+        delegatedTasksMap.put(hpChosen.getTaskID(),
+            new PlanProposal(unknArrList, hpChosen.getA(), hpChosen.getTaskID(), startIndex, endIndex));
 
-	// Find tasks with solved dependencies
-	Iterator<Task> taskItr = tasksNotSubmitted.iterator();
-	while (taskItr.hasNext()) {
-	    Task task = taskItr.next();
-	    System.err.println("Task " + task.getId() + " dependencies: " + task.getDependencies().toString());
-	    if (delegatedTasksMap.keySet().containsAll(task.getDependencies())) {
-		System.err.println("All dependencies solved for task " + task.getId());
-		tasksReadyForSubmit.add(task);
-		taskItr.remove();
-	    }
-	}
+        // Find tasks with solved dependencies
+        Iterator<Task> taskItr = tasksNotSubmitted.iterator();
+        while (taskItr.hasNext()) {
+            Task task = taskItr.next();
+            System.err.println("Task " + task.getId() + " dependencies: " + task.getDependencies().toString());
+            if (delegatedTasksMap.keySet().containsAll(task.getDependencies())) {
+            System.err.println("All dependencies solved for task " + task.getId());
+            tasksReadyForSubmit.add(task);
+            taskItr.remove();
+            }
+        }
     }
 
     private void submitTask(Task task) {
@@ -241,5 +241,9 @@ public class BlackBoard implements Runnable {
 
     public List<Task> getTasks() {
         return tasks;
+    }
+
+    public ConcurrentLinkedQueue<Message> getMessagesToBlackboard() {
+        return messagesToBlackboard;
     }
 }

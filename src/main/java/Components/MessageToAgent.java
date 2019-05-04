@@ -12,6 +12,27 @@ public class MessageToAgent {
     private Color toColor;
     private Integer toAgent;
     private MessageType messageType;
+
+    public Boolean getToAll() {
+        return toAll;
+    }
+
+    public Color getToColor() {
+        return toColor;
+    }
+
+    public Integer getToAgent() {
+        return toAgent;
+    }
+
+    public MessageType getMessageType() {
+        return messageType;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
     private Task task;
 
     public MessageToAgent(Boolean toAll, Color toColor, Integer toAgent, MessageType messageType, Task task) {

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public abstract class SubGoalPlanner {
 
-    private static List<List<Tile>> copyOfInitialState = State.copyState(State.getInitialState());
+    private static List<List<Tile>> copyOfInitialState = State.copyTiles(State.getInitialState());
 
     private static List<Goal> goals = State.copyGoals(State.getGoals());
 
@@ -85,7 +85,7 @@ public abstract class SubGoalPlanner {
 
     //Think this should work reasonably well
     public static void serialize() {
-        List<List<Tile>> copyState = State.copyState(copyOfInitialState);
+        List<List<Tile>> copyState = State.copyTiles(copyOfInitialState);
 
         for (Goal goal : goals) {
             System.err.println(goal.toString());
@@ -115,14 +115,14 @@ public abstract class SubGoalPlanner {
     }
 
     private static void reset() {
-        copyOfInitialState=State.copyState(State.getInitialState());
+        copyOfInitialState=State.copyTiles(State.getInitialState());
     }
 
     public static List<Task> convertToTask() {
         List<Task> tasks = new ArrayList<>();
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : goals) {
-            Task task = new Task(goal.getRow(), goal.getCol(), goal.getColor(), null);
+            Task task = new Task(goal.getRow(), goal.getCol(), goal.getColor(), null, goal);
             tasks.add(task);
             mapping.put(goal, task);
         }

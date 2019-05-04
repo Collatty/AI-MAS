@@ -12,16 +12,14 @@ public class State {
     private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private final static List<Goal> GOALS = new ArrayList<>();
     private static boolean[][] wallMatrix;
+    private static int maxCol = 0;
+    private static State state = new State();
+
     private List<Agent> agents = new ArrayList<>();
     private List<Block> blocks = new ArrayList<>();
-    private List<List<Tile>> state;
+    private List<List<Tile>> currentTiles = new ArrayList<>();
 
 
-    public static int getMaxCol() {
-        return maxCol;
-    }
-
-    private static int maxCol = 0;
 
 
     //INITIAL STATE STRINGS STORED HERE
@@ -94,9 +92,56 @@ public class State {
         //REITERATING THROUGH TILES TO "CONNECT" THE BOARD
         setNeighbors(INITIAL_STATE);
         wallMatrix = createWallBoard(INITIAL_STATE);
+
     }
 
-    public static List<List<Tile>> copyState(List<List<Tile>> tiles) {
+
+    public State(State copyState) {
+        List<List<Tile>> copy = new ArrayList<>();
+        List<Agent> agentCopy = new ArrayList<>();
+        List<Block> blocksCopy = new ArrayList<>();
+        for (List<Tile> row: copyState.getCurrentTiles()) {
+            ArrayList<Tile> copyRow = new ArrayList<>();
+            for (Tile tile : row) {
+                Tile copyTile = new Tile(tile.getRow(), tile.getCol());
+                if (tile.isGoal()) {
+                    copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getColor(),
+                            tile.getGoal().getRow(),
+                            tile.getGoal().getCol()));
+                }
+                if (tile.isWall()) {
+                    copyTile.setWall(true);
+                }
+                if (tile.hasBlock()) {
+                    Block block = new Block(
+                            ((Block) tile.getTileOccupant()).getType(),
+                            ((Block) tile.getTileOccupant()).getColor(),
+                            ((Block) tile.getTileOccupant()).getRow(),
+                            ((Block) tile.getTileOccupant()).getCol());
+                    copyTile.setTileOccupant(block);
+                    blocks.add(block);
+                }
+                if (tile.hasAgent()) {
+                    Agent agent = new Agent(
+                            ((Agent) tile.getTileOccupant()).getAgentNumber(),
+                            ((Agent) tile.getTileOccupant()).getColor(),
+                            ((Agent) tile.getTileOccupant()).getCol(),
+                            ((Agent) tile.getTileOccupant()).getRow(),
+                            null);
+                    copyTile.setTileOccupant(agent);
+                    agentCopy.add(agent);
+                }
+                copyRow.add(copyTile);
+            }
+            copy.add(copyRow);
+        }
+        setNeighbors(copy);
+        this.currentTiles = copy;
+        this.agents = agentCopy;
+        this.blocks = blocksCopy;
+    }
+
+    public static List<List<Tile>> copyTiles(List<List<Tile>> tiles) {
         List<List<Tile>> copy = new ArrayList<>();
         for (List<Tile> row: tiles) {
             ArrayList<Tile> copyRow = new ArrayList<>();
@@ -111,26 +156,27 @@ public class State {
                     copyTile.setWall(true);
                 }
                 if (tile.hasBlock()) {
-                    copyTile.setTileOccupant(new Block(
+                    Block block = new Block(
                             ((Block) tile.getTileOccupant()).getType(),
                             ((Block) tile.getTileOccupant()).getColor(),
                             ((Block) tile.getTileOccupant()).getRow(),
-                            ((Block) tile.getTileOccupant()).getCol()));
+                            ((Block) tile.getTileOccupant()).getCol());
+                    copyTile.setTileOccupant(block);
                 }
                 if (tile.hasAgent()) {
-                    copyTile.setTileOccupant(new Agent(
+                    Agent agent = new Agent(
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
                             ((Agent) tile.getTileOccupant()).getCol(),
                             ((Agent) tile.getTileOccupant()).getRow(),
-                            null));
+                            null);
+                    copyTile.setTileOccupant(agent);
                 }
                 copyRow.add(copyTile);
             }
             copy.add(copyRow);
         }
         setNeighbors(copy);
-
         return copy;
     }
 
@@ -145,6 +191,19 @@ public class State {
     }
 
     //GETTERS
+
+    public static State getState() {
+        return state;
+    }
+
+    public static int getMaxCol() {
+        return maxCol;
+    }
+
+    public List<List<Tile>> getCurrentTiles() {
+        return currentTiles;
+    }
+
 
     public static List<List<Tile>> getInitialState() {
         return INITIAL_STATE;

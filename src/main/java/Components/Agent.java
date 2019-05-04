@@ -1,7 +1,6 @@
 package Components;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
@@ -39,16 +38,16 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     @Override
     public void onNext(MessageToAgent message) {
-	System.err.println("Agent " + agentNumber + " received a message " + message.toColor);
-	if (message.toAll != null && message.toAll || message.toColor != null && message.toColor == color
-		|| message.toAgent != null && message.toAgent == agentNumber) {
-	    if (message.messageType == MessageType.HEURISTIC) {
-		System.err.println("Agent " + agentNumber + " creates h for task " + message.task.getId());
-		proposeHeuristic(calculateHeuristic(message.task), message.task);
-	    } else if (message.messageType == MessageType.PLAN) {
+	System.err.println("Agent " + agentNumber + " received a message " + message.getToColor());
+	if (message.getToAll() != null && message.getToAll() || message.getToColor() != null && message.getToColor() == color
+		|| message.getToAgent() != null && message.getToAgent() == agentNumber) {
+	    if (message.getMessageType() == MessageType.HEURISTIC) {
+		System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
+		proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
+	    } else if (message.getMessageType() == MessageType.PLAN) {
 		// TODO: Make awesome plan
-		System.err.println("Agent " + agentNumber + " is planning for task " + message.task.getId());
-		createPlan(message.task);
+		System.err.println("Agent " + agentNumber + " is planning for task " + message.getTask().getId());
+		createPlan(message.getTask());
 		// System.err.println("Agent " + agentNumber + " makes plan for task " +
 		// message.task.id);
 	    }
@@ -62,7 +61,7 @@ public class Agent implements Subscriber<MessageToAgent> {
 	for (Long dependencyId : task.getDependencies()) {
 	    PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
 	    if (acceptedPlan != null) {
-		startIndex = Math.max(startIndex, acceptedPlan.endIndex + 1);
+		startIndex = Math.max(startIndex, acceptedPlan.getEndIndex() + 1);
 	    }
 	}
 
@@ -81,18 +80,16 @@ public class Agent implements Subscriber<MessageToAgent> {
 
 	long endIndex = startIndex + actions.size() - 1;
 	PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
-	blackBoard.messagesToBlackboard.add(pp);
+	blackBoard.getMessagesToBlackboard().add(pp);
 	workingOnPlan = false;
     }
 
     private void proposeHeuristic(int h, Task t) {
-	blackBoard.messagesToBlackboard.add(new HeuristicProposal(h, this, t.getId()));
+	blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
     }
 
     private int calculateHeuristic(Task task) {
-	// TODO: update function with actual heuristic calculation
-	Random rand = new Random();
-	return rand.nextInt((10 - 1) + 1) + 1; // Random number between 1 and 10
+		return getHeuristic(State.getState(), task.getGoal());
     }
 
     public int getHeuristic(State state, Goal goal){

@@ -4,15 +4,11 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 
 
-import Components.Agent;
 import Components.BlackBoard;
-import Components.Color;
 import Components.SubGoalPlanner;
 import Components.Task;
-import Components.State.Goal;
 import Components.State.State;
 import Utilities.LevelReader;
 
@@ -33,7 +29,6 @@ public class Client {
         LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
             //oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
-            State state = new State();
             SubGoalPlanner.serialize();
             BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
             for (Task task : bb.getTasksNotSubmitted()) {
@@ -42,7 +37,7 @@ public class Client {
             //MEASURE RUN TIME OF HEURISTIC
             System.err.println("Heuristic w/ agent and goal:");
             Instant start = Instant.now();
-            int heuristic = state.getAgents().get(0).getHeuristic(state, State.getGoals().get(0));
+            int heuristic = State.getState().getAgents().get(0).getHeuristic(State.getState(), State.getGoals().get(0));
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");

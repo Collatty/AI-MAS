@@ -2,6 +2,7 @@ package Components;
 
 import java.util.List;
 
+import Components.State.Goal;
 import Components.State.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
@@ -15,6 +16,7 @@ public class Task {
     private List<Long> dependencies;
     private TaskType taskType;
     private State prestate;
+    private Goal goal;
 
     public long getId() {
 	return id;
@@ -65,13 +67,14 @@ public class Task {
     }
 
 
-    public Task(int row, int col, Color color, List<Long> dependencies) {
+    public Task(int row, int col, Color color, List<Long> dependencies, Goal goal) {
         this.id = counter;
         counter++;
         this.row = row;
         this.col = col;
         this.color = color;
         this.dependencies = dependencies;
+        this.goal = goal;
 
     }
 
@@ -87,5 +90,9 @@ public class Task {
 
     public void setPrestate(State prestate) {
 	this.prestate = prestate;
+    }
+
+    public Goal getGoal() {
+        return this.goal;
     }
 }
