@@ -8,11 +8,11 @@ enum MessageType {
 
 //TODO: Consider if attributes should be private
 public class MessageToAgent {
-    Boolean toAll;
-    Color toColor;
-    Integer toAgent;
-    MessageType messageType;
-    Task task;
+    private Boolean toAll;
+    private Color toColor;
+    private Integer toAgent;
+    private MessageType messageType;
+    private Task task;
 
     public MessageToAgent(Boolean toAll, Color toColor, Integer toAgent, MessageType messageType, Task task) {
         this.toAgent = toAgent;

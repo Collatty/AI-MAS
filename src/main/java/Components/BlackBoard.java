@@ -15,11 +15,6 @@ import Components.State.State;
 public class BlackBoard implements Runnable {
     private Thread t;
     private List<Task> tasksReadyForSubmit = new ArrayList<>();
-
-    public List<Task> getTasksNotSubmitted() {
-        return tasksNotSubmitted;
-    }
-
     private List<Task> tasksNotSubmitted = new ArrayList<>();
     private HashMap<Long, ArrayList<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
     private HashMap<Integer, ArrayList<Action>> acceptedActionsMap = new HashMap<>();
@@ -31,16 +26,10 @@ public class BlackBoard implements Runnable {
     private ArrayList<State> stateSequence = new ArrayList<>();
     private HashMap<Long, PlanProposal> acceptedPlansMap = new HashMap<>();
     private State currentState;
-
-    ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
-
-    public List<Task> getTasks() {
-        return tasks;
-    }
-
+    private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     private List<Task> tasks;
-    ArrayList<Agent> agents;
-    long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
+    private ArrayList<Agent> agents;
+    private long taskCounter; // TODO: If more tasks than long can hold, problems can occur. Fix that
 
 
     // TODO: Enable state in constructor
@@ -63,16 +52,16 @@ public class BlackBoard implements Runnable {
 		if (messageType == HeuristicProposal.class.getSimpleName()) {
 		    HeuristicProposal hp = (HeuristicProposal) nextMessage;
 		    System.err
-			    .println("Agent " + hp.a.getAgentNumber() + " propose " + hp.h + " for task " + hp.taskID);
+			    .println("Agent " + hp.getA().getAgentNumber() + " propose " + hp.getH() + " for task " + hp.getTaskID());
 		    ArrayList<HeuristicProposal> hpArray = new ArrayList<>();
-		    if (heuristicProposalMap.containsKey(hp.taskID)) {
-			hpArray = heuristicProposalMap.get(hp.taskID);
+		    if (heuristicProposalMap.containsKey(hp.getTaskID())) {
+			hpArray = heuristicProposalMap.get(hp.getTaskID());
 		    }
 		    hpArray.add(hp);
-		    heuristicProposalMap.put(hp.taskID, hpArray);
+		    heuristicProposalMap.put(hp.getTaskID(), hpArray);
 
 		    // Check if all agents of a given color have send a heuristic for this task
-		    if (colorAgentAmountMap.get(hp.a.getColor()) == hpArray.size()) {
+		    if (colorAgentAmountMap.get(hp.getA().getColor()) == hpArray.size()) {
 			delegateTask(hpArray);
 			if (!tasksReadyForSubmit.isEmpty()) {
 			    submitTask(tasksReadyForSubmit.remove(0));
@@ -87,23 +76,23 @@ public class BlackBoard implements Runnable {
 		    // TODO check for conflict before adding to plan map
 
 		    // If there is no conflict, input the new actions in the plan map
-		    if (!conflict(pp.a.getAgentNumber(), pp.actions)) {
+		    if (!conflict(pp.getA().getAgentNumber(), pp.getActions())) {
 			// TODO: Update stateSequence
 
 			System.err.println(pp.toString());
 			// Add NoOps if necessary
-			int numberOfNoOps = (int) (pp.startIndex
-				- acceptedActionsMap.get(pp.a.getAgentNumber()).size());
+			int numberOfNoOps = (int) (pp.getStartIndex()
+				- acceptedActionsMap.get(pp.getA().getAgentNumber()).size());
 			if (numberOfNoOps >= 0) {
 			    Action[] noOpArr = new Action[numberOfNoOps];
 			    Arrays.fill(noOpArr, new Action()); //TODO
-			    acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(Arrays.asList(noOpArr));
+			    acceptedActionsMap.get(pp.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
 
 			    // Add actions to accepted actions
-			    acceptedActionsMap.get(pp.a.getAgentNumber()).addAll(pp.actions);
+			    acceptedActionsMap.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
 
 			    // Add plan to accepted plans
-			    acceptedPlansMap.put(pp.taskID, pp);
+			    acceptedPlansMap.put(pp.getTaskID(), pp);
 
 			    System.err.print("Current actions planned: ");
 			    System.err.println(acceptedActionsMap.toString());
@@ -133,15 +122,15 @@ public class BlackBoard implements Runnable {
 	long agentPenalty;
 
 	// Find max endIndex of dependencies
-	for (Long depId : taskMap.get(hpArray.get(0).taskID).getDependencies()) {
-	    maxDependencyEndIndex = Math.max(maxDependencyEndIndex, delegatedTasksMap.get(depId).endIndex);
+	for (Long depId : taskMap.get(hpArray.get(0).getTaskID()).getDependencies()) {
+	    maxDependencyEndIndex = Math.max(maxDependencyEndIndex, delegatedTasksMap.get(depId).getEndIndex());
 	}
 
 	// Find best heuristic proposed
 	for (HeuristicProposal hp : hpArray) {
-	    agentPenalty = heuristicsActionsMap.get(hp.a.getAgentNumber()).size();
+	    agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
 	    startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
-	    endIndex = startIndex + hp.h;
+	    endIndex = startIndex + hp.getH();
 
 	    if (minEndIndex == null || minEndIndex > endIndex) {
 		minEndIndex = endIndex;
@@ -158,18 +147,18 @@ public class BlackBoard implements Runnable {
 	// - Change goal solved to wall.
 
 	// Add NoOps to plan if necessary
-	int numberOfNoOps = (int) (startIndex - heuristicsActionsMap.get(hpChosen.a.getAgentNumber()).size());
+	int numberOfNoOps = (int) (startIndex - heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).size());
 	if (numberOfNoOps > 0) {
 	    Action[] noOpArr = new Action[numberOfNoOps];
 	    Arrays.fill(noOpArr, new Action()); //TODO
-	    heuristicsActionsMap.get(hpChosen.a.getAgentNumber()).addAll(Arrays.asList(noOpArr));
+	    heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
 	}
 
 	// Add NoOps instead of real actions
-	Action[] unknArr = new Action[hpChosen.h];
+	Action[] unknArr = new Action[hpChosen.getH()];
 	Arrays.fill(unknArr, new Action()); //TODO
 	ArrayList<Action> unknArrList = new ArrayList<>(Arrays.asList(unknArr));
-	heuristicsActionsMap.get(hpChosen.a.getAgentNumber()).addAll(unknArrList);
+	heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(unknArrList);
 
 	System.err.println("Actions planed with heuristics: ");
 	for (Integer agentId : heuristicsActionsMap.keySet()) {
@@ -177,8 +166,8 @@ public class BlackBoard implements Runnable {
 	}
 
 	// Save plan
-	delegatedTasksMap.put(hpChosen.taskID,
-		new PlanProposal(unknArrList, hpChosen.a, hpChosen.taskID, startIndex, endIndex));
+	delegatedTasksMap.put(hpChosen.getTaskID(),
+		new PlanProposal(unknArrList, hpChosen.getA(), hpChosen.getTaskID(), startIndex, endIndex));
 
 	// Find tasks with solved dependencies
 	Iterator<Task> taskItr = tasksNotSubmitted.iterator();
@@ -244,5 +233,13 @@ public class BlackBoard implements Runnable {
 
     public PlanProposal getAcceptedPlan(long taskID) {
 	return acceptedPlansMap.get(taskID);
+    }
+
+    public List<Task> getTasksNotSubmitted() {
+        return tasksNotSubmitted;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
     }
 }

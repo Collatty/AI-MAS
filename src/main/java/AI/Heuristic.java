@@ -11,8 +11,6 @@ import Components.State.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
-    public Heuristic(){}
-
     public static int h(State n, Agent agent, Goal goal){
 
 
@@ -21,7 +19,7 @@ public abstract class Heuristic implements Comparator<State> {
         String agentColor = agent.getColor().toString();
 
         int heuristicValue = 10000;
-        int tempHeuristicValue = 10000;
+        int tempHeuristicValue;
 
         for (Block block : blocks){
           String blockColor = block.getColor().toString();
