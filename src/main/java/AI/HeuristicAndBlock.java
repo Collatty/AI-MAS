@@ -1,0 +1,14 @@
+package AI;
+
+import Components.State.Block;
+
+public class HeuristicAndBlock {
+
+    public final int heuristic;
+    public final Block block;
+
+    public HeuristicAndBlock (int heuristic, Block block) {
+        this.heuristic = heuristic;
+        this.block = block;
+    }
+}

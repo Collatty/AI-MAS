@@ -1,5 +1,6 @@
 package Components;
 
+import Components.State.Goal;
 import Components.State.State;
 import Components.State.Tile;
 
@@ -37,27 +38,33 @@ public class Action {
     private Tile endAgent;
     private Tile startBox;
     private Tile endBox;
+    private Direction agentDirection = null;
+    private Direction boxDirection = null;
 
     public enum ActionType {
-        MOVE,
-        PUSH,
-        PULL,
-        NOOP
+        Move,
+        Push,
+        Pull,
+        NoOp
     }
 
     public Action(Tile startAgent, Tile endAgent) {
-        this.actionType = MOVE;
+        this.actionType = Move;
         this.startAgent = startAgent;
         this.endAgent = endAgent;
+        setDirections();
 
     }
 
     public Action(Tile startBox, Tile endBox, Tile startAgent) {
-        this.startAgent = startAgent;
+        if (endBox.isGoal()){
+            endBox.getGoal().setCompleted(true);
+        }
         this.startBox = startBox;
         this.endBox = endBox;
+        this.startAgent = startAgent;
         if (startAgent.getRow() == endBox.getRow() && startAgent.getCol() == endBox.getCol()) {
-            this.actionType = PULL;
+            this.actionType = Pull;
             if (startBox.getRow() - endBox.getRow() == 0) {
                 if (!endBox.getNorthNeighbor().isWall()) {
                     this.endAgent = endBox.getNorthNeighbor();
@@ -82,15 +89,70 @@ public class Action {
                 }
             }
         } else {
-            this.actionType = PUSH;
+            this.actionType = Push;
             this.endAgent = startBox;
         }
+        setDirections();
     }
 
 
     public Action() {
-        this.actionType = NOOP;
+        this.actionType = NoOp;
+        setDirections();
 
+    }
+
+    public enum Direction {
+        N, W, E, S
+    }
+
+    private void setDirections() {
+        if(this.actionType == NoOp) {
+            return;
+        }
+        if (this.startAgent.getRow()-this.endAgent.getRow() == 1) {
+            this.agentDirection = Direction.N;
+        } else if (this.startAgent.getRow()-this.endAgent.getRow() == -1) {
+            this.agentDirection = Direction.S;
+        } else if (this.startAgent.getCol()-this.endAgent.getCol() == 1) {
+            this.agentDirection = Direction.W;
+        } else if (this.startAgent.getCol()-this.endAgent.getCol() == -1) {
+            this.agentDirection = Direction.E;
+        }
+        if (this.actionType == Pull) {
+            if (this.startBox.getRow()-this.endBox.getRow() == 1) {
+                this.boxDirection = Direction.N;
+            } else if (this.startBox.getRow()-this.endBox.getRow() == -1) {
+                this.boxDirection = Direction.S;
+            } else if (this.startBox.getCol()-this.endBox.getCol() == 1) {
+                this.boxDirection = Direction.E;
+            } else if (this.startBox.getCol()-this.endBox.getCol() == -1) {
+                this.boxDirection = Direction.W;
+            }
+        }
+        if (this.actionType == Push) {
+            if (this.startBox.getRow()-this.endBox.getRow() == 1) {
+                this.boxDirection = Direction.N;
+            } else if (this.startBox.getRow()-this.endBox.getRow() == -1) {
+                this.boxDirection = Direction.S;
+            } else if (this.startBox.getCol()-this.endBox.getCol() == 1) {
+                this.boxDirection = Direction.W;
+            } else if (this.startBox.getCol()-this.endBox.getCol() == -1) {
+                this.boxDirection = Direction.E;
+            }
+        }
+
+    }
+
+
+
+    @Override
+    public String toString() {
+        if (this.actionType == Push || this.actionType == Pull)
+            return this.actionType.toString() + "(" + this.agentDirection.toString() + "," + this.boxDirection.toString() + ")";
+        if (this.actionType == Move)
+            return this.actionType.toString() + "(" + this.agentDirection.toString() + ")";
+        return this.actionType.toString();
     }
 
 }

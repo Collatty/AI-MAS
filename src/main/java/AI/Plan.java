@@ -46,7 +46,6 @@ public abstract class Plan {
     public List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol) {
         AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(), new Node(startRow,
                 startCol), new Node(endRow, endCol), 1);
-        search.setSearchArea(nodes);
         return search.findPath();
     }
 
@@ -86,13 +85,14 @@ public abstract class Plan {
 
         public MovePlan(int startRow, int startCol, int endRow, int endCol) {
             super(startRow, startCol, endRow, endCol);
+            calculatePlan();
 
         }
 
         @Override
         public void calculatePlan() {
             Node previous = null ;
-            List<Node> searchResults = aStarSearch(startRow, startCol, endRow, endCol);
+            List<Node> searchResults = aStarSearch(this.startRow, this.startCol, this.endRow, this.endCol);
             for (Node step : searchResults) {
                 if (previous != null){
                     this.plan.add(
@@ -115,10 +115,11 @@ public abstract class Plan {
         private final int startBoxRow;
         private final int startBoxCol;
 
-        public MoveBoxPlan(int startRow, int startCol, int endRow, int endCol, int startBoxRow, int startBoxCol) {
+        public MoveBoxPlan(int startRow, int startCol, int startBoxRow, int startBoxCol, int endRow, int endCol) {
             super(startRow, startCol, endRow, endCol);
             this.startBoxRow = startBoxRow;
             this.startBoxCol = startBoxCol;
+            calculatePlan();
 
 
 
@@ -126,10 +127,11 @@ public abstract class Plan {
 
         @Override
         public void calculatePlan() {
-            MovePlan movePlan = new MovePlan(this.startRow, this.startCol, this.endRow, this.endCol);
-            movePlan.calculatePlan();
+            MovePlan movePlan = new MovePlan(this.startRow, this.startCol, this.startBoxRow, this.startBoxCol);
             List<Action> partialPlan = movePlan.getPlan();
-            partialPlan.remove(partialPlan.size()-1); // Removing the move moving the agent into the box
+            if( partialPlan.size()!=0) {
+                partialPlan.remove(partialPlan.size()-1); // Removing the move moving the agent into the box
+            }
             List<Node> searchResults = aStarSearch(this.startBoxRow, this.startBoxCol, this.endRow, this.endCol);
             Node previous = null;
             for (Node step : searchResults) {
@@ -140,6 +142,7 @@ public abstract class Plan {
                 }
                 previous = step;
             }
+            this.plan = partialPlan;
         }
     }
 }

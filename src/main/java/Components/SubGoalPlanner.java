@@ -5,6 +5,8 @@ import Components.State.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static Components.TaskType.GOAL;
+
 
 /*
 * The purpose of this class is to check if there needs to be a strict order in which the goals of the level needs to
@@ -123,6 +125,7 @@ public abstract class SubGoalPlanner {
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : goals) {
             Task task = new Task(goal.getRow(), goal.getCol(), goal.getColor(), null, goal);
+            task.setTaskType(GOAL);
             tasks.add(task);
             mapping.put(goal, task);
         }

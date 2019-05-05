@@ -5,13 +5,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import Components.Agent;
+import Components.Color;
 import Components.State.Block;
 import Components.State.Goal;
 import Components.State.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
-    public static int h(State n, Agent agent, Goal goal){
+    public static HeuristicAndBlock h(State n, Agent agent, Goal goal){
 
 
         List<Block> blocks = n.getBlocks();
@@ -20,6 +21,7 @@ public abstract class Heuristic implements Comparator<State> {
 
         int heuristicValue = 10000;
         int tempHeuristicValue;
+        Block tempBlock = new Block('x', Color.BLUE, -1, -1);
 
         for (Block block : blocks){
           String blockColor = block.getColor().toString();
@@ -55,10 +57,11 @@ public abstract class Heuristic implements Comparator<State> {
 
             if(tempHeuristicValue < heuristicValue){
               heuristicValue = tempHeuristicValue;
+              tempBlock = block;
             }
           }
         }
-        return heuristicValue;
+        return new HeuristicAndBlock(heuristicValue, tempBlock);
     }
 
     //CHOOSE HEURISTIC

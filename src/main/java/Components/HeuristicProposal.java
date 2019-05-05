@@ -1,11 +1,13 @@
 package Components;
 
+import AI.HeuristicAndBlock;
+
 // TODO: Consider if it is better with getters and setters
 public class HeuristicProposal extends Message {
-    private int h;
+    private HeuristicAndBlock h;
     private Agent a;
 
-    public int getH() {
+    public HeuristicAndBlock getH() {
         return h;
     }
 
@@ -19,7 +21,7 @@ public class HeuristicProposal extends Message {
 
     private long taskID;
 
-    public HeuristicProposal(int h, Agent a, long taskID) {
+    public HeuristicProposal(HeuristicAndBlock h, Agent a, long taskID) {
         this.h = h;
         this.a = a;
         this.taskID = taskID;

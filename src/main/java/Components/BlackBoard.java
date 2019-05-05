@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
+import Components.State.Goal;
 import Components.State.State;
 
 public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
@@ -21,6 +22,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     private Map<Long, Task> taskMap = new HashMap<>();
     private ArrayList<State> stateSequence = new ArrayList<>();
     private HashMap<Long, PlanProposal> acceptedPlansMap = new HashMap<>();
+
+    public List<PlanProposal> getAcceptedPlans() {
+        return acceptedPlans;
+    }
+
+    private List<PlanProposal> acceptedPlans = new ArrayList<>();
+    private List<String> outputStrings = new ArrayList<>();
+
     private State currentState;
     private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
     private List<Task> tasks;
@@ -61,12 +70,13 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                         if (!tasksReadyForSubmit.isEmpty()) {
                             submitTask(tasksReadyForSubmit.remove(0));
                         } else {
-                            System.err.print("All plans are delegated, time for planning!");
+                            System.err.print("All tasks are delegated, time for planning!");
                             // TODO: All tasks are delegated, make the agents start planning
                         }
                     }
                 } else if (messageType == PlanProposal.class.getSimpleName()) {
                     PlanProposal pp = (PlanProposal) nextMessage;
+                    acceptedPlans.add(pp);
 
                     // TODO check for conflict before adding to plan map
 
@@ -89,6 +99,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                             // Add plan to accepted plans
                             acceptedPlansMap.put(pp.getTaskID(), pp);
 
+
                             System.err.print("Current actions planned: ");
                             System.err.println(acceptedActionsMap.toString());
                         } else {
@@ -96,6 +107,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                         }
                     }
                 }
+                checkCompleted();
             }
             try {
                 Thread.sleep(1000);
@@ -124,7 +136,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         for (HeuristicProposal hp : hpArray) {
             agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
             startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
-            endIndex = startIndex + hp.getH();
+            endIndex = startIndex + hp.getH().heuristic;
 
             if (minEndIndex == null || minEndIndex > endIndex) {
             minEndIndex = endIndex;
@@ -134,6 +146,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
 
         System.err.print("Blackboard has chosen a heuristic proposal: ");
         hpChosen.print();
+        this.submit(new MessageToAgent(false, hpChosen.getA().getColor(), hpChosen.getA().getAgentNumber(),
+                MessageType.PLAN, this.taskMap.get(hpChosen.getTaskID()), hpChosen.getH().block));
 
         // TODO: Update the currentState:
         // - Moving agent to new position near goal solved.
@@ -149,7 +163,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         }
 
         // Add NoOps instead of real actions
-        Action[] unknArr = new Action[hpChosen.getH()];
+        Action[] unknArr = new Action[10];
         Arrays.fill(unknArr, new Action()); //TODO
         ArrayList<Action> unknArrList = new ArrayList<>(Arrays.asList(unknArr));
         heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(unknArrList);
@@ -171,7 +185,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
             if (delegatedTasksMap.keySet().containsAll(task.getDependencies())) {
             System.err.println("All dependencies solved for task " + task.getId());
             tasksReadyForSubmit.add(task);
-            taskItr.remove();
+            //taskItr.remove(); this is still illegal
             }
         }
     }
@@ -179,7 +193,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     private void submitTask(Task task) {
         task.setPrestate(currentState);
         System.err.println("Blackboard submits task with id " + task.getId() + " and color " + task.getColor());
-        MessageToAgent messageToAgent = new MessageToAgent(null, task.getColor(), null, MessageType.HEURISTIC, task);
+        MessageToAgent messageToAgent = new MessageToAgent(null, task.getColor(), null, MessageType.HEURISTIC, task,
+                null);
         this.submit(messageToAgent);
     }
 
@@ -247,5 +262,15 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     public String toString() {
         return "Blackboard";
     }
+
+    public void checkCompleted() {
+        for (Goal goal : State.getGoals()) {
+            if (!goal.isCompleted()) {
+                return;
+            }
+        }
+        State.setSolved(true);
+    }
+
 
 }

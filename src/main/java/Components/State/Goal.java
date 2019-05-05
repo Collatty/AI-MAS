@@ -13,6 +13,16 @@ public class Goal {
     private final int row;
     private final Color color;
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    private boolean completed;
+
     //By preconditions we mean goals that cannot be completed prior to this goal's attempted completion
     private Collection<Goal> preconditions = new HashSet<>();
 
@@ -22,6 +32,7 @@ public class Goal {
         this.color = color;
         this.row = row;
         this.col = col;
+        this.completed = false;
 
     }
 

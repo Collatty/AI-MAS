@@ -1,9 +1,10 @@
 package Components;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PlanProposal extends Message {
-    public ArrayList<Action> getActions() {
+    public List<Action> getActions() {
         return actions;
     }
 
@@ -23,13 +24,13 @@ public class PlanProposal extends Message {
         return endIndex;
     }
 
-    private ArrayList<Action> actions;
+    private List<Action> actions;
     private Agent a;
     private long taskID;
     private long startIndex;
     private long endIndex;
 
-    public PlanProposal(ArrayList<Action> actions, Agent a, long taskID, long startIndex, long endIndex) {
+    public PlanProposal(List<Action> actions, Agent a, long taskID, long startIndex, long endIndex) {
 	this.actions = actions;
 	this.a = a;
 	this.taskID = taskID;

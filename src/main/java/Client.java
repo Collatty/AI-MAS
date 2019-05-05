@@ -4,8 +4,11 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Iterator;
+import java.util.List;
 
 
+import Components.Action;
 import Components.BlackBoard;
 import Components.SubGoalPlanner;
 import Components.Task;
@@ -32,14 +35,28 @@ public class Client {
             for (Task task : BlackBoard.getBlackBoard().getTasksNotSubmitted()) {
                 System.err.println(task.toString());
             }
-            //MEASURE RUN TIME OF HEURISTIC
+           /* //MEASURE RUN TIME OF HEURISTIC
             System.err.println("Heuristic w/ agent and goal:");
             Instant start = Instant.now();
             int heuristic = State.getState().getAgents().get(0).getHeuristic(State.getState(), State.getGoals().get(0));
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
-            System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
+            System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");*/
             BlackBoard.getBlackBoard().run();
+            Iterator<Action> actionIterator =
+                    BlackBoard.getBlackBoard().getAcceptedPlans().get(0).getActions().iterator();
+            Iterator<Action> actionIterator2 =
+                    BlackBoard.getBlackBoard().getAcceptedPlans().get(1).getActions().iterator();
+            while(actionIterator.hasNext()) {
+                StringBuilder stringBuilder = new StringBuilder();
+                //stringBuilder.append("<");
+                stringBuilder.append(actionIterator.next().toString());
+                stringBuilder.append(";");
+                stringBuilder.append(actionIterator2.next().toString());
+                //stringBuilder.append(">");
+                System.out.println(stringBuilder.toString());
+                System.err.println(serverMessages.readLine());
+            }
 
 
 
@@ -158,8 +175,6 @@ public class Client {
 	blackboard.start(agents);
 
 	// Client client = new Client(serverMessages);
-
-	// TODO main method for running client program
 
     }
 }*/

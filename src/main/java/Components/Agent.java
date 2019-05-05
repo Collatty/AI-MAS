@@ -5,6 +5,9 @@ import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
 import AI.Heuristic;
+import AI.HeuristicAndBlock;
+import AI.Plan;
+import Components.State.Block;
 import Components.State.State;
 import Components.State.Goal;
 
@@ -45,9 +48,8 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 		System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
 		proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
 	    } else if (message.getMessageType() == MessageType.PLAN) {
-		// TODO: Make awesome plan
+			this.createPlan(message.getTask(), message.getBlock());
 		System.err.println("Agent " + agentNumber + " is planning for task " + message.getTask().getId());
-		createPlan(message.getTask());
 		// System.err.println("Agent " + agentNumber + " makes plan for task " +
 		// message.task.id);
 	    }
@@ -55,44 +57,33 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 	this.blackboardChannel.request(1);
     }
 
-    private void createPlan(Task task) {
+    private void createPlan(Task task, Block block) {
 		workingOnPlan = true;
-		long startIndex = 0;
-		for (Long dependencyId : task.getDependencies()) {
-			PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
-			if (acceptedPlan != null) {
-			startIndex = Math.max(startIndex, acceptedPlan.getEndIndex() + 1);
+		if (block != null) {
+			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
+					block.getRow(), block.getCol(), task.getGoal().getRow(),
+					task.getGoal().getCol());
+			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
+					-1, -1));
+			for (Action a: moveBoxPlan.getPlan()) {
+				System.err.println(a.toString());
 			}
 		}
-
-		ArrayList<Action> actions = new ArrayList<>();
-
-		// TODO: implement properly
-		if (task.getId() == 1) {
-			Action a = new Action(); //TODO
-			boolean add = actions.add(a);
-		} else { // when task.getId() is 2
-			Action a = new Action();//TODO
-			Action a2 = new Action();//TODO
-			actions.add(a);
-			actions.add(a2);
+		else {
+			Plan.MovePlan movePlan; //TODO
 		}
-
-		long endIndex = startIndex + actions.size() - 1;
-		PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
-		blackBoard.getMessagesToBlackboard().add(pp);
 		workingOnPlan = false;
     }
 
-    private void proposeHeuristic(int h, Task t) {
+    private void proposeHeuristic(HeuristicAndBlock h, Task t) {
 		blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
     }
 
-    private int calculateHeuristic(Task task) {
+    private HeuristicAndBlock calculateHeuristic(Task task) {
 		return getHeuristic(State.getState(), task.getGoal());
     }
 
-    public int getHeuristic(State state, Goal goal){
+    public HeuristicAndBlock getHeuristic(State state, Goal goal){
         return Heuristic.h(state, this, goal);
     }
 
