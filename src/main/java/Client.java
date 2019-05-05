@@ -23,15 +23,13 @@ public class Client {
     public static void main(String[] args) throws IOException, ParseException {
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
-
-
         //READING IN LEVEL INFORMATION FROM SERVER
         LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-            //oldState initialOldState = new oldState(LevelReader.getInitial(), LevelReader.getGoals());
+
             SubGoalPlanner.serialize();
-            BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
-            for (Task task : bb.getTasksNotSubmitted()) {
+            BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.convertToTask());
+            for (Task task : BlackBoard.getBlackBoard().getTasksNotSubmitted()) {
                 System.err.println(task.toString());
             }
             //MEASURE RUN TIME OF HEURISTIC
@@ -41,6 +39,7 @@ public class Client {
             Instant finish = Instant.now();
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");
+            BlackBoard.getBlackBoard().run();
 
 
 

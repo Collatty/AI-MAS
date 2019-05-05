@@ -9,10 +9,18 @@ import Utilities.LevelReader;
 
 public class State {
 
+    //INITIAL STATE STRINGS STORED HERE
+    private final static String STRING_DOMAIN = LevelReader.getDomain();
+    private final static String STRING_LEVEL_NAME = LevelReader.getLevelName();
+    private final static String STRING_COLORS = LevelReader.getColors();
+    private final static String STRING_INITIAL = LevelReader.getInitial();
+    private final static String STRING_GOALS = LevelReader.getGoals();
+
     private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private final static List<Goal> GOALS = new ArrayList<>();
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
+    private static boolean solved;
     private static State state = new State();
 
     private List<Agent> agents = new ArrayList<>();
@@ -22,12 +30,7 @@ public class State {
 
 
 
-    //INITIAL STATE STRINGS STORED HERE
-    private final static String STRING_DOMAIN = LevelReader.getDomain();
-    private final static String STRING_LEVEL_NAME = LevelReader.getLevelName();
-    private final static String STRING_COLORS = LevelReader.getColors();
-    private final static String STRING_INITIAL = LevelReader.getInitial();
-    private final static String STRING_GOALS = LevelReader.getGoals();
+
 
     public State() {
         int row = 0;
@@ -53,7 +56,7 @@ public class State {
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(row, col);
                 Agent agt = new Agent(Character.getNumericValue(character),
-                        convertFromStringToColor(getColorAgent(character)), row, col, null);
+                        convertFromStringToColor(getColorAgent(character)), row, col);
                 tile.setTileOccupant(agt);
                 currentList.add(tile);
                 agents.add(agt);
@@ -126,8 +129,7 @@ public class State {
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
                             ((Agent) tile.getTileOccupant()).getCol(),
-                            ((Agent) tile.getTileOccupant()).getRow(),
-                            null);
+                            ((Agent) tile.getTileOccupant()).getRow());
                     copyTile.setTileOccupant(agent);
                     agentCopy.add(agent);
                 }
@@ -168,8 +170,7 @@ public class State {
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
                             ((Agent) tile.getTileOccupant()).getCol(),
-                            ((Agent) tile.getTileOccupant()).getRow(),
-                            null);
+                            ((Agent) tile.getTileOccupant()).getRow());
                     copyTile.setTileOccupant(agent);
                 }
                 copyRow.add(copyTile);
@@ -323,4 +324,14 @@ public class State {
         }
         throw new RuntimeException("Color unknown: " + stringColor);
     }
+
+
+    public static boolean isSolved() {
+        return solved;
+    }
+
+    public static void setSolved(boolean solved) {
+        State.solved = solved;
+    }
+
 }

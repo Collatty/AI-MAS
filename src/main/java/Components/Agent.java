@@ -9,31 +9,31 @@ import Components.State.State;
 import Components.State.Goal;
 
 
-public class Agent implements Subscriber<MessageToAgent> {
+public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
 
     private final int agentNumber;
     private final Color color;
     private int col;
     private int row;
-    private Subscription blackboardChannel;
+	private Subscription blackboardChannel;
     private BlackBoard blackBoard;
 
     private boolean workingOnPlan;
 
-    public Agent(int agentNumber, Color color, int row, int col, BlackBoard blackBoard) {
+    public Agent(int agentNumber, Color color, int row, int col) {
 	this.agentNumber = agentNumber;
 	this.color = color;
 	this.row = row;
 	this.col = col;
-	this.blackBoard = blackBoard;
+	this.blackBoard = BlackBoard.getBlackBoard();
 	this.workingOnPlan = false;
     }
 
     @Override
     public void onSubscribe(Subscription subscription) {
-	this.blackboardChannel = subscription;
-	this.blackboardChannel.request(1);
+		this.blackboardChannel = subscription;
+		this.blackboardChannel.request(1);
     }
 
     @Override
@@ -56,36 +56,36 @@ public class Agent implements Subscriber<MessageToAgent> {
     }
 
     private void createPlan(Task task) {
-	workingOnPlan = true;
-	long startIndex = 0;
-	for (Long dependencyId : task.getDependencies()) {
-	    PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
-	    if (acceptedPlan != null) {
-		startIndex = Math.max(startIndex, acceptedPlan.getEndIndex() + 1);
-	    }
-	}
+		workingOnPlan = true;
+		long startIndex = 0;
+		for (Long dependencyId : task.getDependencies()) {
+			PlanProposal acceptedPlan = blackBoard.getAcceptedPlan(dependencyId);
+			if (acceptedPlan != null) {
+			startIndex = Math.max(startIndex, acceptedPlan.getEndIndex() + 1);
+			}
+		}
 
-	ArrayList<Action> actions = new ArrayList<>();
+		ArrayList<Action> actions = new ArrayList<>();
 
-	// TODO: implement properly
-	if (task.getId() == 1) {
-	    Action a = new Action(); //TODO
-	    boolean add = actions.add(a);
-	} else { // when task.getId() is 2
-	    Action a = new Action();//TODO
-	    Action a2 = new Action();//TODO
-	    actions.add(a);
-	    actions.add(a2);
-	}
+		// TODO: implement properly
+		if (task.getId() == 1) {
+			Action a = new Action(); //TODO
+			boolean add = actions.add(a);
+		} else { // when task.getId() is 2
+			Action a = new Action();//TODO
+			Action a2 = new Action();//TODO
+			actions.add(a);
+			actions.add(a2);
+		}
 
-	long endIndex = startIndex + actions.size() - 1;
-	PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
-	blackBoard.getMessagesToBlackboard().add(pp);
-	workingOnPlan = false;
+		long endIndex = startIndex + actions.size() - 1;
+		PlanProposal pp = new PlanProposal(actions, this, task.getId(), startIndex, endIndex);
+		blackBoard.getMessagesToBlackboard().add(pp);
+		workingOnPlan = false;
     }
 
     private void proposeHeuristic(int h, Task t) {
-	blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
+		blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
     }
 
     private int calculateHeuristic(Task task) {
@@ -98,8 +98,8 @@ public class Agent implements Subscriber<MessageToAgent> {
 
     @Override
     public void onError(Throwable e) {
-	System.err.println("Some error happened in agent " + agentNumber + " subscription:");
-	e.printStackTrace();
+		System.err.println("Some error happened in agent " + agentNumber + " subscription:");
+		e.printStackTrace();
     }
 
     @Override
@@ -132,7 +132,20 @@ public class Agent implements Subscriber<MessageToAgent> {
     public boolean getWorking() {
 	return workingOnPlan;
     }
-    // END GETTERS
+
+	public Subscription getBlackboardChannel() {
+		return blackboardChannel;
+	}
+
+	public BlackBoard getBlackBoard() {
+		return blackBoard;
+	}
+
+	public boolean isWorkingOnPlan() {
+		return workingOnPlan;
+	}
+
+	// END GETTERS
 
     // SETTERS
     public void setRow(int row) {
@@ -146,6 +159,11 @@ public class Agent implements Subscriber<MessageToAgent> {
     public void setWorking(boolean working) {
 	this.workingOnPlan = working;
     }
-    // END SETTERS
+
+	@Override
+	public void run() {
+		System.err.println("Agent " + this.toString() + "'s thread is up and running");
+	}
+	// END SETTERS
 
 }
