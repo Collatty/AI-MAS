@@ -52,6 +52,8 @@ public class Action {
         this.actionType = Move;
         this.startAgent = startAgent;
         this.endAgent = endAgent;
+        this.startBox = null;
+        this.endBox = null;
         setDirections();
 
     }
@@ -96,8 +98,12 @@ public class Action {
     }
 
 
-    public Action() {
+    public Action(Tile currentTile) {
         this.actionType = NoOp;
+        this.startBox = null;
+        this.endBox = null;
+        this.startAgent = currentTile;
+        this.endAgent = currentTile;
         setDirections();
 
     }

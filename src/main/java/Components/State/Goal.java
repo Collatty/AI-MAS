@@ -34,6 +34,12 @@ public class Goal {
         this.col = col;
         this.completed = false;
 
+        if(State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
+            if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor().equals(this.color)){
+                setCompleted(true);
+            }
+        }
+
     }
 
     //GETTERS

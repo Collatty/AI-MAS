@@ -44,9 +44,9 @@ public class Client {
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");*/
             BlackBoard.getBlackBoard().run();
             Iterator<Action> actionIterator =
-                    BlackBoard.getBlackBoard().getAcceptedPlans().get(0).getActions().iterator();
+                    BlackBoard.getBlackBoard().getAcceptedPlans().get(0).iterator();
             Iterator<Action> actionIterator2 =
-                    BlackBoard.getBlackBoard().getAcceptedPlans().get(1).getActions().iterator();
+                    BlackBoard.getBlackBoard().getAcceptedPlans().get(1).iterator();
             while(actionIterator.hasNext()) {
                 StringBuilder stringBuilder = new StringBuilder();
                 //stringBuilder.append("<");
@@ -55,7 +55,7 @@ public class Client {
                 stringBuilder.append(actionIterator2.next().toString());
                 //stringBuilder.append(">");
                 System.out.println(stringBuilder.toString());
-                System.err.println(serverMessages.readLine());
+                //System.err.println(serverMessages.readLine());
             }
 
 
