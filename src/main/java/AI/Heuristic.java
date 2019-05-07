@@ -12,6 +12,8 @@ import Components.State.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
+    private static AllPairsShortestPath apsp = new AllPairsShortestPath();
+
     public static HeuristicAndBlock h(State n, Agent agent, Goal goal){
 
 
@@ -90,7 +92,6 @@ public abstract class Heuristic implements Comparator<State> {
 
     //BFS
     private static float bfs (float goalRow, float goalCol, float boxRow, float boxCol) {
-        AllPairsShortestPath apsp = new AllPairsShortestPath();
         Point2D.Float start = new Point2D.Float(goalRow, goalCol);
         Point2D.Float end = new Point2D.Float(boxRow, boxCol);
         return apsp.getHeuristic(start, end);

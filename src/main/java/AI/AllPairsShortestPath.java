@@ -37,7 +37,7 @@ public class AllPairsShortestPath {
                     bfs = new BFS(new Point2D.Float(i,j));
                     bfsMatrix = bfs.getBfsMatrix();
                     for(int i1 = 0; i1 < max_row; i1++){
-                        for(int j1 = 0; j1 < max_row; j1++){
+                        for(int j1 = 0; j1 < max_col; j1++){
                             if(bfsMatrix[i1][j1] != -1){
                                 adjColIndex = index_matrix[i1][j1];
                                 allPairsShortestPathMatrix[adjRowIndex][adjColIndex] = bfsMatrix[i1][j1];
