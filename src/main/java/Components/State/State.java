@@ -22,6 +22,7 @@ public class State {
     private static int maxCol = 0;
     private static boolean solved;
     private static State state = new State();
+    private static List<Color> agentColors;
 
     private List<Agent> agents = new ArrayList<>();
     private List<Block> blocks = new ArrayList<>();
@@ -36,6 +37,7 @@ public class State {
         int row = 0;
         int col = 0;
         List<Tile> currentList = new ArrayList<>();
+        setAgentColors();
 
         for (char character : STRING_INITIAL.toCharArray()){
             if (character == '\n') {
@@ -62,10 +64,15 @@ public class State {
                 agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
-                Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
-                tile.setTileOccupant(box);
+                //CHECK IF THERE ARE UNMOVABLE BLOCKS
+                if(!checkAgentsHasColor(convertFromStringToColor(getColorBlockAndGoal(character)))){
+                    tile.setWall(true);
+                } else{
+                    Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
+                    tile.setTileOccupant(box);
+                    blocks.add(box);
+                }
                 currentList.add(tile);
-                blocks.add(box);
             }  else if (character == ' ') {
                 Tile tile = new Tile(row, col);
                 currentList.add(tile);
@@ -298,6 +305,22 @@ public class State {
         }
     }
 
+    private boolean checkAgentsHasColor(Color color){
+        return agentColors.contains(color);
+    }
+
+    private static void setAgentColors(){
+        List<Color> agtColors = new ArrayList<>();
+        String[] colorsSplitted = STRING_COLORS.split("\n");
+        for(String string : colorsSplitted){
+            if (string.matches(".*\\d.*")){
+                String[] splittedEvenMore = string.split(":");
+                agtColors.add(convertFromStringToColor(splittedEvenMore[0]));
+            }
+        }
+        agentColors = agtColors;
+    }
+
     private boolean[][] createWallBoard(List<List<Tile>> state){
         int max_row = state.size();
         int max_col = state.get(0).size();
@@ -316,7 +339,7 @@ public class State {
         return walls;
     }
 
-    private Color convertFromStringToColor(String stringColor){
+    private static Color convertFromStringToColor(String stringColor){
         for (Color enumColor : Color.values()){
             if(stringColor.toUpperCase().equals(enumColor.toString())){
                 return enumColor;
