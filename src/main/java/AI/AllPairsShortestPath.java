@@ -5,8 +5,8 @@ import java.awt.geom.Point2D;
 
 public class AllPairsShortestPath {
 
-    private static boolean[][] wallMatrix;
-    public static int[][] allPairsShortestPathMatrix;
+    private boolean[][] wallMatrix;
+    public int[][] allPairsShortestPathMatrix;
     private int[][] index_matrix;
     int max_row;
     int max_col;
@@ -79,7 +79,7 @@ public class AllPairsShortestPath {
         return allPairsShortestPathMatrix[row][col];
     }
 
-    public static int[][] getAllPairsShortestPathMatrix(){
+    public int[][] getAllPairsShortestPathMatrix(){
         return allPairsShortestPathMatrix;
     }
 
