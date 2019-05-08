@@ -23,8 +23,12 @@ public class BFS {
 
     public BFS(Point2D.Float start) {
         bfsMatrix = solveBFS(start);
+    }
 
-        //solveBFS(new Point2D.Float(3,5), new Point2D.Float(1,5))
+    public static void loadNewLevel() {
+        walls = State.getWallMatrix();
+        max_row = State.getWallMatrix().length;
+        max_col = State.getWallMatrix()[0].length;
     }
 
     private int[][] solveBFS(Point2D.Float start){

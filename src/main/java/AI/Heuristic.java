@@ -158,4 +158,7 @@ public abstract class Heuristic implements Comparator<State> {
         }
     }
     */
+    public static void loadNewLevel() {
+        apsp = new AllPairsShortestPath();
+    }
 }
