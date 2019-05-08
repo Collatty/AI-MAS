@@ -18,22 +18,7 @@ public class MultiAgentTest {
     @Test
     public void testMAExample() throws IOException{
         File file = new File("levels/MAExample.lvl");
-        //setUpTest(file);
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            LevelReader.stringCreator(LevelReader.readAllLines(bufferedReader));
-            BlackBoard.setNewBlackboard();
-            State.loadNewState();
-            BFS.loadNewLevel();
-            Heuristic.loadNewLevel();
-            SubGoalPlanner.serialize();
-            BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
-            BlackBoard.getBlackBoard().run();
-            assertTrue(State.isSolved());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            fail();
-        }
+        setUpTest(file);
     }
 
     @Test
@@ -51,22 +36,7 @@ public class MultiAgentTest {
     @Test
     public void testMAAiAiCap() throws IOException{
         File file = new File("levels/MAAiAiCap.lvl");
-        //tUpTest(file);
-        try {
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-            LevelReader.stringCreator(LevelReader.readAllLines(bufferedReader));
-            BlackBoard.setNewBlackboard();
-            State.loadNewState();
-            BFS.loadNewLevel();
-            Heuristic.loadNewLevel();
-            SubGoalPlanner.serialize();
-            BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
-            BlackBoard.getBlackBoard().run();
-            assertTrue(State.isSolved());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            fail();
-        }
+        setUpTest(file);
     }
 
 
