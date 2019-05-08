@@ -6,16 +6,33 @@ import Components.BlackBoard;
 import Components.State.State;
 import Components.SubGoalPlanner;
 import Utilities.LevelReader;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
+import org.junit.Test;
+import java.io.File;
 import java.io.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MultiAgentTest {
 
     @Test
+    public void testAll() throws IOException{
+        File dir = new File("levels");
+        File[] directoryListing = dir.listFiles();
+        if (directoryListing != null) {
+            for (File child : directoryListing) {
+                if(child.toString().startsWith("levels/MA")){
+                    //System.err.println(child);
+                    setUpTest(child);
+                }
+
+            }
+        } else {}
+
+    }
+
+
+   /* @Test
     public void testMAExample() throws IOException{
         File file = new File("levels/MAExample.lvl");
         setUpTest(file);
@@ -37,7 +54,7 @@ public class MultiAgentTest {
     public void testMAAiAiCap() throws IOException{
         File file = new File("levels/MAAiAiCap.lvl");
         setUpTest(file);
-    }
+    }*/
 
 
     private void setUpTest(File file) throws IOException{
