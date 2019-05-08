@@ -65,7 +65,7 @@ public class Tile {
     }
 
     public Goal getGoal() {
-        return goal;
+        return this.goal;
     }
 
     public Tile getNorthNeighbor() {
