@@ -3,6 +3,7 @@ package Components;
 import java.util.List;
 
 import AI.Plan;
+import Components.State.Block;
 import Components.State.Goal;
 import Components.State.State;
 
@@ -90,7 +91,7 @@ public class Task {
     }
 
 
-    public static class MoveTask extends Task {
+    public static class MoveAgentTask extends Task {
 
         public List<Action> getOccupiedTiles() {
             return occupiedTiles;
@@ -98,9 +99,29 @@ public class Task {
 
         private List<Action> occupiedTiles;
 
-        public MoveTask(Color color, List<Long> dependencies, List<Action> occupiedTiles){
+        public MoveAgentTask(Color color, List<Long> dependencies, List<Action> occupiedTiles){
             super(color, dependencies, null);
             this.occupiedTiles = occupiedTiles;
+        }
+    }
+
+    public static class MoveBlockTask extends Task {
+
+        public List<Action> getOccupiedTiles() {
+            return occupiedTiles;
+        }
+
+        private List<Action> occupiedTiles;
+        private Block block;
+
+        public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block){
+            super(color, dependencies, null);
+            this.occupiedTiles = occupiedTiles;
+            this.block = block;
+        }
+
+        public Block getBlock() {
+            return block;
         }
     }
 

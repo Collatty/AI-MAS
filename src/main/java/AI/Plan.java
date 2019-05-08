@@ -33,7 +33,16 @@ public abstract class Plan {
     public static List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol) {
         AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(), new Node(startRow,
                 startCol), new Node(endRow, endCol), 1);
-        return search.findPath();
+        //TODO
+        List<Node> path = search.findPath();
+        if (path.get(path.size()-1).getRow() == endRow && path.get(path.size()-1).getCol() == endCol) {
+            return path;
+        } else {
+            AStarSearch searchWithBlocks = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
+                    new Node(startRow,
+                    startCol), new Node(endRow, endCol), 1);
+            return searchWithBlocks.findPath();
+        }
     }
 
 

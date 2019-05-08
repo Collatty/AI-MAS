@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
+import Components.State.Block;
 import Components.State.Goal;
 import Components.State.State;
 import Components.State.Tile;
@@ -71,14 +72,22 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     PlanProposal pp = (PlanProposal) nextMessage;
                     System.err.println(pp.toString());
                     Agent agent = agentInTheWay(pp.getActions());
+                    Block block = blockInTheWay(pp.getActions());
                     if(conflict(pp.getActions())){
                         pp.getA().replan();
-                    } else if (agent != null) {
+                    } else if (agent != null && !agent.equals(pp.getA())) {
                         System.err.println("Agent" + agent.toString() + " is in the way!");
-                        Task task = new Task.MoveTask(agent.getColor(), new ArrayList<>(), pp.getActions());
+                        Task task = new Task.MoveAgentTask(agent.getColor(), new ArrayList<>(), pp.getActions());
                         this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
                         this.taskMap.put(task.getId(), task);
                         this.submit(new MessageToAgent(false, agent.getColor(), agent.getAgentNumber(),
+                                MessageType.PLAN, task, null));
+                    } else if (block!= null && !pp.getA().getColor().equals(block.getColor())){
+                        System.err.println("Block" +block.toString()+ "is in the way");
+                        Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
+                        this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
+                        this.taskMap.put(task.getId(), task);
+                        this.submit(new MessageToAgent(false, block.getColor(), null,
                                 MessageType.PLAN, task, null));
                     } else {
                         if (acceptedPlans.get(pp.getA().getAgentNumber()).size() == 0) {
@@ -131,7 +140,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     private void submitTasks() {
         for (Task task : this.unsolvedTasks) {
             if (task.getDependencies().size() == 0) {
-                if (task instanceof Task.MoveTask) {
+                if (task instanceof Task.MoveAgentTask) {
                     this.submit(new MessageToAgent(false, task.getColor(), null,
                             MessageType.PLAN, task, null));
                 } else {
@@ -146,7 +155,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                 }
             }
             if (solvedDeps) {
-                if (task instanceof Task.MoveTask) {
+                if (task instanceof Task.MoveAgentTask) {
                     this.submit(new MessageToAgent(false, task.getColor(), null,
                             MessageType.PLAN, task, null));
                 } else {
@@ -222,9 +231,9 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
             }
         }
         for (Action action : actions) {
-            if (occupiedTiles.entrySet().contains(action.getEndBox())){
+            if (occupiedTiles.keySet().contains(action.getEndBox())){
                 return occupiedTiles.get(action.getEndBox());
-            } else if (occupiedTiles.entrySet().contains(action.getEndAgent())) {
+            } else if (occupiedTiles.keySet().contains(action.getEndAgent())) {
                 return occupiedTiles.get(action.getEndAgent());
 
             }
@@ -232,6 +241,20 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         return null;
     }
 
+    private Block blockInTheWay(List<Action> actions) {
+        Map<Tile, Block> occupiedTiles = new HashMap();
+        for (Block block : State.getBlocks()) {
+            occupiedTiles.put(State.getInitialState().get(block.getRow()).get(block.getCol()), block);
+        }
+        for (Action action : actions) {
+            if (occupiedTiles.keySet().contains(action.getEndBox())){
+                return occupiedTiles.get(action.getEndBox());
+            } else if (occupiedTiles.keySet().contains(action.getEndAgent())) {
+                return occupiedTiles.get(action.getEndAgent());
+            }
+        }
+        return null;
+    }
     private void appendNoOpAction() {
         int maxSize = 0;
         for (List<Action> acceptedPlan : this.acceptedPlans) {

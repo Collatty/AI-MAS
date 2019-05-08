@@ -43,7 +43,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
     @Override
     public void onNext(MessageToAgent message) {
-		if (message.getToAll() != null && message.getToAll() || message.getToColor() != null && message.getToColor() == color
+		if (message.getToAll() != null && message.getToAll() || message.getToColor() != null && message.getToColor() == this.color
 			|| message.getToAgent() != null && message.getToAgent() == agentNumber) {
 			if (message.getMessageType() == MessageType.HEURISTIC) {
 				System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
@@ -67,15 +67,28 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 			this.plan = moveBoxPlan.getPlan();
 			System.err.println(this.toString() + "has submitted a plan");
 		}
-		else if (task instanceof Task.MoveTask){
+		else if (task instanceof Task.MoveAgentTask){
 			Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col),
-					((Task.MoveTask) task).getOccupiedTiles());
+					((Task.MoveAgentTask) task).getOccupiedTiles());
 			Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
 					freeTile.getCol());
 			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(movePlan.getPlan(), this, task.getId(), -1,
 					-1));
 			this.plan = movePlan.getPlan();
 			System.err.println(this.toString() + "has submitted a moveplan");
+		} else if (task instanceof Task.MoveBlockTask) {
+			Tile freeTile =
+					searchForFreeTile(State.getInitialState()
+							.get(((Task.MoveBlockTask) task).getBlock().getRow())
+							.get(((Task.MoveBlockTask) task).getBlock().getCol()),
+							((Task.MoveBlockTask) task).getOccupiedTiles());
+			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
+					((Task.MoveBlockTask) task).getBlock().getRow(), ((Task.MoveBlockTask) task).getBlock().getCol(),
+					freeTile.getRow(), freeTile.getCol());
+			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
+					-1, -1));
+			this.plan = moveBoxPlan.getPlan();
+			System.err.println(this.toString() + "has submitted a moveBoxPlan");
 		}
 		workingOnPlan = false;
 		this.row = this.plan.get(plan.size()-1).getEndAgent().getRow();
