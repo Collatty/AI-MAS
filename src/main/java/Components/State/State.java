@@ -20,6 +20,7 @@ public class State {
     private static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private static List<Goal> GOALS = new ArrayList<>();
     private static List<Block> blocks = new ArrayList<>();
+    private static List<Agent> initialAgents = new ArrayList<>();
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
     private static boolean solved;
@@ -32,7 +33,6 @@ public class State {
         return initialAgents;
     }
 
-    private static List<Agent> initialAgents = new ArrayList<>();
     private List<List<Tile>> currentTiles = new ArrayList<>();
 
     public State() {

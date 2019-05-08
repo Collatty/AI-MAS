@@ -141,15 +141,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
 
 
         // Find best heuristic proposed
-        for (HeuristicProposal hp : hpArray) {
-            agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
-            startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
-            endIndex = startIndex + hp.getH().heuristic;
+       for (HeuristicProposal hp : hpArray) {
+           /*agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
+           startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
+           endIndex = startIndex + hp.getH().heuristic;
 
-            if (minEndIndex == null || minEndIndex > endIndex) {
-            minEndIndex = endIndex;
-            hpChosen = hp;
-            }
+           if (minEndIndex == null || minEndIndex > endIndex) {
+               minEndIndex = endIndex;*/
+          hpChosen = hp;
         }
 
         System.err.print("Blackboard has chosen a heuristic proposal: ");
