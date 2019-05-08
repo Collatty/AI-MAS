@@ -2,7 +2,6 @@ package Components.State;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 import Components.Agent;
 import Components.Color;
@@ -20,7 +19,7 @@ public class State {
     private static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private static List<Goal> GOALS = new ArrayList<>();
     private static List<Block> blocks = new ArrayList<>();
-    private static List<Agent> initialAgents = new ArrayList<>();
+    private static List<Agent> agents = new ArrayList<>();
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
     private static boolean solved;
@@ -30,7 +29,7 @@ public class State {
 
 
     public static List<Agent> getInitialAgents() {
-        return initialAgents;
+        return agents;
     }
 
     private List<List<Tile>> currentTiles = new ArrayList<>();
@@ -44,7 +43,7 @@ public class State {
         INITIAL_STATE = new ArrayList<>();
         GOALS = new ArrayList<>();
         blocks = new ArrayList<>();
-        initialAgents = new ArrayList<>();
+        agents = new ArrayList<>();
         maxCol = 0;
         STRING_DOMAIN = LevelReader.getDomain();
         STRING_LEVEL_NAME = LevelReader.getLevelName();
@@ -58,7 +57,7 @@ public class State {
 
     public static Agent getAgentByNumber(int number) {
 
-        for (Agent agent : initialAgents) {
+        for (Agent agent : agents) {
             if (agent.getAgentNumber() == number){
                 return agent;
             }
@@ -94,7 +93,7 @@ public class State {
                         convertFromStringToColor(getColorAgent(character)), row, col);
                 tile.setTileOccupant(agt);
                 currentList.add(tile);
-                initialAgents.add(agt);
+                agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
                 //CHECK IF THERE ARE UNMOVABLE BLOCKS
@@ -180,8 +179,8 @@ public class State {
         }
         setNeighbors(copy);
         this.currentTiles = copy;
-        this.initialAgents = agentCopy;
-        this.blocks = blocksCopy;
+        agents = agentCopy; //TODO buggy static
+        blocks = blocksCopy;
     }
 
     public static List<List<Tile>> copyTiles(List<List<Tile>> tiles) {
@@ -255,7 +254,7 @@ public class State {
         return wallMatrix;
     }
 
-    public List<Agent> getAgents() { return initialAgents; }
+    public List<Agent> getAgents() { return agents; }
 
     public static List<Block> getBlocks() { return blocks; }
 
@@ -367,6 +366,14 @@ public class State {
                 i_col++;
             }
             i_row++;
+        }
+        return walls;
+    }
+    private static boolean[][] createWallBoardwithBlocks(List<List<Tile>> state){
+
+        boolean[][] walls = createWallBoard(state);
+        for (Block block : blocks) {
+            walls[block.getRow()][block.getCol()] = true;
         }
         return walls;
     }

@@ -59,7 +59,7 @@ public abstract class SubGoalPlanner {
                 if (path.get(path.size()-1).getRow() == block.getRow() && path.get(path.size()-1).getCol() == block.getCol()){
                     for (Node node : path.subList(1,path.size()-1)) {
                         if (State.getInitialState().get(node.getRow()).get(node.getCol()).isGoal()){
-                            goal.getPreconditions().add(State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal());
+                            State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions().add(goal);
                         }
                     }
                 }

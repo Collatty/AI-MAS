@@ -127,9 +127,9 @@ public class Action {
         }
         if (this.actionType == Pull) {
             if (this.startBox.getRow()-this.endBox.getRow() == 1) {
-                this.boxDirection = Direction.N;
-            } else if (this.startBox.getRow()-this.endBox.getRow() == -1) {
                 this.boxDirection = Direction.S;
+            } else if (this.startBox.getRow()-this.endBox.getRow() == -1) {
+                this.boxDirection = Direction.N;
             } else if (this.startBox.getCol()-this.endBox.getCol() == 1) {
                 this.boxDirection = Direction.E;
             } else if (this.startBox.getCol()-this.endBox.getCol() == -1) {

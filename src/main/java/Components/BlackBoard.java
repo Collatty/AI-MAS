@@ -66,11 +66,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     // Check if all agents of a given color have send a heuristic for this task
                     if (colorAgentAmountMap.get(hp.getA().getColor()) == hpArray.size()) {
                         delegateTask(hpArray);
-                        if (!tasksReadyForSubmit.isEmpty()) {
-                            submitHeuristicTask(tasksReadyForSubmit.remove(0));
-                        } else {
-                            System.err.print("All tasks are delegated, time for planning!");
-                        }
                     }
                 } else if (messageType.equals(PlanProposal.class.getSimpleName())) {
                     PlanProposal pp = (PlanProposal) nextMessage;
@@ -91,36 +86,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                             acceptedPlans.add(pp.getA().getAgentNumber(), pp.getActions());
                             this.taskMap.get(pp.getTaskID()).setSolved(true);
                             this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
+                            submitTasks();
                         } else {
                             acceptedPlans.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
                             this.taskMap.get(pp.getTaskID()).setSolved(true);
                             this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
+                            submitTasks();
                         }
-                        for (Task task : this.unsolvedTasks) {
-                            if (task.getDependencies().size() == 0) {
-                                if (task instanceof Task.MoveTask) {
-                                    this.submit(new MessageToAgent(false, task.getColor(), null,
-                                            MessageType.PLAN, task, null));
-                                } else {
-                                    this.submitHeuristicTask(task);
-                                }
-                            }
-                            boolean solvedDeps = true;
-                            for (Long ID : task.getDependencies()) {
-                                if(!this.taskMap.get(ID).isSolved()) {
-                                    solvedDeps = false;
-                                    break;
-                                }
-                            }
-                            if (solvedDeps) {
-                                if (task instanceof Task.MoveTask) {
-                                    this.submit(new MessageToAgent(false, task.getColor(), null,
-                                            MessageType.PLAN, task, null));
-                                } else {
-                                    this.submitHeuristicTask(task);
-                                }
-                            }
-                        }
+
                     }
                 }
                 checkCompleted();
@@ -154,6 +127,33 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         System.err.print("Blackboard has chosen a heuristic proposal: ");
         this.submit(new MessageToAgent(false, hpChosen.getA().getColor(), hpChosen.getA().getAgentNumber(),
                 MessageType.PLAN, this.taskMap.get(hpChosen.getTaskID()), hpChosen.getH().block));
+    }
+    private void submitTasks() {
+        for (Task task : this.unsolvedTasks) {
+            if (task.getDependencies().size() == 0) {
+                if (task instanceof Task.MoveTask) {
+                    this.submit(new MessageToAgent(false, task.getColor(), null,
+                            MessageType.PLAN, task, null));
+                } else {
+                    this.submitHeuristicTask(task);
+                }
+            }
+            boolean solvedDeps = true;
+            for (Long ID : task.getDependencies()) {
+                if(!this.taskMap.get(ID).isSolved()) {
+                    solvedDeps = false;
+                    break;
+                }
+            }
+            if (solvedDeps) {
+                if (task instanceof Task.MoveTask) {
+                    this.submit(new MessageToAgent(false, task.getColor(), null,
+                            MessageType.PLAN, task, null));
+                } else {
+                    this.submitHeuristicTask(task);
+                }
+            }
+        }
     }
 
     private void submitHeuristicTask(Task task) {
@@ -192,6 +192,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     }
 
     private void start(List<Agent> agents) {
+        populateAcceptedPlans();
         // Setup agents
         for (Agent a : agents) {
             Thread thread = new Thread(a);
@@ -203,20 +204,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
             }
             this.subscribe(a);
         }
-        // Find tasks with no dependencies
-        Iterator<Task> taskItr = unsolvedTasks.iterator();
-        Collection<Task> submittedTasks = new ArrayList<>();
-        while (taskItr.hasNext()) {
-            Task task = taskItr.next();
-            if (task.getDependencies().isEmpty()) {
-                tasksReadyForSubmit.add(task);
-                submittedTasks.add(task);
-            }
-	    }
+        submitTasks();
 
-        // Submit first task
-        submitHeuristicTask(tasksReadyForSubmit.remove(0));
-        populateAcceptedPlans();
     }
 
     private Agent agentInTheWay(List<Action> actions) {
