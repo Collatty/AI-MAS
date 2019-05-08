@@ -12,36 +12,26 @@ import Components.State.Tile;
 public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
 
     private static BlackBoard blackBoard = new BlackBoard();
-    private Thread t;
     private List<Task> tasksReadyForSubmit = new ArrayList<>();
-    private List<Task> tasksNotSubmitted = new ArrayList<>();
+    private List<Task> unsolvedTasks = new ArrayList<>();
     private Map<Long, List<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
-    private Map<Integer, List<Action>> acceptedActionsMap = new HashMap<>();
     private Map<Integer, ArrayList<Action>> heuristicsActionsMap = new HashMap<>();
     private Map<Color, Integer> colorAgentAmountMap = new HashMap<>();
-    private Map<Long, PlanProposal> delegatedTasksMap = new HashMap<>();
     private Map<Long, Task> taskMap = new HashMap<>();
-    private List<State> stateSequence = new ArrayList<>();
-    private Map<Long, PlanProposal> acceptedPlansMap = new HashMap<>();
-
-    public List<List<Action>> getAcceptedPlans() {
-        return acceptedPlans;
-    }
-
     private List<List<Action>> acceptedPlans = new ArrayList<>(10);
-    private List<String> outputStrings = new ArrayList<>();
-
-    private State currentState;
     private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
-    private List<Task> tasks;
-    private List<Agent> agents;
-    private long taskCounter;
 
     private BlackBoard() {
     }
 
+    //Testing purposes
+    public static void setNewBlackboard() {
+        blackBoard = new BlackBoard();
+    }
+
+
     public void setTasks(List<Task> tasks) {
-        this.tasksNotSubmitted = tasks;
+        this.unsolvedTasks = tasks;
         this.taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, task -> task));
     }
 
@@ -54,12 +44,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     public void run() {
         this.start(State.getState().getAgents());
 	    Message nextMessage;
+        System.err.println("Blackboard running");
+
+
 
         while (!State.isSolved()) {
             while ((nextMessage = messagesToBlackboard.poll()) != null) {
             String messageType = nextMessage.getClass().getSimpleName();
-            // Heuristic proposal received
-                if (messageType == HeuristicProposal.class.getSimpleName()) {
+                if (messageType.equals(HeuristicProposal.class.getSimpleName())) {
                     HeuristicProposal hp = (HeuristicProposal) nextMessage;
                     System.err
                         .println("Agent " + hp.getA().getAgentNumber() + " proposes " + hp.getH() + " actions for " +
@@ -75,65 +67,67 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     if (colorAgentAmountMap.get(hp.getA().getColor()) == hpArray.size()) {
                         delegateTask(hpArray);
                         if (!tasksReadyForSubmit.isEmpty()) {
-                            submitTask(tasksReadyForSubmit.remove(0));
+                            submitHeuristicTask(tasksReadyForSubmit.remove(0));
                         } else {
                             System.err.print("All tasks are delegated, time for planning!");
-                            // TODO: All tasks are delegated, make the agents start planning
                         }
                     }
-                } else if (messageType == PlanProposal.class.getSimpleName()) {
+                } else if (messageType.equals(PlanProposal.class.getSimpleName())) {
                     PlanProposal pp = (PlanProposal) nextMessage;
+                    System.err.println(pp.toString());
+                    Agent agent = agentInTheWay(pp.getActions());
                     if(conflict(pp.getActions())){
                         pp.getA().replan();
+                    } else if (agent != null) {
+                        System.err.println("Agent" + agent.toString() + " is in the way!");
+                        Task task = new Task.MoveTask(agent.getColor(), new ArrayList<>(), pp.getActions());
+                        this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
+                        this.taskMap.put(task.getId(), task);
+                        this.submit(new MessageToAgent(false, agent.getColor(), agent.getAgentNumber(),
+                                MessageType.PLAN, task, null));
                     } else {
-                       if (acceptedPlans.get(pp.getA().getAgentNumber()).size() == 0) {
-                           acceptedPlans.remove(pp.getA().getAgentNumber());
-                           acceptedPlans.add(pp.getA().getAgentNumber(), pp.getActions());
-                       } else {
-                           acceptedPlans.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
-                       }
-                    }
-
-
-
-                    // If there is no conflict, input the new actions in the plan map
-                    if (!conflict(pp.getActions())) {
-                    // TODO: Update stateSequence
-
-                        System.err.println(pp.toString());
-                        // Add NoOps if necessary
-                        int numberOfNoOps = (int) (pp.getStartIndex()
-                            - acceptedActionsMap.get(pp.getA().getAgentNumber()).size());
-                        if (numberOfNoOps >= 0) {
-                            //Action[] noOpArr = new Action[numberOfNoOps];
-                            //Arrays.fill(noOpArr, new Action()); //TODO
-                            //acceptedActionsMap.get(pp.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
-
-                            // Add actions to accepted actions
-                            //acceptedActionsMap.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
-
-                            // Add plan to accepted plans
-                            //acceptedPlansMap.put(pp.getTaskID(), pp);
-
-
-                            System.err.print("Current actions planned: ");
-                            System.err.println(acceptedActionsMap.toString());
+                        if (acceptedPlans.get(pp.getA().getAgentNumber()).size() == 0) {
+                            acceptedPlans.remove(pp.getA().getAgentNumber());
+                            acceptedPlans.add(pp.getA().getAgentNumber(), pp.getActions());
+                            this.taskMap.get(pp.getTaskID()).setSolved(true);
+                            this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
                         } else {
-                            // TODO: Agent has actions where this plan starts. Deny plan
+                            acceptedPlans.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
+                            this.taskMap.get(pp.getTaskID()).setSolved(true);
+                            this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
+                        }
+                        for (Task task : this.unsolvedTasks) {
+                            if (task.getDependencies().size() == 0) {
+                                if (task instanceof Task.MoveTask) {
+                                    this.submit(new MessageToAgent(false, task.getColor(), null,
+                                            MessageType.PLAN, task, null));
+                                } else {
+                                    this.submitHeuristicTask(task);
+                                }
+                            }
+                            boolean solvedDeps = true;
+                            for (Long ID : task.getDependencies()) {
+                                if(!this.taskMap.get(ID).isSolved()) {
+                                    solvedDeps = false;
+                                    break;
+                                }
+                            }
+                            if (solvedDeps) {
+                                if (task instanceof Task.MoveTask) {
+                                    this.submit(new MessageToAgent(false, task.getColor(), null,
+                                            MessageType.PLAN, task, null));
+                                } else {
+                                    this.submitHeuristicTask(task);
+                                }
+                            }
                         }
                     }
                 }
                 checkCompleted();
-
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            System.err.println("Still here");
         }
         appendNoOpAction();
+        System.err.println("Blackboard finished");
     }
 
     // Delegate task to agents
@@ -145,10 +139,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         long maxDependencyEndIndex = 0;
         long agentPenalty;
 
-        // Find max endIndex of dependencies
-        for (Long depId : taskMap.get(hpArray.get(0).getTaskID()).getDependencies()) {
-            maxDependencyEndIndex = Math.max(maxDependencyEndIndex, delegatedTasksMap.get(depId).getEndIndex());
-        }
 
         // Find best heuristic proposed
         for (HeuristicProposal hp : hpArray) {
@@ -163,53 +153,11 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         }
 
         System.err.print("Blackboard has chosen a heuristic proposal: ");
-        hpChosen.print();
         this.submit(new MessageToAgent(false, hpChosen.getA().getColor(), hpChosen.getA().getAgentNumber(),
                 MessageType.PLAN, this.taskMap.get(hpChosen.getTaskID()), hpChosen.getH().block));
-
-        // TODO: Update the currentState:
-        // - Moving agent to new position near goal solved.
-        // - Remove box used by agent.
-        // - Change goal solved to wall.
-
-        // Add NoOps to plan if necessary
-        int numberOfNoOps = (int) (startIndex - heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).size());
-        if (numberOfNoOps > 0) {
-            //Action[] noOpArr = new Action[numberOfNoOps];
-            //Arrays.fill(noOpArr, new Action()); //TODO
-            //heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(Arrays.asList(noOpArr));
-        }
-
-        // Add NoOps instead of real actions
-        //Action[] unknArr = new Action[10];
-        //Arrays.fill(unknArr, new Action()); //TODO
-        //ArrayList<Action> unknArrList = new ArrayList<>(Arrays.asList(unknArr));
-        //heuristicsActionsMap.get(hpChosen.getA().getAgentNumber()).addAll(unknArrList);
-
-        System.err.println("Actions planed with heuristics: ");
-        for (Integer agentId : heuristicsActionsMap.keySet()) {
-            System.err.println("Agent " + agentId + ": " + heuristicsActionsMap.get(agentId).toString());
-        }
-
-        // Save plan
-        //delegatedTasksMap.put(hpChosen.getTaskID(),
-        //    new PlanProposal(unknArrList, hpChosen.getA(), hpChosen.getTaskID(), startIndex, endIndex));
-
-        // Find tasks with solved dependencies
-        Iterator<Task> taskItr = tasksNotSubmitted.iterator();
-        while (taskItr.hasNext()) {
-            Task task = taskItr.next();
-            System.err.println("Task " + task.getId() + " dependencies: " + task.getDependencies().toString());
-            if (delegatedTasksMap.keySet().containsAll(task.getDependencies())) {
-            System.err.println("All dependencies solved for task " + task.getId());
-            tasksReadyForSubmit.add(task);
-            //taskItr.remove(); this is still illegal
-            }
-        }
     }
 
-    private void submitTask(Task task) {
-        task.setPrestate(currentState);
+    private void submitHeuristicTask(Task task) {
         System.err.println("Blackboard submits task with id " + task.getId() + " and color " + task.getColor());
         MessageToAgent messageToAgent = new MessageToAgent(null, task.getColor(), null, MessageType.HEURISTIC, task,
                 null);
@@ -254,30 +202,46 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
             } else {
                 colorAgentAmountMap.put(a.getColor(), colorAgentAmountMap.get(a.getColor()) + 1);
             }
-
             this.subscribe(a);
-            ArrayList<Action> actions = new ArrayList<>();
-            heuristicsActionsMap.put(a.getAgentNumber(), actions);
-            acceptedActionsMap.put(a.getAgentNumber(), actions);
         }
-
         // Find tasks with no dependencies
-        Iterator<Task> taskItr = tasksNotSubmitted.iterator();
+        Iterator<Task> taskItr = unsolvedTasks.iterator();
         Collection<Task> submittedTasks = new ArrayList<>();
         while (taskItr.hasNext()) {
             Task task = taskItr.next();
-            System.err.println("Task " + task.getId() + " has color " + task.getColor());
             if (task.getDependencies().isEmpty()) {
-                System.err.println("Task " + task.getId() + " has no dependencies");
                 tasksReadyForSubmit.add(task);
                 submittedTasks.add(task);
             }
 	    }
-        tasksNotSubmitted.removeAll(submittedTasks);
 
         // Submit first task
-        submitTask(tasksReadyForSubmit.remove(0));
+        submitHeuristicTask(tasksReadyForSubmit.remove(0));
         populateAcceptedPlans();
+    }
+
+    private Agent agentInTheWay(List<Action> actions) {
+        Map<Tile, Agent> occupiedTiles = new HashMap();
+        for (List<Action> acceptedPLan : acceptedPlans) {
+            Agent agent = State.getAgentByNumber(acceptedPlans.indexOf(acceptedPLan));
+            if (acceptedPLan.size() == 0) {
+                occupiedTiles.put(State.getInitialState().get(agent.getRow()).get(agent.getCol()), agent);
+            } else {
+                occupiedTiles
+                        .put(State.getInitialState()
+                        .get(acceptedPLan.get(acceptedPLan.size()-1).getEndAgent().getRow())
+                        .get(acceptedPLan.get(acceptedPLan.size()-1).getEndAgent().getCol()), agent);
+            }
+        }
+        for (Action action : actions) {
+            if (occupiedTiles.entrySet().contains(action.getEndBox())){
+                return occupiedTiles.get(action.getEndBox());
+            } else if (occupiedTiles.entrySet().contains(action.getEndAgent())) {
+                return occupiedTiles.get(action.getEndAgent());
+
+            }
+        }
+        return null;
     }
 
     private void appendNoOpAction() {
@@ -292,13 +256,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
             if (acceptedPlan.size() < maxSize) {
                 List<Action> noOps = new ArrayList<>();
                 for (int i = 0; i < maxSize - acceptedPlan.size(); i++) {
-                    if(acceptedPlan.size()==0) {
+                    if(acceptedPlan.isEmpty()) {
                         noOps.add(new Action(
                                 State.getInitialState().get(
                                 State.getState().getAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getRow())
                                 .get(State.getState().getAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getCol())));
+                    } else {
+                        noOps.add(new Action(acceptedPlan.get(acceptedPlan.size() - 1).getEndAgent()));
                     }
-                    noOps.add(new Action(acceptedPlan.get(acceptedPlan.size() - 1).getEndAgent()));
                 }
                 acceptedPlan.addAll(noOps);
             }
@@ -307,18 +272,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         }
     }
 
-
-    public PlanProposal getAcceptedPlan(long taskID) {
-	    return acceptedPlansMap.get(taskID);
+    public List<Task> getUnsolvedTasks() {
+        return unsolvedTasks;
     }
-
-    public List<Task> getTasksNotSubmitted() {
-        return tasksNotSubmitted;
-    }
-
-    public List<Task> getTasks() {
-        return tasks;
-    }
+//
 
     public ConcurrentLinkedQueue<Message> getMessagesToBlackboard() {
         return messagesToBlackboard;
@@ -341,5 +298,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         State.setSolved(true);
     }
 
-
+    public List<List<Action>> getAcceptedPlans() {
+        return acceptedPlans;
+    }
 }

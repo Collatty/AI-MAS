@@ -11,4 +11,9 @@ public class HeuristicAndBlock {
         this.heuristic = heuristic;
         this.block = block;
     }
+
+    @Override
+    public String toString() {
+        return this.heuristic +" "+ block.toString();
+    }
 }

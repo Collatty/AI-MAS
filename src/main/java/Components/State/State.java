@@ -2,6 +2,7 @@ package Components.State;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import Components.Agent;
 import Components.Color;
@@ -10,29 +11,59 @@ import Utilities.LevelReader;
 public class State {
 
     //INITIAL STATE STRINGS STORED HERE
-    private final static String STRING_DOMAIN = LevelReader.getDomain();
-    private final static String STRING_LEVEL_NAME = LevelReader.getLevelName();
-    private final static String STRING_COLORS = LevelReader.getColors();
-    private final static String STRING_INITIAL = LevelReader.getInitial();
-    private final static String STRING_GOALS = LevelReader.getGoals();
+    private static String STRING_DOMAIN = LevelReader.getDomain();
+    private static String STRING_LEVEL_NAME = LevelReader.getLevelName();
+    private static String STRING_COLORS = LevelReader.getColors();
+    private static String STRING_INITIAL = LevelReader.getInitial();
+    private static String STRING_GOALS = LevelReader.getGoals();
 
-    private final static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
-    private final static List<Goal> GOALS = new ArrayList<>();
+    private static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
+    private static List<Goal> GOALS = new ArrayList<>();
+    private static List<Block> blocks = new ArrayList<>();
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
     private static boolean solved;
-    private static State state = new State();
 
-    private List<Agent> agents = new ArrayList<>();
-    private List<Block> blocks = new ArrayList<>();
+    public static List<Agent> getInitialAgents() {
+        return initialAgents;
+    }
+
+    private static List<Agent> initialAgents = new ArrayList<>();
+    private static State state = new State();
     private List<List<Tile>> currentTiles = new ArrayList<>();
 
-
-
-
-
-
     public State() {
+        State.createState();
+    }
+
+    //created for testing purposes
+    public static void loadNewState() {
+        INITIAL_STATE = new ArrayList<>();
+        GOALS = new ArrayList<>();
+        blocks = new ArrayList<>();
+        initialAgents = new ArrayList<>();
+        maxCol = 0;
+        STRING_DOMAIN = LevelReader.getDomain();
+        STRING_LEVEL_NAME = LevelReader.getLevelName();
+        STRING_COLORS = LevelReader.getColors();
+        STRING_INITIAL = LevelReader.getInitial();
+        STRING_GOALS = LevelReader.getGoals();
+        solved = false;
+        State.createState();
+
+    }
+
+    public static Agent getAgentByNumber(int number) {
+
+        for (Agent agent : initialAgents) {
+            if (agent.getAgentNumber() == number){
+                return agent;
+            }
+        }
+        return null;
+    }
+
+    private static void createState() {
         int row = 0;
         int col = 0;
         List<Tile> currentList = new ArrayList<>();
@@ -59,7 +90,7 @@ public class State {
                         convertFromStringToColor(getColorAgent(character)), row, col);
                 tile.setTileOccupant(agt);
                 currentList.add(tile);
-                agents.add(agt);
+                initialAgents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
                 Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
@@ -97,6 +128,7 @@ public class State {
         wallMatrix = createWallBoard(INITIAL_STATE);
 
     }
+
 
 
     public State(State copyState) {
@@ -139,7 +171,7 @@ public class State {
         }
         setNeighbors(copy);
         this.currentTiles = copy;
-        this.agents = agentCopy;
+        this.initialAgents = agentCopy;
         this.blocks = blocksCopy;
     }
 
@@ -193,10 +225,6 @@ public class State {
 
     //GETTERS
 
-    public static State getState() {
-        return state;
-    }
-
     public static int getMaxCol() {
         return maxCol;
     }
@@ -218,9 +246,9 @@ public class State {
         return wallMatrix;
     }
 
-    public List<Agent> getAgents() { return agents; }
+    public List<Agent> getAgents() { return initialAgents; }
 
-    public List<Block> getBlocks() { return blocks; }
+    public static List<Block> getBlocks() { return blocks; }
 
 
     public static String getStringDomain() {
@@ -245,7 +273,7 @@ public class State {
 
 
     // There should be no other numbers in the color string besides the agents
-    private String getColorAgent(char agent) {
+    private static String getColorAgent(char agent) {
         String[] colorsSplitted = STRING_COLORS.split("\n");
         for (String string : colorsSplitted) {
             if (string.contains(Character.toString(agent))){
@@ -256,7 +284,7 @@ public class State {
         return "NA";
     }
 
-    private String getColorBlockAndGoal(char blockAndGoal) {
+    private static String getColorBlockAndGoal(char blockAndGoal) {
         String[] colorsSplitted = STRING_COLORS.split("\n");
         for (String string : colorsSplitted) {
             String[] splittedEvenMore = string.split(":");
@@ -298,7 +326,7 @@ public class State {
         }
     }
 
-    private boolean[][] createWallBoard(List<List<Tile>> state){
+    private static boolean[][] createWallBoard(List<List<Tile>> state){
         int max_row = state.size();
         int max_col = state.get(0).size();
         boolean[][] walls = new boolean[max_row][max_col];
@@ -316,7 +344,7 @@ public class State {
         return walls;
     }
 
-    private Color convertFromStringToColor(String stringColor){
+    private static Color convertFromStringToColor(String stringColor){
         for (Color enumColor : Color.values()){
             if(stringColor.toUpperCase().equals(enumColor.toString())){
                 return enumColor;
@@ -332,6 +360,10 @@ public class State {
 
     public static void setSolved(boolean solved) {
         State.solved = solved;
+    }
+
+    public static State getState() {
+        return state;
     }
 
 }

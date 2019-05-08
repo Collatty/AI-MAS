@@ -2,6 +2,7 @@ package Components;
 
 import java.util.List;
 
+import AI.Plan;
 import Components.State.Goal;
 import Components.State.State;
 
@@ -10,13 +11,22 @@ public class Task {
 
     private static int counter = 0;
     private long id;
-    private int row;
-    private int col;
+
     private Color color;
     private List<Long> dependencies;
     private TaskType taskType;
     private State prestate;
     private Goal goal;
+
+    public boolean isSolved() {
+        return solved;
+    }
+
+    public void setSolved(boolean solved) {
+        this.solved = solved;
+    }
+
+    private boolean solved;
 
     public long getId() {
 	return id;
@@ -24,22 +34,6 @@ public class Task {
 
     public void setId(long id) {
 	this.id = id;
-    }
-
-    public int getRow() {
-	return row;
-    }
-
-    public void setRow(int row) {
-	this.row = row;
-    }
-
-    public int getCol() {
-	return col;
-    }
-
-    public void setCol(int col) {
-	this.col = col;
     }
 
     public Color getColor() {
@@ -67,14 +61,13 @@ public class Task {
     }
 
 
-    public Task(int row, int col, Color color, List<Long> dependencies, Goal goal) {
+    public Task(Color color, List<Long> dependencies, Goal goal) {
         this.id = counter;
         counter++;
-        this.row = row;
-        this.col = col;
         this.color = color;
         this.dependencies = dependencies;
         this.goal = goal;
+        this.solved = false;
 
     }
 
@@ -95,4 +88,20 @@ public class Task {
     public Goal getGoal() {
         return this.goal;
     }
+
+
+    public static class MoveTask extends Task {
+
+        public List<Action> getOccupiedTiles() {
+            return occupiedTiles;
+        }
+
+        private List<Action> occupiedTiles;
+
+        public MoveTask(Color color, List<Long> dependencies, List<Action> occupiedTiles){
+            super(color, dependencies, null);
+            this.occupiedTiles = occupiedTiles;
+        }
+    }
+
 }

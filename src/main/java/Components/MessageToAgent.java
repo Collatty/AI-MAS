@@ -2,6 +2,8 @@ package Components;
 
 import Components.State.Block;
 
+import java.util.List;
+
 enum MessageType {
     HEURISTIC,
     PLAN,
@@ -19,6 +21,7 @@ public class MessageToAgent {
     private Color toColor;
     private Integer toAgent;
     private MessageType messageType;
+
 
     public Boolean getToAll() {
         return toAll;

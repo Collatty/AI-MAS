@@ -3,10 +3,17 @@ package Components.State;
 import Components.Color;
 import Components.Task;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+
 
 public class Goal {
+
+    private Collection<Goal> parents = new HashSet<>();
+    private Collection<Goal> children = new HashSet<>();
+    private Collection<Goal> preconditions = new HashSet<>();
 
     private final char type;
     private final int col;
@@ -24,7 +31,6 @@ public class Goal {
     private boolean completed;
 
     //By preconditions we mean goals that cannot be completed prior to this goal's attempted completion
-    private Collection<Goal> preconditions = new HashSet<>();
 
 
     public Goal(char type, Color color, int row, int col) {
@@ -34,8 +40,8 @@ public class Goal {
         this.col = col;
         this.completed = false;
 
-        if(State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
-            if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor().equals(this.color)){
+        if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
+            if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor().equals(this.color)) {
                 setCompleted(true);
             }
         }
@@ -59,32 +65,57 @@ public class Goal {
         return color;
     }
 
-    public Collection<Goal> getPreconditions() {
-        return this.preconditions;
-    }
     //END GETTERS
 
-    public void setPrecondition(Goal goal){
-        this.preconditions.add(goal);
+    public Collection<Goal> getParents() {
+        return parents;
     }
 
-    public Collection<Goal> accumulatePreconditions() {
-        Collection<Goal> accumulatedPreconditions = new HashSet<>();
-        if (!this.preconditions.isEmpty()) {
-            for (Goal goal : this.preconditions) {
-                if (goal.getPreconditions() != null)
-                    accumulatedPreconditions.addAll(goal.accumulatePreconditions());
+    public void setParent(Goal parent) {
+        this.parents.add(parent);
+    }
+
+    public Collection<Goal> getChildren() {
+        return children;
+    }
+
+    public void setChild(Goal child) {
+        this.children.add(child);
+    }
+
+
+    public void populatePreconditions() {
+        findTopOfTree();
+        accumulatePreconditions();
+    }
+
+    private void accumulatePreconditions() {
+        for (Goal goal : this.children) {
+            if (goal.getChildren().isEmpty()) {
+                this.preconditions.add(goal);
+            } else {
+                goal.accumulatePreconditions();
             }
         }
-
-        this.preconditions.addAll(accumulatedPreconditions);
-        return this.preconditions;
     }
+
+    private void findTopOfTree() {
+        if (!this.parents.isEmpty()) {
+            for (Goal goal : this.parents) {
+                goal.findTopOfTree();
+            }
+        }
+    }
+
 
     @Override
     public String toString() {
         return Character.toString(this.type);
     }
 
+
+    public Collection<Goal> getPreconditions() {
+        return this.preconditions;
+    }
 
 }

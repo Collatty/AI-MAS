@@ -1,7 +1,6 @@
 package Components;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Flow.Subscriber;
 import java.util.concurrent.Flow.Subscription;
 
@@ -11,6 +10,7 @@ import AI.Plan;
 import Components.State.Block;
 import Components.State.State;
 import Components.State.Goal;
+import Components.State.Tile;
 
 
 public class Agent implements Subscriber<MessageToAgent>, Runnable{
@@ -43,7 +43,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
     @Override
     public void onNext(MessageToAgent message) {
-		System.err.println("Agent " + agentNumber + " received a message " + message.getToColor());
 		if (message.getToAll() != null && message.getToAll() || message.getToColor() != null && message.getToColor() == color
 			|| message.getToAgent() != null && message.getToAgent() == agentNumber) {
 			if (message.getMessageType() == MessageType.HEURISTIC) {
@@ -51,9 +50,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 				proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
 			} else if (message.getMessageType() == MessageType.PLAN) {
 				this.createPlan(message.getTask(), message.getBlock());
-			System.err.println("Agent " + agentNumber + " is planning for task " + message.getTask().getId());
-			// System.err.println("Agent " + agentNumber + " makes plan for task " +
-			// message.task.id);
 			}
 		}
 		this.blackboardChannel.request(1);
@@ -69,22 +65,64 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
 					-1, -1));
 			this.plan = moveBoxPlan.getPlan();
-			for (Action a: moveBoxPlan.getPlan()) {
-				System.err.println(a.toString());
-			}
+			System.err.println(this.toString() + "has submitted a plan");
 		}
-		else {
-			Plan.MovePlan movePlan; //TODO
+		else if (task instanceof Task.MoveTask){
+			Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col),
+					((Task.MoveTask) task).getOccupiedTiles());
+			Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
+					freeTile.getCol());
+			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(movePlan.getPlan(), this, task.getId(), -1,
+					-1));
+			this.plan = movePlan.getPlan();
+			System.err.println(this.toString() + "has submitted a moveplan");
 		}
 		workingOnPlan = false;
-    }
+		this.row = this.plan.get(plan.size()-1).getEndAgent().getRow();
+		this.col = this.plan.get(plan.size()-1).getEndAgent().getCol();
+
+	}
 
     public void replan() {
     	this.plan.add(0, new Action(this.plan.get(0).getStartAgent()));
     	this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(this.plan, this, this.task.getId(), -1, -1));
 	}
 
-    private void proposeHeuristic(HeuristicAndBlock h, Task t) {
+	private static Tile searchForFreeTile(Tile startTile, List<Action> actions) {
+    	Collection<Tile> occupiedTiles = new HashSet<>();
+    	for (Action action: actions) {
+    		occupiedTiles.add(action.getStartBox());
+    		occupiedTiles.add(action.getEndBox());
+    		occupiedTiles.add(action.getStartAgent());
+    		occupiedTiles.add(action.getEndAgent());
+		}
+		Collection<Tile> exploredTiles = new HashSet<>();
+		Stack<Tile> frontier = new Stack<>();
+		frontier.push(startTile);
+		while (!frontier.isEmpty()) {
+			Tile exploringTile = frontier.pop();
+			if(!occupiedTiles.contains(exploringTile)) {
+				return exploringTile;
+			}
+			for (Tile neighbor : exploringTile.getNeighbors()) {
+				if (exploredTiles.contains(neighbor)) {
+					continue;
+				}
+				if (neighbor.isWall()) {
+					continue;
+				}
+				if (neighbor.isGoal()) { //TODO this might be very buggy
+					continue;
+				}
+				frontier.push(neighbor);
+			}
+			exploredTiles.add(exploringTile);
+		}
+		return null;
+	}
+
+
+	private void proposeHeuristic(HeuristicAndBlock h, Task t) {
 		blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
     }
 
@@ -162,7 +200,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
 	@Override
 	public void run() {
-		System.err.println("Agent " + this.toString() + "'s thread is up and running");
 	}
 	// END SETTERS
 

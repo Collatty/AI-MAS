@@ -28,22 +28,9 @@ public abstract class Plan {
         this.endCol = endCol;
     }
 
-    private void setNodes() {
-        for (int i = 0; i < State.getInitialState().size(); i++) {
-            for (int j = 0; j < State.getInitialState().get(i).size(); j++) {
-                Node Node = new Node(i, j);
-                Node.calculateHeuristic(getFinalNode());
-                if(State.getInitialState().get(i).get(j).isWall()) {
-                    Node.setBlock(true);
-                }
-                this.nodes[i][j] = Node;
-            }
-        }
-    }
-
     public abstract void calculatePlan();
 
-    public List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol) {
+    public static List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol) {
         AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(), new Node(startRow,
                 startCol), new Node(endRow, endCol), 1);
         return search.findPath();
@@ -136,9 +123,15 @@ public abstract class Plan {
             Node previous = null;
             for (Node step : searchResults) {
                 if (previous != null) {
-                    partialPlan.add(new Action(State.getInitialState().get(previous.getRow()).get(previous.getCol()),
-                                    State.getInitialState().get(step.getRow()).get(step.getCol()),
-                            partialPlan.get(partialPlan.size()-1).getEndAgent()));
+                    if(partialPlan.size() == 0) {
+                        partialPlan.add(new Action(State.getInitialState().get(previous.getRow()).get(previous.getCol()),
+                                State.getInitialState().get(step.getRow()).get(step.getCol()),
+                                State.getInitialState().get(this.startRow).get(this.startCol)));
+                    } else {
+                        partialPlan.add(new Action(State.getInitialState().get(previous.getRow()).get(previous.getCol()),
+                                State.getInitialState().get(step.getRow()).get(step.getCol()),
+                                partialPlan.get(partialPlan.size() - 1).getEndAgent()));
+                    }
                 }
                 previous = step;
             }

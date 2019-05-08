@@ -41,7 +41,9 @@ public abstract class Heuristic implements Comparator<State> {
                     "\t" + "Goal: [" + goal.getRow() + "," + goal.getCol() + "]" +
                     "\t" + "Block: [" + block.getRow() + "," + block.getCol() + "]");
               //IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
-              if(distToBlock == 0){ //could change to: if tempHeuristicvalue == 0 ?
+              if(distToBlock == 0){
+                  heuristicValue = tempHeuristicValue;
+                  tempBlock = block;//could change to: if tempHeuristicvalue == 0 ?
                 break;
               }
 

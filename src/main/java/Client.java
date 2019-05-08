@@ -1,10 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.text.ParseException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -12,7 +8,6 @@ import Components.Action;
 import Components.BlackBoard;
 import Components.SubGoalPlanner;
 import Components.Task;
-import Components.State.State;
 import Utilities.LevelReader;
 
 public class Client {
@@ -23,7 +18,7 @@ public class Client {
     }
 
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException{
         BufferedReader serverMessages = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Ballefrans"); //CLIENTNAME - INITATING SERVER COMMUNICATION
         //READING IN LEVEL INFORMATION FROM SERVER
@@ -31,9 +26,9 @@ public class Client {
         try {
 
             SubGoalPlanner.serialize();
-            BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.convertToTask());
-            for (Task task : BlackBoard.getBlackBoard().getTasksNotSubmitted()) {
-                System.err.println(task.toString());
+            BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
+            for (Task task : BlackBoard.getBlackBoard().getUnsolvedTasks()) {
+                //System.err.println(task.toString());
             }
            /* //MEASURE RUN TIME OF HEURISTIC
             System.err.println("Heuristic w/ agent and goal:");
@@ -43,19 +38,18 @@ public class Client {
             long timeElapsed = Duration.between(start, finish).toMillis();
             System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");*/
             BlackBoard.getBlackBoard().run();
-            Iterator<Action> actionIterator =
-                    BlackBoard.getBlackBoard().getAcceptedPlans().get(0).iterator();
-            Iterator<Action> actionIterator2 =
-                    BlackBoard.getBlackBoard().getAcceptedPlans().get(1).iterator();
-            while(actionIterator.hasNext()) {
+            int counter = 0;
+            for (Action action : BlackBoard.getBlackBoard().getAcceptedPlans().get(0)) {
                 StringBuilder stringBuilder = new StringBuilder();
-                //stringBuilder.append("<");
-                stringBuilder.append(actionIterator.next().toString());
-                stringBuilder.append(";");
-                stringBuilder.append(actionIterator2.next().toString());
-                //stringBuilder.append(">");
-                System.out.println(stringBuilder.toString());
-                //System.err.println(serverMessages.readLine());
+                for (List<Action> acceptedPlan : BlackBoard.getBlackBoard().getAcceptedPlans()) {
+                    stringBuilder.append(acceptedPlan.get(counter).toString());
+                    stringBuilder.append(";");
+                    //stringBuilder.append(">");
+
+                    //System.err.println(serverMessages.readLine());
+                }
+                counter++;
+                System.out.println(stringBuilder.substring(0, stringBuilder.toString().length() - 1));
             }
 
 

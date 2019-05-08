@@ -81,7 +81,7 @@ public abstract class SubGoalPlanner {
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : State.getGoals()) {
             if(!goal.isCompleted()) {
-                Task task = new Task(goal.getRow(), goal.getCol(), goal.getColor(), null, goal);
+                Task task = new Task(goal.getColor(), null, goal);
                 task.setTaskType(GOAL);
                 tasks.add(task);
                 mapping.put(goal, task);
