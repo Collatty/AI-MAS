@@ -24,12 +24,15 @@ public class State {
     private static int maxCol = 0;
     private static boolean solved;
 
+    private static State state = new State();
+    private static List<Color> agentColors;
+
+
     public static List<Agent> getInitialAgents() {
         return initialAgents;
     }
 
     private static List<Agent> initialAgents = new ArrayList<>();
-    private static State state = new State();
     private List<List<Tile>> currentTiles = new ArrayList<>();
 
     public State() {
@@ -67,6 +70,7 @@ public class State {
         int row = 0;
         int col = 0;
         List<Tile> currentList = new ArrayList<>();
+        setAgentColors();
 
         for (char character : STRING_INITIAL.toCharArray()){
             if (character == '\n') {
@@ -93,10 +97,15 @@ public class State {
                 initialAgents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
-                Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
-                tile.setTileOccupant(box);
+                //CHECK IF THERE ARE UNMOVABLE BLOCKS
+                if(!checkAgentsHasColor(convertFromStringToColor(getColorBlockAndGoal(character)))){
+                    tile.setWall(true);
+                } else{
+                    Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
+                    tile.setTileOccupant(box);
+                    blocks.add(box);
+                }
                 currentList.add(tile);
-                blocks.add(box);
             }  else if (character == ' ') {
                 Tile tile = new Tile(row, col);
                 currentList.add(tile);
@@ -326,7 +335,25 @@ public class State {
         }
     }
 
+
+    private static boolean checkAgentsHasColor(Color color){
+        return agentColors.contains(color);
+    }
+
+    private static void setAgentColors(){
+        List<Color> agtColors = new ArrayList<>();
+        String[] colorsSplitted = STRING_COLORS.split("\n");
+        for(String string : colorsSplitted){
+            if (string.matches(".*\\d.*")){
+                String[] splittedEvenMore = string.split(":");
+                agtColors.add(convertFromStringToColor(splittedEvenMore[0]));
+            }
+        }
+        agentColors = agtColors;
+    }
+
     private static boolean[][] createWallBoard(List<List<Tile>> state){
+
         int max_row = state.size();
         int max_col = state.get(0).size();
         boolean[][] walls = new boolean[max_row][max_col];
