@@ -39,8 +39,8 @@ public class MultiAgentTest {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
             LevelReader.stringCreator(LevelReader.readAllLines(bufferedReader));
-            State.loadNewState();
             BlackBoard.setNewBlackboard();
+            State.loadNewState();
             SubGoalPlanner.serialize();
             BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
             BlackBoard.getBlackBoard().run();
