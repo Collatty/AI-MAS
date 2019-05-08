@@ -24,6 +24,8 @@ public abstract class SubGoalPlanner {
     }
 
     private static boolean searchForBlock(Goal goal) {
+        boolean hasBlock = false;
+        boolean hasAgent = false;
         Collection<Tile> exploredTiles = new HashSet<>();
         Stack<Tile> frontier = new Stack<>();
         Tile goalTile = State.getInitialState().get(goal.getRow()).get(goal.getCol());
@@ -31,7 +33,10 @@ public abstract class SubGoalPlanner {
         while (!frontier.isEmpty()) {
             Tile exploringTile = frontier.pop();
             if (exploringTile.hasBlock() && ((Block) exploringTile.getTileOccupant()).getType() == goal.getType()) {
-                return true;
+                hasBlock = true;
+            }
+            if (exploringTile.getTileOccupant() instanceof Agent && ((Agent) exploringTile.getTileOccupant()).getColor().equals(goal.getColor())) {
+                hasAgent = true;
             }
             for (Tile neighbor : exploringTile.getNeighbors()) {
                 if (exploredTiles.contains(neighbor)) {
@@ -47,7 +52,7 @@ public abstract class SubGoalPlanner {
             }
             exploredTiles.add(exploringTile);
         }
-        return false;
+        return hasBlock && hasAgent;
     }
 
     private static void searchForGoal(Goal goal) {
@@ -61,6 +66,12 @@ public abstract class SubGoalPlanner {
                         if (State.getInitialState().get(node.getRow()).get(node.getCol()).isGoal()){
                             State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions().add(goal);
                         }
+                    }
+                }
+                for (Agent agent : State.getInitialAgents()) {
+                    if(agent.getColor().equals(block.getColor())) {
+                        AStarSearch searchForAgent= new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
+                                new Node(block.getRow(), block.getCol()),new Node( agent.getRow(), agent.getCol()),1);
                     }
                 }
             }

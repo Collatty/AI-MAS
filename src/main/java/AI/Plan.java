@@ -1,6 +1,7 @@
 package AI;
 
 import Components.Action;
+import Components.Color;
 import Components.State.State;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ public abstract class Plan {
     protected final int startCol;
     protected final int endRow;
     protected final int endCol;
+    protected final Color color;
     protected Node[][] nodes;
 
     public List<Action> getPlan() {
@@ -21,21 +23,22 @@ public abstract class Plan {
 
     protected List<Action> plan = new ArrayList<>();
 
-    public Plan(int startRow, int startCol, int endRow, int endCol) {
+    public Plan(int startRow, int startCol, int endRow, int endCol, Color color) {
         this.startRow = startRow;
         this.startCol = startCol;
         this.endRow = endRow;
         this.endCol = endCol;
+        this.color = color;
     }
 
     public abstract void calculatePlan();
 
-    public static List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol) {
+    public static List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol, Color color) {
         AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(), new Node(startRow,
                 startCol), new Node(endRow, endCol), 1);
-        //TODO
+        search.setBlocks(State.createWallBoardWithBlocks(color));
         List<Node> path = search.findPath();
-        if (path.get(path.size()-1).getRow() == endRow && path.get(path.size()-1).getCol() == endCol) {
+        if (path.size() >0 && path.get(path.size()-1).getRow() == endRow && path.get(path.size()-1).getCol() == endCol) {
             return path;
         } else {
             AStarSearch searchWithBlocks = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
@@ -79,8 +82,8 @@ public abstract class Plan {
     public static class MovePlan extends Plan{
 
 
-        public MovePlan(int startRow, int startCol, int endRow, int endCol) {
-            super(startRow, startCol, endRow, endCol);
+        public MovePlan(int startRow, int startCol, int endRow, int endCol, Color color) {
+            super(startRow, startCol, endRow, endCol, color);
             calculatePlan();
 
         }
@@ -88,7 +91,7 @@ public abstract class Plan {
         @Override
         public void calculatePlan() {
             Node previous = null ;
-            List<Node> searchResults = aStarSearch(this.startRow, this.startCol, this.endRow, this.endCol);
+            List<Node> searchResults = aStarSearch(this.startRow, this.startCol, this.endRow, this.endCol, this.color);
             for (Node step : searchResults) {
                 if (previous != null){
                     this.plan.add(
@@ -111,8 +114,9 @@ public abstract class Plan {
         private final int startBoxRow;
         private final int startBoxCol;
 
-        public MoveBoxPlan(int startRow, int startCol, int startBoxRow, int startBoxCol, int endRow, int endCol) {
-            super(startRow, startCol, endRow, endCol);
+        public MoveBoxPlan(int startRow, int startCol, int startBoxRow, int startBoxCol, int endRow, int endCol,
+                           Color color) {
+            super(startRow, startCol, endRow, endCol, color);
             this.startBoxRow = startBoxRow;
             this.startBoxCol = startBoxCol;
             calculatePlan();
@@ -123,12 +127,14 @@ public abstract class Plan {
 
         @Override
         public void calculatePlan() {
-            MovePlan movePlan = new MovePlan(this.startRow, this.startCol, this.startBoxRow, this.startBoxCol);
+            MovePlan movePlan = new MovePlan(this.startRow, this.startCol, this.startBoxRow, this.startBoxCol,
+                    this.color);
             List<Action> partialPlan = movePlan.getPlan();
             if( partialPlan.size()!=0) {
                 partialPlan.remove(partialPlan.size()-1); // Removing the move moving the agent into the box
             }
-            List<Node> searchResults = aStarSearch(this.startBoxRow, this.startBoxCol, this.endRow, this.endCol);
+            List<Node> searchResults = aStarSearch(this.startBoxRow, this.startBoxCol, this.endRow, this.endCol,
+                    this.color);
             Node previous = null;
             for (Node step : searchResults) {
                 if (previous != null) {

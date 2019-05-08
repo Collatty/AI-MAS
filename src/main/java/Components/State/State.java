@@ -369,11 +369,11 @@ public class State {
         }
         return walls;
     }
-    public static boolean[][] createWallBoardWithBlocks(Block blockToBeMoved){
+    public static boolean[][] createWallBoardWithBlocks(Color colorOfBlockToBeMoved){
 
         boolean[][] walls = createWallBoard(State.getInitialState());
         for (Block block : blocks) {
-            if(!block.equals(blockToBeMoved)) {
+            if(!block.getColor().equals(colorOfBlockToBeMoved)) {
                 walls[block.getRow()][block.getCol()] = true;
             }
         }

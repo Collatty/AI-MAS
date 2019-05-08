@@ -61,7 +61,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 		if (block != null) {
 			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
 					block.getRow(), block.getCol(), task.getGoal().getRow(),
-					task.getGoal().getCol());
+					task.getGoal().getCol(), this.color);
 			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
 					-1, -1));
 			this.plan = moveBoxPlan.getPlan();
@@ -71,7 +71,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 			Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col),
 					((Task.MoveAgentTask) task).getOccupiedTiles());
 			Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
-					freeTile.getCol());
+					freeTile.getCol(), this.color);
 			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(movePlan.getPlan(), this, task.getId(), -1,
 					-1));
 			this.plan = movePlan.getPlan();
@@ -84,7 +84,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 							((Task.MoveBlockTask) task).getOccupiedTiles());
 			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
 					((Task.MoveBlockTask) task).getBlock().getRow(), ((Task.MoveBlockTask) task).getBlock().getCol(),
-					freeTile.getRow(), freeTile.getCol());
+					freeTile.getRow(), freeTile.getCol(), this.color);
 			this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
 					-1, -1));
 			this.plan = moveBoxPlan.getPlan();
