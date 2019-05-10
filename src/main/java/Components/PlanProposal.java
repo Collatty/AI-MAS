@@ -1,5 +1,7 @@
 package Components;
 
+import Components.State.Block;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +32,19 @@ public class PlanProposal extends Message {
     private long startIndex;
     private long endIndex;
 
-    public PlanProposal(List<Action> actions, Agent a, long taskID, long startIndex, long endIndex) {
+    public Block getBlock() {
+        return block;
+    }
+
+    private Block block;
+
+    public PlanProposal(List<Action> actions, Agent a, long taskID, long startIndex, long endIndex, Block block) {
 	this.actions = actions;
 	this.a = a;
 	this.taskID = taskID;
 	this.startIndex = startIndex;
 	this.endIndex = endIndex;
+	this.block = block;
     }
 
     public String toString() {

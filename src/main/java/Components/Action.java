@@ -41,6 +41,9 @@ public class Action {
     private Direction agentDirection = null;
     private Direction boxDirection = null;
 
+    public void performAction() {
+    }
+
     public enum ActionType {
         Move,
         Push,
@@ -59,9 +62,6 @@ public class Action {
     }
 
     public Action(Tile startBox, Tile endBox, Tile startAgent) {
-        if (endBox.isGoal()){
-            endBox.getGoal().setCompleted(true);
-        }
         this.startBox = startBox;
         this.endBox = endBox;
         this.startAgent = startAgent;

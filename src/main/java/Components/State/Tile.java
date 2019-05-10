@@ -15,6 +15,16 @@ public class Tile {
     private Goal goal;
     private boolean isWall;
 
+    public boolean notUsedInLastMove() {
+        return notUsedInLastMove;
+    }
+
+    public void setNotUsedInLastMove(boolean usedInLastMove) {
+        this.notUsedInLastMove = usedInLastMove;
+    }
+
+    private boolean notUsedInLastMove;
+
     private Tile northNeighbor;
     private Tile southNeighbor;
     private Tile eastNeighbor;
@@ -137,7 +147,7 @@ public class Tile {
     }
 
     public boolean isFree() {
-        return this.tileOccupant == null;
+        return this.tileOccupant == null && notUsedInLastMove;
     }
 
     public boolean isCompletedGoal () {

@@ -72,6 +72,14 @@ public abstract class SubGoalPlanner {
                     if(agent.getColor().equals(block.getColor())) {
                         AStarSearch searchForAgent= new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
                                 new Node(block.getRow(), block.getCol()),new Node( agent.getRow(), agent.getCol()),1);
+                        List<Node> pathToAgent = searchForAgent.findPath();
+                        if (pathToAgent.get(pathToAgent.size()-1).getRow() == agent.getRow() && pathToAgent.get(pathToAgent.size()-1).getCol() == agent.getCol()){
+                            for (Node node : pathToAgent.subList(1,pathToAgent.size()-1)) {
+                                if (State.getInitialState().get(node.getRow()).get(node.getCol()).isGoal()){
+                                    State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions().add(goal);
+                                }
+                            }
+                        }
                     }
                 }
             }

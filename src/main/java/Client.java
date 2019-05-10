@@ -6,6 +6,7 @@ import java.util.List;
 
 import Components.Action;
 import Components.BlackBoard;
+import Components.State.State;
 import Components.SubGoalPlanner;
 import Components.Task;
 import Utilities.LevelReader;
@@ -24,7 +25,6 @@ public class Client {
         //READING IN LEVEL INFORMATION FROM SERVER
         LevelReader.stringCreator(LevelReader.readAllLines(serverMessages));
         try {
-
             SubGoalPlanner.serialize();
             BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
             for (Task task : BlackBoard.getBlackBoard().getUnsolvedTasks()) {

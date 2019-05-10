@@ -19,6 +19,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     private Map<Integer, ArrayList<Action>> heuristicsActionsMap = new HashMap<>();
     private Map<Color, Integer> colorAgentAmountMap = new HashMap<>();
     private Map<Long, Task> taskMap = new HashMap<>();
+    private List<State> states = new ArrayList<>();
     private List<List<Action>> acceptedPlans = new ArrayList<>(10);
     private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
 
@@ -37,13 +38,13 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     }
 
     private void populateAcceptedPlans(){
-        for (int i = 0; i<State.getState().getAgents().size(); i++) {
+        for (int i = 0; i<State.getInitialAgents().size(); i++) {
             acceptedPlans.add(new ArrayList<>());
         }
     }
 
     public void run() {
-        this.start(State.getState().getAgents());
+        this.start(State.getInitialAgents());
 	    Message nextMessage;
         System.err.println("Blackboard running");
 
@@ -61,10 +62,19 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     if (heuristicProposalMap.containsKey(hp.getTaskID())) {
                         hpArray = heuristicProposalMap.get(hp.getTaskID());
                         }
+                    HeuristicProposal oldHeuristicProposal = null;
+                    for (HeuristicProposal heuristicProposal : hpArray) {
+                        if (heuristicProposal.getA() == hp.getA()) {
+                            oldHeuristicProposal = heuristicProposal;
+                        }
+                    }
+                    hpArray.remove(oldHeuristicProposal);
                     hpArray.add(hp);
                     heuristicProposalMap.put(hp.getTaskID(), hpArray);
 
                     // Check if all agents of a given color have send a heuristic for this task
+                    // TODO: reset hparray
+                    //  once task is resubmitted
                     if (colorAgentAmountMap.get(hp.getA().getColor()) == hpArray.size()) {
                         delegateTask(hpArray);
                     }
@@ -73,33 +83,37 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     System.err.println(pp.toString());
                     Agent agent = agentInTheWay(pp.getActions());
                     Block block = blockInTheWay(pp.getActions());
-                    if(conflict(pp.getActions())){
-                        pp.getA().replan();
-                    } else if (agent != null && !agent.equals(pp.getA())) {
-                        System.err.println("Agent" + agent.toString() + " is in the way!");
-                        Task task = new Task.MoveAgentTask(agent.getColor(), new ArrayList<>(), pp.getActions());
-                        this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
-                        this.taskMap.put(task.getId(), task);
-                        this.submit(new MessageToAgent(false, agent.getColor(), agent.getAgentNumber(),
-                                MessageType.PLAN, task, null));
-                    } else if (block!= null && !pp.getA().getColor().equals(block.getColor())){
-                        System.err.println("Block" +block.toString()+ "is in the way");
-                        Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
-                        this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
-                        this.taskMap.put(task.getId(), task);
-                        this.submit(new MessageToAgent(false, block.getColor(), null,
-                                MessageType.PLAN, task, null));
+                    if(conflict(pp.getActions(), this.acceptedPlans.get(pp.getA().getAgentNumber()).size())){
+                        if (agent != null && !agent.equals(pp.getA())) {
+                            System.err.println("Agent" + agent.toString() + " is in the way!");
+                            Task task = new Task.MoveAgentTask(agent.getColor(), new ArrayList<>(), pp.getActions());
+                            this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
+                            this.taskMap.put(task.getId(), task);
+                            this.submit(new MessageToAgent(false, agent.getColor(), agent.getAgentNumber(),
+                                    MessageType.PLAN, task, null));
+                        } else if (block!= null && !pp.getA().getColor().equals(block.getColor())){
+                            System.err.println("Block" +block.toString()+ "is in the way");
+                            Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
+                            this.taskMap.get(pp.getTaskID()).getDependencies().add(task.getId());
+                            this.taskMap.put(task.getId(), task);
+                            this.submit(new MessageToAgent(false, block.getColor(), null,
+                                    MessageType.PLAN, task, null));
+                        } else {
+                            pp.getA().replan();
+                        }
                     } else {
                         if (acceptedPlans.get(pp.getA().getAgentNumber()).size() == 0) {
                             acceptedPlans.remove(pp.getA().getAgentNumber());
                             acceptedPlans.add(pp.getA().getAgentNumber(), pp.getActions());
                             this.taskMap.get(pp.getTaskID()).setSolved(true);
                             this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
+                            executePlan(pp, 0);
                             submitTasks();
                         } else {
                             acceptedPlans.get(pp.getA().getAgentNumber()).addAll(pp.getActions());
                             this.taskMap.get(pp.getTaskID()).setSolved(true);
                             this.unsolvedTasks.remove(this.taskMap.get(pp.getTaskID()));
+                            executePlan(pp, acceptedPlans.get(pp.getA().getAgentNumber()).size()-pp.getActions().size());
                             submitTasks();
                         }
 
@@ -138,6 +152,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                 MessageType.PLAN, this.taskMap.get(hpChosen.getTaskID()), hpChosen.getH().block));
     }
     private void submitTasks() {
+
         for (Task task : this.unsolvedTasks) {
             if (task.getDependencies().size() == 0) {
                 if (task instanceof Task.MoveAgentTask) {
@@ -146,20 +161,21 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                 } else {
                     this.submitHeuristicTask(task);
                 }
-            }
-            boolean solvedDeps = true;
-            for (Long ID : task.getDependencies()) {
-                if(!this.taskMap.get(ID).isSolved()) {
-                    solvedDeps = false;
-                    break;
+            } else {
+                boolean solvedDeps = true;
+                for (Long ID : task.getDependencies()) {
+                    if (!this.taskMap.get(ID).isSolved()) {
+                        solvedDeps = false;
+                        break;
+                    }
                 }
-            }
-            if (solvedDeps) {
-                if (task instanceof Task.MoveAgentTask) {
-                    this.submit(new MessageToAgent(false, task.getColor(), null,
-                            MessageType.PLAN, task, null));
-                } else {
-                    this.submitHeuristicTask(task);
+                if (solvedDeps) {
+                    if (task instanceof Task.MoveAgentTask) {
+                        this.submit(new MessageToAgent(false, task.getColor(), null,
+                                MessageType.PLAN, task, null));
+                    } else {
+                        this.submitHeuristicTask(task);
+                    }
                 }
             }
         }
@@ -172,36 +188,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         this.submit(messageToAgent);
     }
 
-    private boolean conflict(List<Action> actions) {
-        int counter = 0;
-	    for (Action action : actions) {
-	        Collection<Tile> suggestedTiles = new HashSet<>();
-	        suggestedTiles.add(action.getStartAgent());
-	        suggestedTiles.add(action.getEndAgent());
-	        suggestedTiles.add(action.getStartBox());
-	        suggestedTiles.add(action.getEndBox());
-	        for (List<Action> acceptedPlan : acceptedPlans) {
-	            if (acceptedPlan != null && acceptedPlan.size() > 0 && counter < acceptedPlan.size()) {
-                    Collection<Tile> usedTiles = new HashSet<>();
-                    usedTiles.add(acceptedPlan.get(counter).getEndBox());
-                    usedTiles.add(acceptedPlan.get(counter).getStartBox());
-                    usedTiles.add(acceptedPlan.get(counter).getStartAgent());
-                    usedTiles.add(acceptedPlan.get(counter).getEndAgent());
-                    for (Tile tile : suggestedTiles) {
-                        if (tile != null && usedTiles.contains(tile)) {
-                            return true;
-                        }
-                    }
-                }
-
-            }
-	    counter++;
-        }
-	return false;
-    }
 
     private void start(List<Agent> agents) {
         populateAcceptedPlans();
+        this.states.add(State.getState());
         // Setup agents
         for (Agent a : agents) {
             Thread thread = new Thread(a);
@@ -255,6 +245,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         }
         return null;
     }
+
     private void appendNoOpAction() {
         int maxSize = 0;
         for (List<Action> acceptedPlan : this.acceptedPlans) {
@@ -270,8 +261,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     if(acceptedPlan.isEmpty()) {
                         noOps.add(new Action(
                                 State.getInitialState().get(
-                                State.getState().getAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getRow())
-                                .get(State.getState().getAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getCol())));
+                                State.getInitialAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getRow())
+                                .get(State.getInitialAgents().get(this.acceptedPlans.indexOf(acceptedPlan)).getCol())));
                     } else {
                         noOps.add(new Action(acceptedPlan.get(acceptedPlan.size() - 1).getEndAgent()));
                     }
@@ -300,7 +291,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         return "Blackboard";
     }
 
-    public void checkCompleted() {
+    private void checkCompleted() {
         for (Goal goal : State.getGoals()) {
             if (!goal.isCompleted()) {
                 return;
@@ -312,4 +303,90 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     public List<List<Action>> getAcceptedPlans() {
         return acceptedPlans;
     }
+
+    private void executePlan(PlanProposal acceptedPlan, int indexFrom) {
+        int difference = indexFrom+acceptedPlan.getActions().size()+1 - this.states.size();
+        if(difference>0) {
+            for (int i = 0; i < difference; i++) {
+                this.states.add(new State(this.states.get(this.states.size() - 1)));
+            }
+        }
+        for(Action action : acceptedPlan.getActions()) {
+            for (int i = indexFrom + acceptedPlan.getActions().indexOf(action)+1; i<indexFrom + acceptedPlan.getActions().size()+1; i++) {
+                boolean firstTimeMoveIsMade = i == indexFrom + acceptedPlan.getActions().indexOf(action)+1;
+                this.states.get(i).makeMove(action, firstTimeMoveIsMade);
+        }
+
+        /*for (Action action : acceptedPlan.getActions()){
+            for (int i = indexFrom + acceptedPlan.getActions().indexOf(action)+1; i<indexFrom + acceptedPlan.getActions().size()+1; i++) {
+                try {
+                    boolean firstTimeMoveIsMade = i == indexFrom + acceptedPlan.getActions().indexOf(action)+1;
+                    this.states.get(i).makeMove(action, firstTimeMoveIsMade);
+                } catch (IndexOutOfBoundsException e) {
+                    this.states.add(new State(this.states.get(i-1)));
+                    break;
+                }
+            }*/
+        }
+
+        acceptedPlan.getA().executePlan();
+
+    }
+    private boolean conflict(List<Action> actions, int indexFrom) {
+        State prevState = null;
+        List<Action> performedActions = new ArrayList<>();
+        for (Action action : actions){
+            try {
+                if (!this.states.get(indexFrom + actions.indexOf(action)+1).isLegalMove(action)) {
+                    return true;
+                } else {
+                    performedActions.add(action);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                    if (prevState == null) {
+                        prevState = new State(this.states.get(indexFrom + actions.indexOf(action)));
+                        if (!performedActions.isEmpty()) {
+                            for (Action action1 : performedActions) {
+                                prevState.makeMove(action1, true);
+                                prevState = new State(prevState);
+                            }
+                        }
+                    }
+                if (!prevState.isLegalMove(action)) {
+                    return true;
+                } else {
+                    prevState.makeMove(action, true);
+                    prevState = new State(prevState);
+                }
+            }
+        }
+        return false;
+
+      /*  int counter = 0;
+	    for (Action action : actions) {
+	        Collection<Tile> suggestedTiles = new HashSet<>();
+	        suggestedTiles.add(action.getStartAgent());
+	        suggestedTiles.add(action.getEndAgent());
+	        suggestedTiles.add(action.getStartBox());
+	        suggestedTiles.add(action.getEndBox());
+	        for (List<Action> acceptedPlan : acceptedPlans) {
+	            if (acceptedPlan != null && acceptedPlan.size() > 0 && counter < acceptedPlan.size()) {
+                    Collection<Tile> usedTiles = new HashSet<>();
+                    usedTiles.add(acceptedPlan.get(counter).getEndBox());
+                    usedTiles.add(acceptedPlan.get(counter).getStartBox());
+                    usedTiles.add(acceptedPlan.get(counter).getStartAgent());
+                    usedTiles.add(acceptedPlan.get(counter).getEndAgent());
+                    for (Tile tile : suggestedTiles) {
+                        if (tile != null && usedTiles.contains(tile)) {
+                            return true;
+                        }
+                    }
+                }
+
+            }
+	    counter++;
+        }
+	return false;*/
+    }
+
 }

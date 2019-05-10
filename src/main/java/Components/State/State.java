@@ -3,6 +3,7 @@ package Components.State;
 import java.util.ArrayList;
 import java.util.List;
 
+import Components.Action;
 import Components.Agent;
 import Components.Color;
 import Utilities.LevelReader;
@@ -23,19 +24,20 @@ public class State {
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
     private static boolean solved;
-
     private static State state = new State();
     private static List<Color> agentColors;
 
-
-    public static List<Agent> getInitialAgents() {
-        return agents;
-    }
-
     private List<List<Tile>> currentTiles = new ArrayList<>();
+    private List<Goal> currentGoals = new ArrayList<>();
+    private List<Block> currentBlock = new ArrayList<>();
+    private List<Agent> currentAgent = new ArrayList<>();
+
+
+
 
     public State() {
         State.createState();
+        this.currentTiles = INITIAL_STATE;
     }
 
     //created for testing purposes
@@ -86,14 +88,16 @@ public class State {
             if (character == '+') { // Wall.
                 Tile tile = new Tile(row, col);
                 tile.setWall(true);
+                tile.setNotUsedInLastMove(true);
                 currentList.add(tile);
             } else if ('0' <= character && character <= '9') { // Agent.
                 Tile tile = new Tile(row, col);
                 Agent agt = new Agent(Character.getNumericValue(character),
                         convertFromStringToColor(getColorAgent(character)), row, col);
                 tile.setTileOccupant(agt);
+                tile.setNotUsedInLastMove(true);
                 currentList.add(tile);
-                agents.add(agt);
+                    agents.add(agt);
             } else if ('A' <= character && character <= 'Z') { // Box.
                 Tile tile = new Tile(row, col);
                 //CHECK IF THERE ARE UNMOVABLE BLOCKS
@@ -102,12 +106,14 @@ public class State {
                 } else{
                     Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row, col);
                     tile.setTileOccupant(box);
+                    tile.setNotUsedInLastMove(true);
                     blocks.add(box);
                 }
                 currentList.add(tile);
             }  else if (character == ' ') {
                 Tile tile = new Tile(row, col);
                 currentList.add(tile);
+                tile.setNotUsedInLastMove(true);
             } else {
                 System.err.println("Something's fishy at: " + (int) character);
                 System.exit(1);
@@ -143,14 +149,18 @@ public class State {
         List<List<Tile>> copy = new ArrayList<>();
         List<Agent> agentCopy = new ArrayList<>();
         List<Block> blocksCopy = new ArrayList<>();
+        List<Goal> goalsCopy = new ArrayList<>();
         for (List<Tile> row: copyState.getCurrentTiles()) {
             ArrayList<Tile> copyRow = new ArrayList<>();
             for (Tile tile : row) {
                 Tile copyTile = new Tile(tile.getRow(), tile.getCol());
+                copyTile.setNotUsedInLastMove(true);
                 if (tile.isGoal()) {
-                    copyTile.setGoal(new Goal(tile.getGoal().getType(), tile.getGoal().getColor(),
+                    Goal goal = new Goal(tile.getGoal().getType(), tile.getGoal().getColor(),
                             tile.getGoal().getRow(),
-                            tile.getGoal().getCol()));
+                            tile.getGoal().getCol());
+                    copyTile.setGoal(goal);
+                    goalsCopy.add(goal);
                 }
                 if (tile.isWall()) {
                     copyTile.setWall(true);
@@ -162,14 +172,14 @@ public class State {
                             ((Block) tile.getTileOccupant()).getRow(),
                             ((Block) tile.getTileOccupant()).getCol());
                     copyTile.setTileOccupant(block);
-                    blocks.add(block);
+                    blocksCopy.add(block);
                 }
                 if (tile.hasAgent()) {
                     Agent agent = new Agent(
                             ((Agent) tile.getTileOccupant()).getAgentNumber(),
                             ((Agent) tile.getTileOccupant()).getColor(),
-                            ((Agent) tile.getTileOccupant()).getCol(),
-                            ((Agent) tile.getTileOccupant()).getRow());
+                            ((Agent) tile.getTileOccupant()).getRow(),
+                            ((Agent) tile.getTileOccupant()).getCol());
                     copyTile.setTileOccupant(agent);
                     agentCopy.add(agent);
                 }
@@ -179,8 +189,9 @@ public class State {
         }
         setNeighbors(copy);
         this.currentTiles = copy;
-        agents = agentCopy; //TODO buggy static
-        blocks = blocksCopy;
+        this.currentAgent = agentCopy;
+        this.currentBlock = blocksCopy;
+        this.currentGoals = goalsCopy;
     }
 
     public static List<List<Tile>> copyTiles(List<List<Tile>> tiles) {
@@ -334,7 +345,6 @@ public class State {
         }
     }
 
-
     private static boolean checkAgentsHasColor(Color color){
         return agentColors.contains(color);
     }
@@ -369,6 +379,7 @@ public class State {
         }
         return walls;
     }
+
     public static boolean[][] createWallBoardWithBlocks(Color colorOfBlockToBeMoved){
 
         boolean[][] walls = createWallBoard(State.getInitialState());
@@ -389,7 +400,6 @@ public class State {
         throw new RuntimeException("Color unknown: " + stringColor);
     }
 
-
     public static boolean isSolved() {
         return solved;
     }
@@ -398,8 +408,64 @@ public class State {
         State.solved = solved;
     }
 
+    public boolean isLegalMove(Action action) {
+        if (action.getActionType().equals(Action.ActionType.NoOp)) {
+            return true;
+        } else if (action.getActionType().equals(Action.ActionType.Move)) {
+            if (this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol()).isFree()) {
+                return true;
+            }
+        } else if (action.getActionType().equals(Action.ActionType.Push)){
+            return (this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol()).isFree() ||
+                    this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol()).equals(
+                            this.getCurrentTiles().get(action.getStartBox().getRow()).get(action.getStartBox().getCol()))) &&
+                    this.getCurrentTiles().get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).isFree();
+
+
+        } else if (action.getActionType().equals(Action.ActionType.Pull)) {
+            return this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol()).isFree() &&
+                    (this.getCurrentTiles().get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).equals(
+                            this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()))
+                    ||
+                    this.getCurrentTiles().get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).isFree());
+        }
+        return false;
+    }
+    public void makeMove(Action action, boolean firstStateMoveIsMadeIn) {
+        Agent agent =
+                (Agent) this.currentTiles.get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).getTileOccupant();
+        this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).removeTileOccupant();
+        this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).setNotUsedInLastMove(!firstStateMoveIsMadeIn);
+        agent.setRow(action.getEndAgent().getRow());
+        agent.setCol(action.getEndAgent().getCol());
+        if (action.getActionType().equals(Action.ActionType.Pull) || action.getActionType().equals(Action.ActionType.Push)) {
+            Block block =
+                    (Block) this.currentTiles.get(action.getStartBox().getRow()).get(action.getStartBox().getCol()).getTileOccupant();
+            this.getCurrentTiles().get(action.getStartBox().getRow()).get(action.getStartBox().getCol()).removeTileOccupant();
+            this.getCurrentTiles().get(action.getStartBox().getRow()).get(action.getStartBox().getCol()).setNotUsedInLastMove(!firstStateMoveIsMadeIn);
+            this.currentTiles.get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).setTileOccupant(block);
+            block.setRow(action.getEndBox().getRow());
+            block.setCol(action.getEndBox().getCol());
+        }
+        this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol()).setTileOccupant(agent);
+    }
+    public static List<Agent> getInitialAgents() {
+        return agents;
+    }
+    public List<Goal> getCurrentGoals() {
+        return currentGoals;
+    }
+    public List<Block> getCurrentBlock() {
+        return currentBlock;
+    }
+    public List<Agent> getCurrentAgent() {
+        return currentAgent;
+    }
     public static State getState() {
         return state;
     }
+
+
+
 
 }
