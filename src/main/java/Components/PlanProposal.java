@@ -1,8 +1,6 @@
 package Components;
 
-import Components.State.Block;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PlanProposal extends Message {

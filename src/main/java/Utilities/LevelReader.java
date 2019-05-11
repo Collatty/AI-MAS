@@ -8,34 +8,21 @@ import java.util.List;
 
 public abstract class LevelReader {
 
-
-
     private static String domain;
     private static String levelName;
     private static String colors;
     private static String initial;
     private static String goals;
 
-
-    public static String getDomain() {
-        return domain;
+    public static List<String> readAllLines(BufferedReader reader) throws IOException {
+        String line;
+        List<String> message = new ArrayList<>();
+        while (!(line = reader.readLine()).contains("#end")) {
+            message.add(line);
+        }
+        return message;
     }
 
-    public static String getLevelName() {
-        return levelName;
-    }
-
-    public static String getColors() {
-        return colors;
-    }
-
-    public static String getInitial() {
-        return initial;
-    }
-
-    public static String getGoals() {
-        return goals;
-    }
 
     public static void stringCreator(List<String> message) {
         StringBuilder stringBuilderDomain = new StringBuilder();
@@ -43,10 +30,8 @@ public abstract class LevelReader {
         StringBuilder stringBuilderColors = new StringBuilder();
         StringBuilder stringBuilderInitial = new StringBuilder();
         StringBuilder stringBuilderGoal = new StringBuilder();
-        StringBuilder throwAway = new StringBuilder();
 
-
-        StringBuilder activeStringBuilder = throwAway;
+        StringBuilder activeStringBuilder = new StringBuilder();
        for (String line : message) {
            if (line.contains("#domain")) {
                activeStringBuilder = stringBuilderDomain;
@@ -85,12 +70,23 @@ public abstract class LevelReader {
 
     }
 
-    public static List<String> readAllLines(BufferedReader reader) throws IOException {
-        String line;
-        List<String> message = new ArrayList<>();
-        while (!(line = reader.readLine()).contains("#end")) {
-            message.add(line);
-        }
-        return message;
+    public static String getDomain() {
+        return domain;
+    }
+
+    public static String getLevelName() {
+        return levelName;
+    }
+
+    public static String getColors() {
+        return colors;
+    }
+
+    public static String getInitial() {
+        return initial;
+    }
+
+    public static String getGoals() {
+        return goals;
     }
 }
