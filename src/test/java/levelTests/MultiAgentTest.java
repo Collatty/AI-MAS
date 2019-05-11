@@ -38,11 +38,11 @@ public class MultiAgentTest {
         setUpTest(file);
     }
 
-    @Test
+  /*  @Test
     public void testMAbongu() throws IOException{
         File file = new File("levels/MAbongu.lvl");
         setUpTest(file);
-    }
+    }*/
 
 
 
