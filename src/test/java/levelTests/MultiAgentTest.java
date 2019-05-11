@@ -2,11 +2,10 @@ package levelTests;
 
 import AI.BFS;
 import AI.Heuristic;
-import Components.BlackBoard;
-import Components.State.State;
-import Components.SubGoalPlanner;
-import Utilities.LevelReader;
-import org.junit.jupiter.api.BeforeEach;
+import components.BlackBoard;
+import components.state.State;
+import AI.SubGoalPlanner;
+import utilities.LevelReader;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -38,6 +37,14 @@ public class MultiAgentTest {
         File file = new File("levels/MAAiAiCap.lvl");
         setUpTest(file);
     }
+
+    @Test
+    public void testMAbongu() throws IOException{
+        File file = new File("levels/MAbongu.lvl");
+        setUpTest(file);
+    }
+
+
 
 
     private void setUpTest(File file) throws IOException{

@@ -1,5 +1,5 @@
-package Components.State;
-import Components.Color;
+package components.state;
+import components.Color;
 
 public class Block {
 

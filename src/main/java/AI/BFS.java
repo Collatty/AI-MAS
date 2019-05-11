@@ -1,10 +1,7 @@
 package AI;
 
-import Components.State.State;
-import Components.State.Tile;
+import components.state.State;
 
-import java.util.Arrays;
-import java.util.List;
 import java.awt.geom.Point2D;
 import java.util.LinkedList;
 

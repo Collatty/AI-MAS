@@ -1,14 +1,13 @@
-package Components;
+package AI;
 
-import AI.AStarSearch;
-import AI.Node;
-import AI.Plan;
-import Components.State.*;
+import components.Agent;
+import components.state.*;
+import components.Task;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static Components.TaskType.GOAL;
+import static components.TaskType.GOAL;
 
 
 /*

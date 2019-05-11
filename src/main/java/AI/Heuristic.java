@@ -4,11 +4,11 @@ import java.awt.geom.Point2D;
 import java.util.Comparator;
 import java.util.List;
 
-import Components.Agent;
-import Components.Color;
-import Components.State.Block;
-import Components.State.Goal;
-import Components.State.State;
+import components.Agent;
+import components.Color;
+import components.state.Block;
+import components.state.Goal;
+import components.state.State;
 
 public abstract class Heuristic implements Comparator<State> {
 
@@ -100,20 +100,20 @@ public abstract class Heuristic implements Comparator<State> {
     }
 
 
-/*public abstract int f(State n);
+/*public abstract int f(state n);
 
     @Override
-    public int compare(State n1, State n2) {
+    public int compare(state n1, state n2) {
         return this.f(n1) - this.f(n2);
     }
 
     public static class AStarSearch extends Heuristic {
-        public AStarSearch(State initialState) {
+        public AStarSearch(state initialState) {
             super(initialState);
         }
 
         @Override
-        public int f(State n) {
+        public int f(state n) {
             return n.g() + this.h(n);
         }
 
@@ -126,13 +126,13 @@ public abstract class Heuristic implements Comparator<State> {
     public static class WeightedAStar extends Heuristic {
         private int W;
 
-        public WeightedAStar(State initialState, int W) {
+        public WeightedAStar(state initialState, int W) {
             super(initialState);
             this.W = W;
         }
 
         @Override
-        public int f(State n) {
+        public int f(state n) {
             return n.g() + this.W * this.h(n);
         }
 
@@ -143,12 +143,12 @@ public abstract class Heuristic implements Comparator<State> {
     }
 
     public static class Greedy extends Heuristic {
-        public Greedy(State initialState) {
+        public Greedy(state initialState) {
             super(initialState);
         }
 
         @Override
-        public int f(State n) {
+        public int f(state n) {
             return this.h(n);
         }
 

@@ -1,8 +1,8 @@
 package AI;
 
-import Components.Action;
-import Components.Color;
-import Components.State.State;
+import components.Action;
+import components.Color;
+import components.state.State;
 
 import java.util.ArrayList;
 import java.util.List;

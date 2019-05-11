@@ -1,12 +1,12 @@
-package Components.State;
+package components.state;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Components.Action;
-import Components.Agent;
-import Components.Color;
-import Utilities.LevelReader;
+import components.Action;
+import components.Agent;
+import components.Color;
+import utilities.LevelReader;
 
 public class State {
 

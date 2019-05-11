@@ -1,8 +1,4 @@
-package Components;
-
-import Components.State.Block;
-
-import java.util.List;
+package components;
 
 enum MessageType {
     HEURISTIC,

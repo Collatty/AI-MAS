@@ -1,6 +1,6 @@
 package AI;
 
-import Components.State.Block;
+import components.state.Block;
 
 public class HeuristicAndBlock {
 

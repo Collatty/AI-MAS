@@ -1,12 +1,9 @@
-package Components.State;
+package components.state;
 
-import Components.Color;
-import Components.Task;
+import components.Color;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 
 public class Goal {

@@ -1,10 +1,9 @@
-package Components;
+package components;
 
-import Components.State.Goal;
-import Components.State.State;
-import Components.State.Tile;
+import components.state.State;
+import components.state.Tile;
 
-import static Components.Action.ActionType.*;
+import static components.Action.ActionType.*;
 
 
 public class Action {

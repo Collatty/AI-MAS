@@ -1,11 +1,10 @@
-package Components;
+package components;
 
 import java.util.List;
 
-import AI.Plan;
-import Components.State.Block;
-import Components.State.Goal;
-import Components.State.State;
+import components.state.Block;
+import components.state.Goal;
+import components.state.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {

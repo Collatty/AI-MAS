@@ -1,6 +1,5 @@
-package Components;
+package components;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -8,10 +7,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
-import Components.State.Block;
-import Components.State.Goal;
-import Components.State.State;
-import Components.State.Tile;
+import components.state.Block;
+import components.state.Goal;
+import components.state.State;
+import components.state.Tile;
 
 public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
 
@@ -325,7 +324,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                     boolean firstTimeMoveIsMade = i == indexFrom + acceptedPlan.getActions().indexOf(action)+1;
                     this.states.get(i).makeMove(action, firstTimeMoveIsMade);
                 } catch (IndexOutOfBoundsException e) {
-                    this.states.add(new State(this.states.get(i-1)));
+                    this.states.add(new state(this.states.get(i-1)));
                     break;
                 }
             }*/

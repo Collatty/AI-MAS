@@ -1,15 +1,11 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 
-import Components.Action;
-import Components.BlackBoard;
-import Components.State.State;
-import Components.SubGoalPlanner;
-import Components.Task;
-import Utilities.LevelReader;
+import components.BlackBoard;
+import AI.SubGoalPlanner;
+import utilities.LevelReader;
 
 public class Client {
 
@@ -78,7 +74,7 @@ public class Client {
 	try {
 	    // oldState initialOldState = new oldState(LevelReader.getInitial(),
 	    // LevelReader.getGoals());
-	    State state = new State();
+	    state state = new state();
 	    BlackBoard bb = new BlackBoard(SubGoalPlanner.convertToTask());
 	    Agent agt = new Agent(0, Color.GREEN, 3, 5, bb);
 	    Goal goal = new Goal('B', 1, 5);
@@ -120,7 +116,7 @@ public class Client {
 	tasks.add(t3);
 
 	// TODO: should be the real initial state
-//	State initState = new State();
+//	state initState = new state();
 //	BlackBoard blackboard = new BlackBoard(SubGoalPlanner.convertToTask(), initState);
 	BlackBoard blackboard = new BlackBoard(tasks);
 

@@ -1,4 +1,4 @@
-package Components;
+package components;
 
 import java.util.*;
 import java.util.concurrent.Flow.Subscriber;
@@ -7,10 +7,10 @@ import java.util.concurrent.Flow.Subscription;
 import AI.Heuristic;
 import AI.HeuristicAndBlock;
 import AI.Plan;
-import Components.State.Block;
-import Components.State.State;
-import Components.State.Goal;
-import Components.State.Tile;
+import components.state.Block;
+import components.state.State;
+import components.state.Goal;
+import components.state.Tile;
 
 
 public class Agent implements Subscriber<MessageToAgent>, Runnable{

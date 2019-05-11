@@ -1,5 +1,5 @@
 package AI;
-import Components.State.State;
+import components.state.State;
 
 import java.awt.geom.Point2D;
 
