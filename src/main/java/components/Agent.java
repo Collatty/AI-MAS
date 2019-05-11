@@ -55,7 +55,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 		this.blackboardChannel.request(1);
     }
 
-    private synchronized void createPlan(Task task) {
+    private void createPlan(Task task) {
     	this.task = task;
 		workingOnPlan = true;
 		if (!(task instanceof Task.MoveBlockTask) && (!(task instanceof Task.MoveAgentTask))) {
@@ -217,7 +217,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
 	}
 
-	public synchronized void executePlan() {
+	public void executePlan() {
 		for (Action action : this.plan.getActions()) {
 			Block movedBlock = null;
 			Agent movedAgent = null;

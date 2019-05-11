@@ -38,12 +38,12 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     }
 
 
-    public synchronized void setTasks(List<Task> tasks) {
+    public void setTasks(List<Task> tasks) {
         this.unsolvedTasks = tasks;
         this.taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, task -> task));
     }
 
-    private synchronized void populateAcceptedPlans(){
+    private void populateAcceptedPlans(){
         for (int i = 0; i<State.getInitialAgents().size(); i++) {
             acceptedPlans.add(new CopyOnWriteArrayList<>());
         }
