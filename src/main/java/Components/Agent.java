@@ -21,7 +21,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
     private int col;
     private int row;
 	private Subscription blackboardChannel;
-    private BlackBoard blackBoard;
+
     private PlanProposal plan;
     private Task task;
     private boolean workingOnPlan;
@@ -32,7 +32,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 	this.color = color;
 	this.row = row;
 	this.col = col;
-	this.blackBoard = BlackBoard.getBlackBoard();
 	this.workingOnPlan = false;
     }
 
@@ -50,22 +49,21 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 				System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
 				proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
 			} else if (message.getMessageType() == MessageType.PLAN) {
-				this.createPlan(message.getTask(), message.getBlock());
+				this.createPlan(message.getTask());
 			}
 		}
 		this.blackboardChannel.request(1);
     }
 
-    private void createPlan(Task task, Block block) {
+    private synchronized void createPlan(Task task) {
     	this.task = task;
 		workingOnPlan = true;
-		if (block != null) {
+		if (!(task instanceof Task.MoveBlockTask) && (!(task instanceof Task.MoveAgentTask))) {
 			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
-					block.getRow(), block.getCol(), task.getGoal().getRow(),
+					task.getBlock().getRow(), task.getBlock().getCol(), task.getGoal().getRow(),
 					task.getGoal().getCol(), this.color);
-			this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
-					-1, -1, block);
-			this.blackBoard.getMessagesToBlackboard().add(plan);
+			this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
+			BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 			System.err.println(this.toString() + "has submitted a plan");
 		}
 		else if (task instanceof Task.MoveAgentTask){
@@ -73,23 +71,21 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 					((Task.MoveAgentTask) task).getOccupiedTiles());
 			Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
 					freeTile.getCol(), this.color);
-			this.plan = new PlanProposal(movePlan.getPlan(), this, task.getId(), -1,
-					-1, null);
-			this.blackBoard.getMessagesToBlackboard().add(plan);
+			this.plan = new PlanProposal(movePlan.getPlan(), this, task);
+			BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 
 			System.err.println(this.toString() + "has submitted a moveplan");
 		} else if (task instanceof Task.MoveBlockTask) {
 			Tile freeTile =
 					searchForFreeTile(State.getInitialState()
-							.get(((Task.MoveBlockTask) task).getBlock().getRow())
-							.get(((Task.MoveBlockTask) task).getBlock().getCol()),
+							.get(task.getBlock().getRow())
+							.get(task.getBlock().getCol()),
 							((Task.MoveBlockTask) task).getOccupiedTiles());
 			Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(),
-					((Task.MoveBlockTask) task).getBlock().getRow(), ((Task.MoveBlockTask) task).getBlock().getCol(),
+					task.getBlock().getRow(), task.getBlock().getCol(),
 					freeTile.getRow(), freeTile.getCol(), this.color);
-			this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task.getId(),
-					-1, -1, ((Task.MoveBlockTask) task).getBlock());
-			this.blackBoard.getMessagesToBlackboard().add(plan);
+			this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
+			BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 			System.err.println(this.toString() + "has submitted a moveBoxPlan");
 		}
 		workingOnPlan = false;
@@ -98,8 +94,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
     public void replan() {
     	this.plan.getActions().add(0, new Action(this.plan.getActions().get(0).getStartAgent()));
-    	this.blackBoard.getMessagesToBlackboard().add(new PlanProposal(this.plan.getActions(), this,
-				this.task.getId(), -1, -1, this.plan.getBlock()));
+    	BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new PlanProposal(this.plan.getActions(), this, this.task));
 	}
 
 	private static Tile searchForFreeTile(Tile startTile, List<Action> actions) {
@@ -117,7 +112,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 			Tile exploringTile = frontier.pop();
 			if(!occupiedTiles.contains(exploringTile)) {
 				for (Tile neighbor : exploringTile.getNeighbors()) {
-					if (!neighbor.isWall() && !neighbor.isGoal() && !occupiedTiles.contains(neighbor)) {
+					if (!neighbor.isWall() && !neighbor.isGoal() && !occupiedTiles.contains(neighbor) && neighbor.isFree()) {
 						return neighbor;
 					}
 				}
@@ -130,7 +125,10 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 				if (neighbor.isWall()) {
 					continue;
 				}
-				if (neighbor.isGoal()) { //TODO this might be very buggy
+				if(!neighbor.isFree()) {
+					continue;
+				}
+				if (neighbor.isCompletedGoal()){
 					continue;
 				}
 				frontier.push(neighbor);
@@ -142,12 +140,11 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
 
 	private void proposeHeuristic(HeuristicAndBlock h, Task t) {
-		blackBoard.getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
+		BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new HeuristicProposal(h, this, t.getId()));
     }
 
     private HeuristicAndBlock calculateHeuristic(Task task) {
-		return getHeuristic(State.getState(), task.getGoal()); //TODO this is going to be buggy! Should not make new state
-		// here
+		return getHeuristic(State.getState(), task.getGoal());
     }
 
     public HeuristicAndBlock getHeuristic(State state, Goal goal){
@@ -195,9 +192,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 		return blackboardChannel;
 	}
 
-	public BlackBoard getBlackBoard() {
-		return blackBoard;
-	}
 
 	public boolean isWorkingOnPlan() {
 		return workingOnPlan;
@@ -220,26 +214,45 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
 	@Override
 	public void run() {
+
 	}
 
-	public void executePlan() {
+	public synchronized void executePlan() {
 		for (Action action : this.plan.getActions()) {
+			Block movedBlock = null;
+			Agent movedAgent = null;
+			if(action.getStartAgent() != null ){
+				movedAgent =
+						(Agent) State.getInitialState().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).getTileOccupant();
+				State.getInitialState().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).removeTileOccupant();
+
+			}
+			if (action.getStartBox() != null ) {
+				movedBlock =
+						(Block) State.getInitialState().get(action.getStartBox().getRow()).get(action.getStartBox().getCol()).getTileOccupant();
+				State.getInitialState().get(action.getStartBox().getRow()).get(action.getStartBox().getCol()).removeTileOccupant();
+
+			}
 			if (action.getEndAgent()!= null) {
 				this.row = action.getEndAgent().getRow();
 				this.col = action.getEndAgent().getCol();
+				State.getInitialState().get(this.row).get(this.col).setTileOccupant(movedAgent);
+				movedAgent.setRow(this.row);
+				movedAgent.setCol(this.col);
+
 			}
 			if (action.getEndBox()!= null) {
-				this.plan.getBlock().setRow(action.getEndBox().getRow());
-				this.plan.getBlock().setCol(action.getEndBox().getCol());
+				this.plan.getTask().getBlock().setRow(action.getEndBox().getRow());
+				this.plan.getTask().getBlock().setCol(action.getEndBox().getCol());
+				State.getInitialState().get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).setTileOccupant(movedBlock);
 
 			}
 			if (action.getStartBox()!= null && action.getStartBox().isGoal()) {
 				action.getStartBox().getGoal().setCompleted(false);
 			}
-			if (action.getStartBox()!= null && action.getEndBox().isGoal()) {
+			if (action.getEndBox()!= null && action.getEndBox().isGoal()) {
 				action.getEndBox().getGoal().setCompleted(true);
 			}
-
 		}
 	}
 	// END SETTERS

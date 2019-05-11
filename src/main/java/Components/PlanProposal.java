@@ -6,49 +6,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlanProposal extends Message {
+    private final Task task;
+    private Agent agent;
+    private List<Action> actions;
+
+    public PlanProposal(List<Action> actions, Agent agent, Task task) {
+	this.actions = actions;
+	this.agent = agent;
+	this.task = task;
+    }
+
+    public String toString() {
+	return "Agent " + agent.getAgentNumber() + " has plan for task  " + this.task.getId() + " and the actions: " + this.actions.toString();
+    }
+
     public List<Action> getActions() {
         return actions;
     }
 
-    public Agent getA() {
-        return a;
+    public Agent getAgent() {
+        return agent;
     }
 
-    public long getTaskID() {
-        return taskID;
-    }
 
-    public long getStartIndex() {
-        return startIndex;
-    }
 
-    public long getEndIndex() {
-        return endIndex;
-    }
-
-    private List<Action> actions;
-    private Agent a;
-    private long taskID;
-    private long startIndex;
-    private long endIndex;
-
-    public Block getBlock() {
-        return block;
-    }
-
-    private Block block;
-
-    public PlanProposal(List<Action> actions, Agent a, long taskID, long startIndex, long endIndex, Block block) {
-	this.actions = actions;
-	this.a = a;
-	this.taskID = taskID;
-	this.startIndex = startIndex;
-	this.endIndex = endIndex;
-	this.block = block;
-    }
-
-    public String toString() {
-	return "Agent " + a.getAgentNumber() + " has plan for task  " + this.taskID + " with start index " + this.startIndex
-		+ " and end index " + this.endIndex + " and the actions: " + this.actions.toString();
+    public Task getTask() {
+        return task;
     }
 }

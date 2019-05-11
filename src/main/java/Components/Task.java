@@ -11,6 +11,12 @@ import Components.State.State;
 public class Task {
 
     private static int counter = 0;
+
+    public Block getBlock() {
+        return block;
+    }
+
+    private final Block block;
     private long id;
 
     private Color color;
@@ -62,13 +68,14 @@ public class Task {
     }
 
 
-    public Task(Color color, List<Long> dependencies, Goal goal) {
+    public Task(Color color, List<Long> dependencies, Goal goal, Block block) {
         this.id = counter;
         counter++;
         this.color = color;
         this.dependencies = dependencies;
         this.goal = goal;
         this.solved = false;
+        this.block = block;
 
     }
 
@@ -100,7 +107,7 @@ public class Task {
         private List<Action> occupiedTiles;
 
         public MoveAgentTask(Color color, List<Long> dependencies, List<Action> occupiedTiles){
-            super(color, dependencies, null);
+            super(color, dependencies, null, null);
             this.occupiedTiles = occupiedTiles;
         }
     }
@@ -112,17 +119,12 @@ public class Task {
         }
 
         private List<Action> occupiedTiles;
-        private Block block;
 
         public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block){
-            super(color, dependencies, null);
+            super(color, dependencies, null, block);
             this.occupiedTiles = occupiedTiles;
-            this.block = block;
         }
 
-        public Block getBlock() {
-            return block;
-        }
     }
 
 }

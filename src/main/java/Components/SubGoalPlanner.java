@@ -57,7 +57,7 @@ public abstract class SubGoalPlanner {
 
     private static void searchForGoal(Goal goal) {
         for (Block block : State.getBlocks()) {
-            if (goal.getColor().equals(block.getColor())) {
+            if (goal.getType() == (block.getType())) {
                 AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
                         new Node(goal.getRow(), goal.getCol()), new Node(block.getRow(), block.getCol()), 1);
                 List<Node> path = search.findPath();
@@ -100,7 +100,13 @@ public abstract class SubGoalPlanner {
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : State.getGoals()) {
             if(!goal.isCompleted()) {
-                Task task = new Task(goal.getColor(), null, goal);
+                Block block = null;
+                for (Block block1 : State.getBlocks()) {
+                    if (block1.getType() == goal.getType()){
+                        block = block1;
+                    }
+                }
+                Task task = new Task(goal.getColor(), null, goal, block);
                 task.setTaskType(GOAL);
                 tasks.add(task);
                 mapping.put(goal, task);

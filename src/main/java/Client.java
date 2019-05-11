@@ -27,34 +27,7 @@ public class Client {
         try {
             SubGoalPlanner.serialize();
             BlackBoard.getBlackBoard().setTasks(SubGoalPlanner.postToBlackBoard());
-            for (Task task : BlackBoard.getBlackBoard().getUnsolvedTasks()) {
-                //System.err.println(task.toString());
-            }
-           /* //MEASURE RUN TIME OF HEURISTIC
-            System.err.println("Heuristic w/ agent and goal:");
-            Instant start = Instant.now();
-            int heuristic = State.getState().getAgents().get(0).getHeuristic(State.getState(), State.getGoals().get(0));
-            Instant finish = Instant.now();
-            long timeElapsed = Duration.between(start, finish).toMillis();
-            System.err.println("Heuristic: " + heuristic + "\t" + timeElapsed + "ms");*/
             BlackBoard.getBlackBoard().run();
-            int counter = 0;
-            for (Action action : BlackBoard.getBlackBoard().getAcceptedPlans().get(0)) {
-                StringBuilder stringBuilder = new StringBuilder();
-                for (List<Action> acceptedPlan : BlackBoard.getBlackBoard().getAcceptedPlans()) {
-                    stringBuilder.append(acceptedPlan.get(counter).toString());
-                    stringBuilder.append(";");
-                    //stringBuilder.append(">");
-
-                    //System.err.println(serverMessages.readLine());
-                }
-                counter++;
-                System.out.println(stringBuilder.substring(0, stringBuilder.toString().length() - 1));
-            }
-
-
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
