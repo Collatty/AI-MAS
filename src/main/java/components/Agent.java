@@ -164,7 +164,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable{
 
     @Override
     public String toString() {
-        return Integer.toString(getAgentNumber());
+        return "Agent " + Integer.toString(getAgentNumber());
     }
 
     //GETTERS

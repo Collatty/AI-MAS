@@ -4,6 +4,10 @@ import components.state.Block;
 
 public class HeuristicAndBlock {
 
+    public int getHeuristic() {
+        return heuristic;
+    }
+
     public final int heuristic;
     public final Block block;
 

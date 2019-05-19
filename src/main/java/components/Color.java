@@ -10,7 +10,8 @@ public enum Color {
     PINK,
     GREY,
     LIGHTBLUE,
-    BROWN
+    BROWN,
+    NAC // "Not a color"
 }
 
 

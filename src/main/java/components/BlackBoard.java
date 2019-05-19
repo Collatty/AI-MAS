@@ -19,6 +19,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
     private Map<Long, List<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
     private Map<Color, Integer> colorAgentAmountMap = new HashMap<>();
     private Map<Long, Task> taskMap = new HashMap<>();
+    private Map<Integer, Integer> heuristicPenaltyMap = new HashMap<>();
     private List<State> states = new ArrayList<>();
     private List<List<Action>> acceptedPlans = new ArrayList<>();
     private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
@@ -87,6 +88,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
                         System.err.println(pp.toString());
                         Agent agent = agentInTheWay(pp.getActions());
                         Block block = blockInTheWay(pp.getActions());
+                        System.err.println("91: Conflict 2nd input " + this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
                         if (conflict(pp.getActions(), this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size())) {
                             if (agent != null && !agent.equals(pp.getAgent())) {
                                 System.err.println("Agent" + agent.toString() + " is in the way!");
@@ -147,17 +149,24 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
 
         // Find best heuristic proposed
        for (HeuristicProposal hp : hpArray) {
+           int currentPenalty = heuristicPenaltyMap.get(hp.getA().getAgentNumber());
+           if(hpChosen == null || (currentPenalty + hp.getH().getHeuristic() < hpChosen.getH().getHeuristic())){
+               hpChosen = hp;
+           }
            /*agentPenalty = heuristicsActionsMap.get(hp.getA().getAgentNumber()).size();
            startIndex = Math.max(agentPenalty, maxDependencyEndIndex);
            endIndex = startIndex + hp.getH().heuristic;
 
            if (minEndIndex == null || minEndIndex > endIndex) {
                minEndIndex = endIndex;*/
-          hpChosen = hp;
+
         }
 
         System.err.print("Blackboard has chosen a heuristic proposal: ");
-        this.submit(new MessageToAgent(false, hpChosen.getA().getColor(), hpChosen.getA().getAgentNumber(),
+        System.err.print("given by agent " + hpChosen.getA().getAgentNumber());
+        heuristicPenaltyMap.put(hpChosen.getA().getAgentNumber(), hpChosen.getH().getHeuristic() +
+                heuristicPenaltyMap.get(hpChosen.getA().getAgentNumber()));
+        this.submit(new MessageToAgent(false, Color.NAC, hpChosen.getA().getAgentNumber(),
                 MessageType.PLAN, this.taskMap.get(hpChosen.getTaskID())));
     }
     private void submitTasks() {
@@ -204,6 +213,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent>{
         for (Agent a : agents) {
             //Thread thread = new Thread(a);
             //thread.start();
+            heuristicPenaltyMap.put(a.getAgentNumber(), 0);
             if (!colorAgentAmountMap.containsKey(a.getColor())) {
                 colorAgentAmountMap.put(a.getColor(), 1);
             } else {

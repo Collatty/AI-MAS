@@ -163,7 +163,7 @@ public class Tile {
             if (this.isGoal()) {
                 return this.goal.toString();
             }
-            return "-";
+            return "tile (" + col + "," + row + ")" + " is free";
         }
         return this.tileOccupant.toString();
     }

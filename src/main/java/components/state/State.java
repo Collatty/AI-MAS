@@ -364,8 +364,10 @@ public class State {
         return false;
     }
     public void makeMove(Action action, boolean firstStateMoveIsMadeIn) {
+        //TODO sometimes this agent variable is null... why?
         Agent agent =
                 (Agent) this.currentTiles.get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).getTileOccupant();
+        System.err.println("370 " + action.getStartAgent());
         this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).removeTileOccupant();
         this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol()).setNotUsedInLastMove(!firstStateMoveIsMadeIn);
         agent.setRow(action.getEndAgent().getRow());
