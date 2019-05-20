@@ -1,0 +1,22 @@
+#domain
+hospital
+#levelname
+MACross
+#colors
+red: 0, A
+green: 1, B
+#initial
+++++++
+++0+++
++1 B +
+++A+++
+++ +++
+++++++
+#goal
+++++++
+++ +++
++   B+
+++ +++
+++A+++
+++++++
+#end
