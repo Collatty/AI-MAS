@@ -1,9 +1,9 @@
 package components.state;
 
-import components.Agent;
-
 import java.util.Collection;
 import java.util.HashSet;
+
+import components.Agent;
 
 public class Tile {
 
@@ -165,7 +165,7 @@ public class Tile {
             }
             return "-";
         }
-        return this.tileOccupant.toString();
+	return this.tileOccupant != null ? this.tileOccupant.toString() : "null";
     }
 
 }
