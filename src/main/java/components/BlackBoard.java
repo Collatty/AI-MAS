@@ -15,7 +15,6 @@ import components.state.State;
 import components.state.Tile;
 
 public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
-
     private static BlackBoard blackBoard = new BlackBoard();
     private List<Task> unsolvedTasks = new ArrayList<>();
     private Map<Long, List<HeuristicProposal>> heuristicProposalMap = new HashMap<>();
@@ -78,8 +77,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    heuristicProposalMap.put(hp.getTaskID(), hpArray);
 
 		    // Check if all agents of a given color have send a heuristic for this task
-		    // TODO: reset hparray
-		    // once task is resubmitted
+		    // TODO: reset hparray once task is resubmitted
 		    if (colorAgentAmountMap.get(hp.getA().getColor()) == hpArray.size()) {
 			delegateTask(hpArray);
 		    }
@@ -112,34 +110,24 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 			    pp.getAgent().replan();
 			}
 		    } else {
-			if (acceptedPlans.get(pp.getAgent().getAgentNumber()).size() == 0) {
-			    acceptedPlans.remove(pp.getAgent().getAgentNumber());
-			    acceptedPlans.add(pp.getAgent().getAgentNumber(), pp.getActions());
-			    this.taskMap.get(pp.getTask().getId()).setSolved(true);
-			    this.unsolvedTasks.remove(this.taskMap.get(pp.getTask().getId()));
-			    updateStates(newStates, 0);
-			    pp.getAgent().executePlan();
-			    submitTasks();
-			} else {
-			    acceptedPlans.get(pp.getAgent().getAgentNumber()).addAll(pp.getActions());
-			    this.taskMap.get(pp.getTask().getId()).setSolved(true);
-			    this.unsolvedTasks.remove(this.taskMap.get(pp.getTask().getId()));
-			    updateStates(newStates,
-				    acceptedPlans.get(pp.getAgent().getAgentNumber()).size() - pp.getActions().size());
-			    pp.getAgent().executePlan();
-			    submitTasks();
-			}
-
+			acceptedPlans.get(pp.getAgent().getAgentNumber()).addAll(pp.getActions());
+			updateStates(newStates,
+				acceptedPlans.get(pp.getAgent().getAgentNumber()).size() - pp.getActions().size());
+			this.taskMap.get(pp.getTask().getId()).setSolved(true);
+			this.unsolvedTasks.remove(this.taskMap.get(pp.getTask().getId()));
+			pp.getAgent().executePlan();
+			submitTasks();
 		    }
 		}
 		checkCompleted();
 	    }
 	}
+
 	appendNoOpAction();
+
 	stringBuilder();
 	for (String string : this.outputStrings) {
 	    System.out.println(string);
-
 	}
     }
 
