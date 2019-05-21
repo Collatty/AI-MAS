@@ -1,6 +1,8 @@
 package components.state;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import components.Action;
@@ -138,7 +140,52 @@ public class State {
 	}
 	// REITERATING THROUGH TILES TO "CONNECT" THE BOARD
 	setNeighbors(INITIAL_STATE);
+	setUnreachableBlocksAsWalls();
+
 	wallMatrix = createWallBoard(INITIAL_STATE);
+    }
+
+    private static void setUnreachableBlocksAsWalls() {
+	Iterator<Block> blockItr = blocks.iterator();
+	while (blockItr.hasNext()) {
+	    Block block = blockItr.next();
+	    if (!isBlockReachable(block)) {
+		INITIAL_STATE.get(block.getRow()).get(block.getCol()).setWall(true);
+		INITIAL_STATE.get(block.getRow()).get(block.getCol()).removeTileOccupant();
+		blockItr.remove();
+	    }
+	}
+    }
+
+    private static boolean isBlockReachable(Block block) {
+	int maxRow = INITIAL_STATE.size();
+	int maxCol = INITIAL_STATE.get(0).size();
+	boolean[][] visited = new boolean[maxRow][maxCol];
+	LinkedList<Tile> queue = new LinkedList<>();
+
+	Tile tile = INITIAL_STATE.get(block.getRow()).get(block.getCol());
+	visited[tile.getRow()][tile.getCol()] = true;
+
+	queue.add(tile);
+
+	while (queue.size() != 0) {
+	    tile = queue.poll();
+
+	    for (Tile neighbor : tile.getNeighbors()) {
+		if (!neighbor.isWall() && !visited[neighbor.getRow()][neighbor.getCol()]) {
+		    if (neighbor.hasAgent()) {
+			Agent a = (Agent) (neighbor.getTileOccupant());
+			if (a.getColor().equals(block.getColor())) {
+			    return true;
+			}
+		    }
+		    visited[neighbor.getRow()][neighbor.getCol()] = true;
+		    queue.add(INITIAL_STATE.get(neighbor.getRow()).get(neighbor.getCol()));
+		}
+	    }
+	}
+
+	return false;
 
     }
 
