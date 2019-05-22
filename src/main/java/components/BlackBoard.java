@@ -41,6 +41,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     public void setTasks(List<Task> tasks) {
+	for (Task task : tasks) {
+	    System.err.println(
+		    "TASK " + task.getId() + ", block " + task.getBlock().getCol() + ", " + task.getBlock().getRow());
+	}
 	this.unsolvedTasks = tasks;
 	this.taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, task -> task));
     }
@@ -98,9 +102,20 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 
     private void handlePlanPropsal(PlanProposal pp) {
 	System.err.println(pp.toString());
+	Tile tile = states.get(states.size() - 1).getCurrentTiles().get(pp.getAgentStartRow())
+		.get(pp.getAgentStartCol());
+	Agent agentInTile = !tile.hasAgent() ? null : (Agent) (tile.getTileOccupant());
+	if (agentInTile == null || agentInTile.getAgentNumber() != pp.getAgent().getAgentNumber()) {
+	    // Agent has moved since it started planning
+	    System.err.println("Agent " + pp.getAgent().getAgentNumber()
+		    + " has moved since it started planning. Resubmitting task " + pp.getTask().getId());
+	    submittedTasks.remove(pp.getTask().getId());
+	    submitTasks();
+	    return;
+	}
+
 	Agent agent = agentInTheWay(pp.getActions());
 	Block block = blockInTheWay(pp.getActions());
-	System.err.println("91: Conflict 2nd input " + this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
 	List<State> newStates = newStatesGeneratorAndConflictChecker(pp.getActions(),
 		this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
 	if (newStates == null) { // CONFLICT
@@ -137,7 +152,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 //	    for (Task unsolvedTask : unsolvedTasks) {
 //		System.err.println(unsolvedTask.getId());
 //	    }
-	    pp.getAgent().executePlan();
+	    pp.getAgent().executePlan(pp);
 
 	    if (savedPlanProposals.containsKey(pp.getTask().getId())) {
 		handlePlanPropsal(savedPlanProposals.remove(pp.getTask().getId()));

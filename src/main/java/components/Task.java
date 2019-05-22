@@ -8,16 +8,9 @@ import components.state.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
-
     private static int counter = 0;
-
-    public Block getBlock() {
-	return block;
-    }
-
     private final Block block;
     private long id;
-
     private Color color;
     private List<Long> dependencies;
     private TaskType taskType;
@@ -92,6 +85,10 @@ public class Task {
 
     public Goal getGoal() {
 	return this.goal;
+    }
+
+    public Block getBlock() {
+	return block;
     }
 
     public static class MoveAgentTask extends Task {

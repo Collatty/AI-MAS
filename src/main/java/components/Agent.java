@@ -49,7 +49,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 		System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
 		proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
 	    } else if (message.getMessageType() == MessageType.PLAN) {
-		System.err.println("AGENT " + agentNumber + " IS ASKED TO PLAN FOR TASK: " + message.getTask().getId());
+		System.err.println("Agent " + agentNumber + " is asked op plan for task " + message.getTask().getId());
 		this.createPlan(message.getTask());
 	    }
 	}
@@ -214,8 +214,8 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 
     }
 
-    public void executePlan() {
-	for (Action action : this.plan.getActions()) {
+    public void executePlan(PlanProposal pp) {
+	for (Action action : pp.getActions()) {
 	    Block movedBlock = null;
 	    Agent movedAgent = null;
 	    if (action.getStartAgent() != null) {
@@ -241,8 +241,8 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 
 	    }
 	    if (action.getEndBox() != null) {
-		this.plan.getTask().getBlock().setRow(action.getEndBox().getRow());
-		this.plan.getTask().getBlock().setCol(action.getEndBox().getCol());
+		pp.getTask().getBlock().setRow(action.getEndBox().getRow());
+		pp.getTask().getBlock().setCol(action.getEndBox().getCol());
 		State.getInitialState().get(action.getEndBox().getRow()).get(action.getEndBox().getCol())
 			.setTileOccupant(movedBlock);
 
