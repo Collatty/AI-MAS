@@ -13,8 +13,6 @@ import utilities.LevelReader;
 public class State {
 
     // INITIAL STATE STRINGS STORED HERE
-    private static String STRING_DOMAIN = LevelReader.getDomain();
-    private static String STRING_LEVEL_NAME = LevelReader.getLevelName();
     private static String STRING_COLORS = LevelReader.getColors();
     private static String STRING_INITIAL = LevelReader.getInitial();
     private static String STRING_GOALS = LevelReader.getGoals();
@@ -30,9 +28,6 @@ public class State {
     private static List<Color> agentColors;
 
     private List<List<Tile>> currentTiles;
-    private List<Goal> currentGoals = new ArrayList<>();
-    private List<Block> currentBlock = new ArrayList<>();
-    private List<Agent> currentAgent = new ArrayList<>();
 
     public State() {
 	State.createState();
@@ -46,8 +41,6 @@ public class State {
 	blocks = new ArrayList<>();
 	agents = new ArrayList<>();
 	maxCol = 0;
-	STRING_DOMAIN = LevelReader.getDomain();
-	STRING_LEVEL_NAME = LevelReader.getLevelName();
 	STRING_COLORS = LevelReader.getColors();
 	STRING_INITIAL = LevelReader.getInitial();
 	STRING_GOALS = LevelReader.getGoals();
@@ -140,12 +133,44 @@ public class State {
 	}
 	// REITERATING THROUGH TILES TO "CONNECT" THE BOARD
 	setNeighbors(INITIAL_STATE);
-	setUnreachableBlocksAsWalls();
-
+	setReachableAgentsOnBlocks();
+	setReachableBlocksOnGoals();
 	wallMatrix = createWallBoard(INITIAL_STATE);
     }
 
-    private static void setUnreachableBlocksAsWalls() {
+    private static void setReachableBlocksOnGoals() {
+	int maxRow = INITIAL_STATE.size();
+	int maxCol = INITIAL_STATE.get(0).size();
+
+	for (Goal goal : GOALS) {
+	    boolean[][] visited = new boolean[maxRow][maxCol];
+	    LinkedList<Tile> queue = new LinkedList<>();
+
+	    Tile tile = INITIAL_STATE.get(goal.getRow()).get(goal.getCol());
+	    visited[tile.getRow()][tile.getCol()] = true;
+
+	    queue.add(tile);
+
+	    while (queue.size() != 0) {
+		tile = queue.poll();
+
+		for (Tile neighbor : tile.getNeighbors()) {
+		    if (!neighbor.isWall() && !visited[neighbor.getRow()][neighbor.getCol()]) {
+			if (neighbor.hasBlock()) {
+			    Block b = (Block) (neighbor.getTileOccupant());
+			    if (b.getType() == goal.getType()) {
+				goal.addReachableBlock(b);
+			    }
+			}
+			visited[neighbor.getRow()][neighbor.getCol()] = true;
+			queue.add(INITIAL_STATE.get(neighbor.getRow()).get(neighbor.getCol()));
+		    }
+		}
+	    }
+	}
+    }
+
+    private static void setReachableAgentsOnBlocks() {
 	Iterator<Block> blockItr = blocks.iterator();
 	while (blockItr.hasNext()) {
 	    Block block = blockItr.next();
@@ -176,7 +201,7 @@ public class State {
 		    if (neighbor.hasAgent()) {
 			Agent a = (Agent) (neighbor.getTileOccupant());
 			if (a.getColor().equals(block.getColor())) {
-			    return true;
+			    block.addReachableAgent(a);
 			}
 		    }
 		    visited[neighbor.getRow()][neighbor.getCol()] = true;
@@ -185,15 +210,11 @@ public class State {
 	    }
 	}
 
-	return false;
-
+	return block.getReachableAgents().size() > 0;
     }
 
     public State(State copyState) {
 	List<List<Tile>> copy = new ArrayList<>();
-	List<Agent> agentCopy = new ArrayList<>();
-	List<Block> blocksCopy = new ArrayList<>();
-	List<Goal> goalsCopy = new ArrayList<>();
 	for (List<Tile> row : copyState.getCurrentTiles()) {
 	    ArrayList<Tile> copyRow = new ArrayList<>();
 	    for (Tile tile : row) {
@@ -203,7 +224,6 @@ public class State {
 		    Goal goal = new Goal(tile.getGoal().getType(), tile.getGoal().getColor(), tile.getGoal().getRow(),
 			    tile.getGoal().getCol());
 		    copyTile.setGoal(goal);
-		    goalsCopy.add(goal);
 		}
 		if (tile.isWall()) {
 		    copyTile.setWall(true);
@@ -213,14 +233,12 @@ public class State {
 			    ((Block) tile.getTileOccupant()).getColor(), ((Block) tile.getTileOccupant()).getRow(),
 			    ((Block) tile.getTileOccupant()).getCol());
 		    copyTile.setTileOccupant(block);
-		    blocksCopy.add(block);
 		}
 		if (tile.hasAgent()) {
 		    Agent agent = new Agent(((Agent) tile.getTileOccupant()).getAgentNumber(),
 			    ((Agent) tile.getTileOccupant()).getColor(), ((Agent) tile.getTileOccupant()).getRow(),
 			    ((Agent) tile.getTileOccupant()).getCol());
 		    copyTile.setTileOccupant(agent);
-		    agentCopy.add(agent);
 		}
 		copyRow.add(copyTile);
 	    }
@@ -228,9 +246,6 @@ public class State {
 	}
 	setNeighbors(copy);
 	this.currentTiles = copy;
-	this.currentAgent = agentCopy;
-	this.currentBlock = blocksCopy;
-	this.currentGoals = goalsCopy;
     }
 
     // GETTERS
@@ -416,7 +431,6 @@ public class State {
 	// is no agent. If it happens, it is a bug
 	Agent agent = (Agent) this.currentTiles.get(action.getStartAgent().getRow())
 		.get(action.getStartAgent().getCol()).getTileOccupant();
-	System.err.println("370 " + action.getStartAgent());
 	this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol())
 		.removeTileOccupant();
 	this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol())
