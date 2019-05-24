@@ -10,7 +10,6 @@ public class Client {
 
     public Client(BufferedReader serverMessages) {
 	System.out.println();
-
     }
 
     public static void main(String[] args) throws IOException {

@@ -17,6 +17,16 @@ public class Task {
     private State prestate;
     private Goal goal;
 
+    public Task(Color color, List<Long> dependencies, Goal goal, Block block) {
+	this.id = counter;
+	counter++;
+	this.color = color;
+	this.dependencies = dependencies;
+	this.goal = goal;
+	this.solved = false;
+	this.block = block;
+    }
+
     public boolean isSolved() {
 	return solved;
     }
@@ -57,17 +67,6 @@ public class Task {
 
     public void setTaskType(TaskType taskType) {
 	this.taskType = taskType;
-    }
-
-    public Task(Color color, List<Long> dependencies, Goal goal, Block block) {
-	this.id = counter;
-	counter++;
-	this.color = color;
-	this.dependencies = dependencies;
-	this.goal = goal;
-	this.solved = false;
-	this.block = block;
-
     }
 
     public State getPrestate() {
@@ -111,18 +110,15 @@ public class Task {
     }
 
     public static class MoveBlockTask extends Task {
+	private List<Action> occupiedTiles;
 
 	public List<Action> getOccupiedTiles() {
 	    return occupiedTiles;
 	}
 
-	private List<Action> occupiedTiles;
-
 	public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block) {
 	    super(color, dependencies, null, block);
 	    this.occupiedTiles = occupiedTiles;
 	}
-
     }
-
 }

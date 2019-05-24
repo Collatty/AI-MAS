@@ -8,7 +8,6 @@ import java.util.List;
 import components.Color;
 
 public class Goal {
-
     private Collection<Goal> parents = new HashSet<>();
     private Collection<Goal> children = new HashSet<>();
     private Collection<Goal> preconditions = new HashSet<>();
@@ -18,19 +17,7 @@ public class Goal {
     private final int col;
     private final int row;
     private final Color color;
-
-    public boolean isCompleted() {
-	return completed;
-    }
-
-    public void setCompleted(boolean completed) {
-	this.completed = completed;
-    }
-
     private boolean completed;
-
-    // By preconditions we mean goals that cannot be completed prior to this goal's
-    // attempted completion
 
     public Goal(char type, Color color, int row, int col) {
 	this.type = type;
@@ -39,23 +26,19 @@ public class Goal {
 	this.col = col;
 	this.completed = false;
 	this.reachableBlocks = new ArrayList<>();
-	/*
+
 	if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
-	    if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor()
-		    .equals(this.color)) {
+	    if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant())
+		    .getType() == (this.type)) {
 		setCompleted(true);
 	    }
 	}
-	*/
-        if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
-            if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getType()==(this.type)) {
-                setCompleted(true);
-            }
-        }
-
     }
 
-    // GETTERS
+    public boolean isCompleted() {
+	return completed;
+    }
+
     public char getType() {
 	return type;
     }
@@ -72,7 +55,13 @@ public class Goal {
 	return color;
     }
 
-    // END GETTERS
+    public Collection<Goal> getPreconditions() {
+	return this.preconditions;
+    }
+
+    public List<Block> getReachableBlocks() {
+	return reachableBlocks;
+    }
 
     public Collection<Goal> getParents() {
 	return parents;
@@ -88,6 +77,10 @@ public class Goal {
 
     public void setChild(Goal child) {
 	this.children.add(child);
+    }
+
+    public void setCompleted(boolean completed) {
+	this.completed = completed;
     }
 
     public void populatePreconditions() {
@@ -118,15 +111,8 @@ public class Goal {
 	return Character.toString(this.type);
     }
 
-    public Collection<Goal> getPreconditions() {
-	return this.preconditions;
-    }
-
     public void addReachableBlock(Block block) {
 	reachableBlocks.add(block);
     }
 
-    public List<Block> getReachableBlocks() {
-	return reachableBlocks;
-    }
 }

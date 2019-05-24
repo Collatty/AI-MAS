@@ -11,7 +11,6 @@ import components.Color;
 import utilities.LevelReader;
 
 public class State {
-
     // INITIAL STATE STRINGS STORED HERE
     private static String STRING_COLORS = LevelReader.getColors();
     private static String STRING_INITIAL = LevelReader.getInitial();
@@ -50,7 +49,6 @@ public class State {
     }
 
     public static Agent getAgentByNumber(int number) {
-
 	for (Agent agent : agents) {
 	    if (agent.getAgentNumber() == number) {
 		return agent;
@@ -108,7 +106,6 @@ public class State {
 		currentList.add(tile);
 		tile.setNotUsedInLastMove(true);
 	    } else {
-		System.err.println("Something's fishy at: " + (int) character);
 		System.exit(1);
 	    }
 	    col++;
@@ -248,8 +245,6 @@ public class State {
 	this.currentTiles = copy;
     }
 
-    // GETTERS
-
     public static int getMaxCol() {
 	return maxCol;
     }
@@ -349,7 +344,6 @@ public class State {
     }
 
     private static boolean[][] createWallBoard(List<List<Tile>> state) {
-
 	int max_row = state.size();
 	int max_col = state.get(0).size();
 	boolean[][] walls = new boolean[max_row][max_col];
@@ -371,7 +365,6 @@ public class State {
     }
 
     public static boolean[][] createWallBoardWithBlocks(Color colorOfBlockToBeMoved) {
-
 	boolean[][] walls = createWallBoard(State.getInitialState());
 	for (Block block : blocks) {
 	    if (!block.getColor().equals(colorOfBlockToBeMoved)) {
@@ -426,9 +419,6 @@ public class State {
     }
 
     public void makeMove(Action action, boolean firstStateMoveIsMadeIn) {
-	// TODO sometimes this agent variable is null... why?
-	// Happens when we try to get an agent form a location in a state, where there
-	// is no agent. If it happens, it is a bug
 	Agent agent = (Agent) this.currentTiles.get(action.getStartAgent().getRow())
 		.get(action.getStartAgent().getCol()).getTileOccupant();
 	this.getCurrentTiles().get(action.getStartAgent().getRow()).get(action.getStartAgent().getCol())
@@ -466,15 +456,6 @@ public class State {
 	    for (Tile t : tList) {
 		t.setNotUsedInLastMove(true);
 	    }
-	}
-    }
-
-    public void print() {
-	for (List<Tile> tList : this.currentTiles) {
-	    for (Tile t : tList) {
-		System.err.print(t.toString().substring(0, 1));
-	    }
-	    System.err.println();
 	}
     }
 }

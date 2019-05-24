@@ -1,47 +1,41 @@
 package components;
 
 enum MessageType {
-    HEURISTIC,
-    PLAN,
-    CONFLICT
+    HEURISTIC, PLAN, CONFLICT
 }
 
-//TODO: Consider if attributes should be private
 public class MessageToAgent {
-
     private Boolean toAll;
     private Color toColor;
     private Integer toAgent;
     private MessageType messageType;
-
+    private Task task;
 
     public Boolean getToAll() {
-        return toAll;
+	return toAll;
     }
 
     public Color getToColor() {
-        return toColor;
+	return toColor;
     }
 
     public Integer getToAgent() {
-        return toAgent;
+	return toAgent;
     }
 
     public MessageType getMessageType() {
-        return messageType;
+	return messageType;
     }
 
     public Task getTask() {
-        return task;
+	return task;
     }
 
-    private Task task;
-
     public MessageToAgent(Boolean toAll, Color toColor, Integer toAgent, MessageType messageType, Task task) {
-        this.toAgent = toAgent;
-        this.toAll = toAll;
-        this.toColor = toColor;
-        this.messageType = messageType;
-        this.task = task;
+	this.toAgent = toAgent;
+	this.toAll = toAll;
+	this.toColor = toColor;
+	this.messageType = messageType;
+	this.task = task;
     }
 }

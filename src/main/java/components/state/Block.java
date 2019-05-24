@@ -61,5 +61,4 @@ public class Block {
     public String toString() {
 	return this.color.toString().toUpperCase();
     }
-
 }

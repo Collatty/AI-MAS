@@ -6,13 +6,25 @@ import java.util.HashSet;
 import components.Agent;
 
 public class Tile {
-
     private final int col;
     private final int row;
 
     private Object tileOccupant;
     private Goal goal;
     private boolean isWall;
+    private boolean notUsedInLastMove;
+
+    private Tile northNeighbor;
+    private Tile southNeighbor;
+    private Tile eastNeighbor;
+    private Tile westNeighbor;
+
+    public Tile(final int row, final int col) {
+	this.col = col;
+	this.row = row;
+	this.tileOccupant = null;
+	this.goal = null;
+    }
 
     public boolean notUsedInLastMove() {
 	return notUsedInLastMove;
@@ -22,15 +34,7 @@ public class Tile {
 	this.notUsedInLastMove = usedInLastMove;
     }
 
-    private boolean notUsedInLastMove;
-
-    private Tile northNeighbor;
-    private Tile southNeighbor;
-    private Tile eastNeighbor;
-    private Tile westNeighbor;
-
     public Collection<Tile> getNeighbors() {
-
 	Collection<Tile> neighbors = new HashSet<>();
 	if (this.northNeighbor != null) {
 	    neighbors.add(this.northNeighbor);
@@ -47,15 +51,6 @@ public class Tile {
 	return neighbors;
     }
 
-    public Tile(final int row, final int col) {
-	this.col = col;
-	this.row = row;
-	this.tileOccupant = null;
-	this.goal = null;
-
-    }
-
-    // GETTERS
     public int getCol() {
 	return col;
     }
@@ -91,9 +86,7 @@ public class Tile {
     public Tile getWestNeighbor() {
 	return westNeighbor;
     }
-    // END GETTERS
 
-    // SETTERS
     public void setTileOccupant(Object tileOccupant) {
 	this.tileOccupant = tileOccupant;
     }
@@ -121,8 +114,6 @@ public class Tile {
     public void setWall(boolean isWall) {
 	this.isWall = isWall;
     }
-
-    // END SETTERS
 
     public void removeTileOccupant() {
 	this.tileOccupant = null;
@@ -163,9 +154,8 @@ public class Tile {
 	    if (this.isGoal()) {
 		return this.goal.toString();
 	    }
-	    return "-";// "tile (" + col + "," + row + ")" + " is free";
+	    return "-";
 	}
 	return this.tileOccupant != null ? this.tileOccupant.toString() : "null";
     }
-
 }

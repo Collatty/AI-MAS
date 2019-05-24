@@ -34,16 +34,11 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     private BlackBoard() {
     }
 
-    // Testing purposes
     public static void setNewBlackboard() {
 	blackBoard = new BlackBoard();
     }
 
     public void setTasks(List<Task> tasks) {
-	for (Task task : tasks) {
-	    System.err.println(
-		    "TASK " + task.getId() + ", block " + task.getBlock().getCol() + ", " + task.getBlock().getRow());
-	}
 	this.unsolvedTasks = tasks;
 	this.taskMap = tasks.stream().collect(Collectors.toMap(Task::getId, task -> task));
     }
@@ -57,15 +52,12 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     public void run() {
 	this.start(State.getInitialAgents());
 	Message nextMessage;
-	State.getState().print();
 
 	while (!State.isSolved()) {
 	    while ((nextMessage = messagesToBlackboard.poll()) != null && !State.isSolved()) {
 		String messageType = nextMessage.getClass().getSimpleName();
 		if (messageType.equals(HeuristicProposal.class.getSimpleName())) {
 		    HeuristicProposal hp = (HeuristicProposal) nextMessage;
-		    System.err.println("Agent " + hp.getA().getAgentNumber() + " proposes " + hp.getH()
-			    + " actions for task " + hp.getTaskID());
 		    List<HeuristicProposal> hpArray = new ArrayList<>();
 		    if (heuristicProposalMap.containsKey(hp.getTaskID())) {
 			hpArray = heuristicProposalMap.get(hp.getTaskID());
@@ -81,7 +73,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    heuristicProposalMap.put(hp.getTaskID(), hpArray);
 
 		    // Check if all the relevant agents have send a heuristic for this task
-		    // TODO: reset hparray once task is resubmitted
 		    if (taskMap.get(hp.getTaskID()).getBlock().getReachableAgents().size() == hpArray.size()) {
 			delegateTask(hpArray);
 		    }
@@ -107,14 +98,11 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     private void handlePlanPropsal(PlanProposal pp) {
-	System.err.println(pp.toString());
 	Tile tile = states.get(states.size() - 1).getCurrentTiles().get(pp.getAgentStartRow())
 		.get(pp.getAgentStartCol());
 	Agent agentInTile = !tile.hasAgent() ? null : (Agent) (tile.getTileOccupant());
 	if (agentInTile == null || agentInTile.getAgentNumber() != pp.getAgent().getAgentNumber()) {
 	    // Agent has moved since it started planning
-	    System.err.println("Agent " + pp.getAgent().getAgentNumber()
-		    + " has moved since it started planning. Resubmitting task " + pp.getTask().getId());
 	    submittedTasks.remove(pp.getTask().getId());
 	    submitTasks();
 	    return;
@@ -122,14 +110,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 
 	Agent agent = agentInTheWay(pp.getActions());
 	Block block = blockInTheWay(pp.getActions(), pp.getTask().getBlock());
-	if (block != null) {
-	    System.err.println("Found block in the way with coordinates: " + block.getCol() + ", " + block.getRow());
-	}
 	List<State> newStates = newStatesGeneratorAndConflictChecker(pp.getActions(),
 		this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
 	if (newStates == null) { // CONFLICT
 	    if (agent != null && !agent.equals(pp.getAgent())) {
-		System.err.println("Agent" + agent.toString() + " is in the way!");
 		Task task = new Task.MoveAgentTask(agent.getColor(), new ArrayList<>(), agent.getAgentNumber(),
 			pp.getActions());
 		this.taskMap.get(pp.getTask().getId()).getDependencies().add(task.getId());
@@ -137,7 +121,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		submittedTasks.remove(pp.getTask().getId());
 		this.submit(new MessageToAgent(false, null, agent.getAgentNumber(), MessageType.PLAN, task));
 	    } else if (block != null && pp.getTask().getBlock() != null && !pp.getTask().getBlock().equals(block)) {
-		System.err.println("Block" + block.toString() + "is in the way");
 		Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
 		this.taskMap.get(pp.getTask().getId()).getDependencies().add(task.getId());
 		this.taskMap.put(task.getId(), task);
@@ -149,20 +132,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		pp.getAgent().replan();
 	    }
 	} else {
-	    System.err.println("Agent " + pp.getAgent().getAgentNumber() + "'s plan for task " + pp.getTask().getId()
-		    + " accepted!");
 	    acceptedPlans.get(pp.getAgent().getAgentNumber()).addAll(pp.getActions());
 	    updateStates(newStates, acceptedPlans.get(pp.getAgent().getAgentNumber()).size() - pp.getActions().size());
 	    this.taskMap.get(pp.getTask().getId()).setSolved(true);
-//	    System.err.println("Unsolved tasks:");
-//	    for (Task unsolvedTask : unsolvedTasks) {
-//		System.err.println(unsolvedTask.getId());
-//	    }
 	    this.unsolvedTasks.remove(this.taskMap.get(pp.getTask().getId()));
-//	    System.err.println("Unsolved tasks:");
-//	    for (Task unsolvedTask : unsolvedTasks) {
-//		System.err.println(unsolvedTask.getId());
-//	    }
 	    pp.getAgent().executePlan(pp);
 	    submitTasks();
 	}
@@ -180,8 +153,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	    }
 	}
 
-	System.err.println("Blackboard has chosen a heuristic proposal given by agent "
-		+ hpChosen.getA().getAgentNumber() + " for task " + hpChosen.getTaskID());
 	heuristicPenaltyMap.put(hpChosen.getA().getAgentNumber(),
 		hpChosen.getH().getHeuristic() + heuristicPenaltyMap.get(hpChosen.getA().getAgentNumber()));
 	this.submit(new MessageToAgent(false, null, hpChosen.getA().getAgentNumber(), MessageType.PLAN,
@@ -193,7 +164,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	    if (submittedTasks.contains(task.getId())) {
 		continue;
 	    }
-	    System.err.println("Task " + task.getId() + " has the dependencies: " + task.getDependencies().toString());
 	    if (task.getDependencies().size() == 0) {
 		if (task instanceof Task.MoveAgentTask) {
 		    this.submit(new MessageToAgent(false, null, ((Task.MoveAgentTask) task).getAgentNumber(),
@@ -212,7 +182,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    }
 		}
 		if (solvedDeps) {
-		    System.err.println("Task " + task.getId() + " has all it's dependencies solved.");
 		    if (task instanceof Task.MoveAgentTask) {
 			this.submit(new MessageToAgent(false, null, ((Task.MoveAgentTask) task).getAgentNumber(),
 				MessageType.PLAN, task));
@@ -227,7 +196,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     private void submitHeuristicTask(Task task) {
-	System.err.println("Blackboard submits task with id " + task.getId() + " and color " + task.getColor());
 	for (Agent agent : task.getBlock().getReachableAgents()) {
 	    MessageToAgent messageToAgent = new MessageToAgent(null, null, agent.getAgentNumber(),
 		    MessageType.HEURISTIC, task);
@@ -293,8 +261,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	    if (acceptedPlan.size() > maxSize) {
 		maxSize = acceptedPlan.size();
 	    }
-
 	}
+
 	for (List<Action> acceptedPlan : this.acceptedPlans) {
 	    if (acceptedPlan.size() < maxSize) {
 		List<Action> noOps = new ArrayList<>();
@@ -347,10 +315,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 
 	for (Action action : actions) {
 	    nextState.setUsedInLastActionTilesFree();
-//	    System.err.println("Considering action: " + action.toString());
-//	    nextState.print();
 	    if (!nextState.isLegalMove(action)) {
-		System.err.println("Conflict! In action: " + action.toString());
 		return null;
 	    }
 
@@ -359,8 +324,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	    for (List<Action> agentPlan : acceptedPlans) {
 		if (agentPlan.size() > curStateIndex) {
 		    if (!nextState.isLegalMove(agentPlan.get(curStateIndex))) {
-			System.err.println(
-				"Conflict! In applying accepted action: " + agentPlan.get(curStateIndex).toString());
 			return null;
 		    }
 		    nextState.makeMove(agentPlan.get(curStateIndex), true);
@@ -374,7 +337,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	    for (List<Action> agentPlan : acceptedPlans) {
 		if (agentPlan.size() > i) {
 		    if (!nextState.isLegalMove(agentPlan.get(i))) {
-			System.err.println("Conflict! In applying accepted action: " + agentPlan.get(i).toString());
 			return null;
 		    }
 		    nextState.makeMove(agentPlan.get(i), true);

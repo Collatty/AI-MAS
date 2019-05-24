@@ -47,10 +47,8 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 		|| message.getToColor() != null && message.getToColor() == this.color
 		|| message.getToAgent() != null && message.getToAgent() == agentNumber) {
 	    if (message.getMessageType() == MessageType.HEURISTIC) {
-		System.err.println("Agent " + agentNumber + " creates h for task " + message.getTask().getId());
 		proposeHeuristic(calculateHeuristic(message.getTask()), message.getTask());
 	    } else if (message.getMessageType() == MessageType.PLAN) {
-		System.err.println("Agent " + agentNumber + " is asked op plan for task " + message.getTask().getId());
 		this.createPlan(message.getTask());
 	    }
 	}
@@ -65,12 +63,10 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 		    task.getBlock().getCol(), task.getGoal().getRow(), task.getGoal().getCol(), this.color);
 	    this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
 	    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
-	    System.err.println(this.toString() + "has submitted a plan");
 	} else if (task instanceof Task.MoveAgentTask) {
 	    Collection<Tile> occupiedTiles = getOccupiedTiles(((Task.MoveAgentTask) task).getOccupiedTiles());
 	    Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col), occupiedTiles);
 	    if (null == freeTile) {
-		System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
 		workingOnPlan = false;
 		BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new AbortTaskMessage(task, this));
 		return;
@@ -80,7 +76,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    this.plan = new PlanProposal(movePlan.getPlan(), this, task);
 	    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 
-	    System.err.println(this.toString() + "has submitted a moveplan");
 	} else if (task instanceof Task.MoveBlockTask) {
 	    Collection<Tile> occupiedTiles = getOccupiedTiles(((Task.MoveBlockTask) task).getOccupiedTiles());
 	    boolean solved = false;
@@ -91,7 +86,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 			State.getInitialState().get(task.getBlock().getRow()).get(task.getBlock().getCol()),
 			occupiedTiles);
 		if (null == freeTile) {
-		    System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
 		    workingOnPlan = false;
 		    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new AbortTaskMessage(task, this));
 		    return;
@@ -122,7 +116,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    }
 	    this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
 	    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
-	    System.err.println(this.toString() + "has submitted a moveBoxPlan");
 	}
 	workingOnPlan = false;
 
@@ -264,22 +257,18 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 
     @Override
     public void onError(Throwable e) {
-	System.err.println("Some error happened in agent " + agentNumber + " subscription:");
 	e.printStackTrace();
     }
 
     @Override
     public void onComplete() {
-	// System.out.println("All Processing Done");
     }
 
     @Override
     public String toString() {
-//        return "Agent " + Integer.toString(getAgentNumber());
 	return Integer.toString(getAgentNumber());
     }
 
-    // GETTERS
     public int getAgentNumber() {
 	return agentNumber;
     }
@@ -308,9 +297,6 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	return workingOnPlan;
     }
 
-    // END GETTERS
-
-    // SETTERS
     public void setRow(int row) {
 	this.row = row;
     }
@@ -369,6 +355,4 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    }
 	}
     }
-    // END SETTERS
-
 }
