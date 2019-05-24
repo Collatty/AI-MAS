@@ -157,7 +157,9 @@ public class Tile {
 
     @Override
     public String toString() {
-	if (this.isFree()) {
+	if (this.isWall) {
+	    return "#";
+	} else if (this.isFree()) {
 	    if (this.isGoal()) {
 		return this.goal.toString();
 	    }
