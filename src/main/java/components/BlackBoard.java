@@ -58,6 +58,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     public void run() {
 	this.start(State.getInitialAgents());
 	Message nextMessage;
+	State.getState().print();
 
 	while (!State.isSolved()) {
 	    while ((nextMessage = messagesToBlackboard.poll()) != null && !State.isSolved()) {
@@ -241,23 +242,23 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 
     private Agent agentInTheWay(List<Action> actions) {
 	Map<Tile, Agent> occupiedTiles = new HashMap<>();
-	for (List<Action> acceptedPLan : acceptedPlans) {
-	    Agent agent = State.getAgentByNumber(acceptedPlans.indexOf(acceptedPLan));
-	    if (acceptedPLan.size() == 0) {
+	for (Agent agent : State.getInitialAgents()) {
+	    List<Action> acceptedPlan = acceptedPlans.get(agent.getAgentNumber());
+	    if (acceptedPlan.size() == 0) {
 		occupiedTiles.put(State.getInitialState().get(agent.getRow()).get(agent.getCol()), agent);
 	    } else {
 		occupiedTiles.put(
-			State.getInitialState().get(acceptedPLan.get(acceptedPLan.size() - 1).getEndAgent().getRow())
-				.get(acceptedPLan.get(acceptedPLan.size() - 1).getEndAgent().getCol()),
+			State.getInitialState().get(acceptedPlan.get(acceptedPlan.size() - 1).getEndAgent().getRow())
+				.get(acceptedPlan.get(acceptedPlan.size() - 1).getEndAgent().getCol()),
 			agent);
 	    }
 	}
+
 	for (Action action : actions) {
 	    if (occupiedTiles.keySet().contains(action.getEndBox())) {
 		return occupiedTiles.get(action.getEndBox());
 	    } else if (occupiedTiles.keySet().contains(action.getEndAgent())) {
 		return occupiedTiles.get(action.getEndAgent());
-
 	    }
 	}
 	return null;

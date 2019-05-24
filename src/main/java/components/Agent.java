@@ -68,6 +68,11 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	} else if (task instanceof Task.MoveAgentTask) {
 	    Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col),
 		    ((Task.MoveAgentTask) task).getOccupiedTiles());
+	    if (null == freeTile) {
+		System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
+		workingOnPlan = false;
+		return;
+	    }
 	    Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
 		    freeTile.getCol(), this.color);
 	    this.plan = new PlanProposal(movePlan.getPlan(), this, task);
@@ -78,6 +83,11 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    Tile freeTile = searchForFreeTile(
 		    State.getInitialState().get(task.getBlock().getRow()).get(task.getBlock().getCol()),
 		    ((Task.MoveBlockTask) task).getOccupiedTiles());
+	    if (null == freeTile) {
+		System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
+		workingOnPlan = false;
+		return;
+	    }
 	    Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(), task.getBlock().getRow(),
 		    task.getBlock().getCol(), freeTile.getRow(), freeTile.getCol(), this.color);
 	    this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
@@ -102,37 +112,84 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    occupiedTiles.add(action.getStartAgent());
 	    occupiedTiles.add(action.getEndAgent());
 	}
+
+	// Try first to find a tile without having to move stuff
 	Collection<Tile> exploredTiles = new HashSet<>();
 	Stack<Tile> frontier = new Stack<>();
 	frontier.push(startTile);
 	while (!frontier.isEmpty()) {
 	    Tile exploringTile = frontier.pop();
-	    if (!occupiedTiles.contains(exploringTile)) {
-		for (Tile neighbor : exploringTile.getNeighbors()) {
-		    if (!neighbor.isWall() && !neighbor.isGoal() && !occupiedTiles.contains(neighbor)
-			    && neighbor.isFree()) {
-			return neighbor;
-		    }
-		}
-
+	    if (!occupiedTiles.contains(exploringTile) && exploringTile.isFree() && !exploringTile.isWall()
+		    && !exploringTile.isCompletedGoal()) {
+		return exploringTile;
 	    }
+
 	    for (Tile neighbor : exploringTile.getNeighbors()) {
-		if (exploredTiles.contains(neighbor)) {
-		    continue;
+		if (!exploredTiles.contains(neighbor) && !frontier.contains(neighbor) && !neighbor.isWall()
+			&& neighbor.isFree()) {
+		    frontier.push(neighbor);
 		}
-		if (neighbor.isWall()) {
-		    continue;
-		}
-		if (!neighbor.isFree()) {
-		    continue;
-		}
-		if (neighbor.isCompletedGoal()) {
-		    continue;
-		}
-		frontier.push(neighbor);
 	    }
 	    exploredTiles.add(exploringTile);
 	}
+
+	// Try to find a tile, with stuff in the way
+	exploredTiles = new HashSet<>();
+	frontier = new Stack<>();
+	frontier.push(startTile);
+	while (!frontier.isEmpty()) {
+	    Tile exploringTile = frontier.pop();
+	    if (!occupiedTiles.contains(exploringTile) && exploringTile.isFree() && !exploringTile.isWall()
+		    && !exploringTile.isCompletedGoal()) {
+		return exploringTile;
+	    }
+
+	    for (Tile neighbor : exploringTile.getNeighbors()) {
+		if (!exploredTiles.contains(neighbor) && !frontier.contains(neighbor) && !neighbor.isWall()) {
+		    frontier.push(neighbor);
+		}
+	    }
+	    exploredTiles.add(exploringTile);
+	}
+
+	// Try to find a tile, where the end tile hosts something else
+	exploredTiles = new HashSet<>();
+	frontier = new Stack<>();
+	frontier.push(startTile);
+	while (!frontier.isEmpty()) {
+	    Tile exploringTile = frontier.pop();
+	    if (!occupiedTiles.contains(exploringTile) && !exploringTile.isWall() && !exploringTile.isCompletedGoal()) {
+		return exploringTile;
+	    }
+
+	    for (Tile neighbor : exploringTile.getNeighbors()) {
+		if (!exploredTiles.contains(neighbor) && !frontier.contains(neighbor) && !neighbor.isWall()
+			&& neighbor.isFree()) {
+		    frontier.push(neighbor);
+		}
+	    }
+	    exploredTiles.add(exploringTile);
+	}
+
+	// Try to find a tile, where the end tile hosts something else, and something is
+	// in the way
+	exploredTiles = new HashSet<>();
+	frontier = new Stack<>();
+	frontier.push(startTile);
+	while (!frontier.isEmpty()) {
+	    Tile exploringTile = frontier.pop();
+	    if (!occupiedTiles.contains(exploringTile) && !exploringTile.isWall() && !exploringTile.isCompletedGoal()) {
+		return exploringTile;
+	    }
+
+	    for (Tile neighbor : exploringTile.getNeighbors()) {
+		if (!exploredTiles.contains(neighbor) && !frontier.contains(neighbor) && !neighbor.isWall()) {
+		    frontier.push(neighbor);
+		}
+	    }
+	    exploredTiles.add(exploringTile);
+	}
+
 	return null;
     }
 
