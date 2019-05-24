@@ -1,5 +1,6 @@
 package components;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -66,11 +67,12 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 	    System.err.println(this.toString() + "has submitted a plan");
 	} else if (task instanceof Task.MoveAgentTask) {
-	    Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col),
-		    ((Task.MoveAgentTask) task).getOccupiedTiles());
+	    Collection<Tile> occupiedTiles = getOccupiedTiles(((Task.MoveAgentTask) task).getOccupiedTiles());
+	    Tile freeTile = searchForFreeTile(State.getInitialState().get(this.row).get(this.col), occupiedTiles);
 	    if (null == freeTile) {
 		System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
 		workingOnPlan = false;
+		BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new AbortTaskMessage(task, this));
 		return;
 	    }
 	    Plan.MovePlan movePlan = new Plan.MovePlan(this.getRow(), this.getCol(), freeTile.getRow(),
@@ -80,16 +82,44 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 
 	    System.err.println(this.toString() + "has submitted a moveplan");
 	} else if (task instanceof Task.MoveBlockTask) {
-	    Tile freeTile = searchForFreeTile(
-		    State.getInitialState().get(task.getBlock().getRow()).get(task.getBlock().getCol()),
-		    ((Task.MoveBlockTask) task).getOccupiedTiles());
-	    if (null == freeTile) {
-		System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
-		workingOnPlan = false;
-		return;
+	    Collection<Tile> occupiedTiles = getOccupiedTiles(((Task.MoveBlockTask) task).getOccupiedTiles());
+	    boolean solved = false;
+	    Plan.MoveBoxPlan moveBoxPlan = null;
+	    List<Tile> virtualWalls = new ArrayList<>();
+	    while (!solved) {
+		Tile freeTile = searchForFreeTile(
+			State.getInitialState().get(task.getBlock().getRow()).get(task.getBlock().getCol()),
+			occupiedTiles);
+		if (null == freeTile) {
+		    System.err.println("Agent " + getAgentNumber() + " could not find a free tile. Abort task.");
+		    workingOnPlan = false;
+		    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(new AbortTaskMessage(task, this));
+		    return;
+		}
+		moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(), task.getBlock().getRow(),
+			task.getBlock().getCol(), freeTile.getRow(), freeTile.getCol(), this.color);
+
+		Tile agentEndTile = moveBoxPlan.getPlan().get(moveBoxPlan.getPlan().size() - 1).getEndAgent();
+		if (!occupiedTiles.contains(agentEndTile)) {
+		    solved = true;
+		} else {
+		    // Agent is now in the way, try to find a tile it can go to
+		    virtualWalls.add(freeTile);
+		    Tile freeAgentTile = searchForFreeTileSimple(
+			    State.getInitialState().get(agentEndTile.getRow()).get(agentEndTile.getCol()),
+			    occupiedTiles, virtualWalls);
+		    if (null == freeAgentTile) {
+			// Could not find a tile for agent. Find a new tile for block
+			occupiedTiles.add(freeTile);
+			virtualWalls.remove(freeTile);
+		    } else {
+			Plan.MovePlan movePlan = new Plan.MovePlan(agentEndTile.getRow(), agentEndTile.getCol(),
+				freeAgentTile.getRow(), freeAgentTile.getCol(), this.color);
+			moveBoxPlan.getPlan().addAll(movePlan.getPlan());
+			solved = true;
+		    }
+		}
 	    }
-	    Plan.MoveBoxPlan moveBoxPlan = new Plan.MoveBoxPlan(this.getRow(), this.getCol(), task.getBlock().getRow(),
-		    task.getBlock().getCol(), freeTile.getRow(), freeTile.getCol(), this.color);
 	    this.plan = new PlanProposal(moveBoxPlan.getPlan(), this, task);
 	    BlackBoard.getBlackBoard().getMessagesToBlackboard().add(plan);
 	    System.err.println(this.toString() + "has submitted a moveBoxPlan");
@@ -104,7 +134,7 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 		.add(new PlanProposal(this.plan.getActions(), this, this.task));
     }
 
-    private static Tile searchForFreeTile(Tile startTile, List<Action> actions) {
+    private static Collection<Tile> getOccupiedTiles(List<Action> actions) {
 	Collection<Tile> occupiedTiles = new HashSet<>();
 	for (Action action : actions) {
 	    occupiedTiles.add(action.getStartBox());
@@ -112,7 +142,34 @@ public class Agent implements Subscriber<MessageToAgent>, Runnable {
 	    occupiedTiles.add(action.getStartAgent());
 	    occupiedTiles.add(action.getEndAgent());
 	}
+	return occupiedTiles;
+    }
 
+    private static Tile searchForFreeTileSimple(Tile startTile, Collection<Tile> occupiedTiles,
+	    List<Tile> virtualWalls) {
+	// Try first to find a tile without having to move stuff
+	Collection<Tile> exploredTiles = new HashSet<>();
+	Stack<Tile> frontier = new Stack<>();
+	frontier.push(startTile);
+	while (!frontier.isEmpty()) {
+	    Tile exploringTile = frontier.pop();
+	    if (!occupiedTiles.contains(exploringTile) && exploringTile.isFree() && !exploringTile.isWall()
+		    && !exploringTile.isCompletedGoal() && !virtualWalls.contains(exploringTile)) {
+		return exploringTile;
+	    }
+
+	    for (Tile neighbor : exploringTile.getNeighbors()) {
+		if (!exploredTiles.contains(neighbor) && !frontier.contains(neighbor) && !neighbor.isWall()
+			&& neighbor.isFree() && !virtualWalls.contains(exploringTile)) {
+		    frontier.push(neighbor);
+		}
+	    }
+	    exploredTiles.add(exploringTile);
+	}
+	return null;
+    }
+
+    private static Tile searchForFreeTile(Tile startTile, Collection<Tile> occupiedTiles) {
 	// Try first to find a tile without having to move stuff
 	Collection<Tile> exploredTiles = new HashSet<>();
 	Stack<Tile> frontier = new Stack<>();
