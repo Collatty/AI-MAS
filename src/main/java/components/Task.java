@@ -8,16 +8,9 @@ import components.state.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
-
     private static int counter = 0;
-
-    public Block getBlock() {
-        return block;
-    }
-
     private final Block block;
     private long id;
-
     private Color color;
     private List<Long> dependencies;
     private TaskType taskType;
@@ -25,11 +18,11 @@ public class Task {
     private Goal goal;
 
     public boolean isSolved() {
-        return solved;
+	return solved;
     }
 
     public void setSolved(boolean solved) {
-        this.solved = solved;
+	this.solved = solved;
     }
 
     private boolean solved;
@@ -66,15 +59,14 @@ public class Task {
 	this.taskType = taskType;
     }
 
-
     public Task(Color color, List<Long> dependencies, Goal goal, Block block) {
-        this.id = counter;
-        counter++;
-        this.color = color;
-        this.dependencies = dependencies;
-        this.goal = goal;
-        this.solved = false;
-        this.block = block;
+	this.id = counter;
+	counter++;
+	this.color = color;
+	this.dependencies = dependencies;
+	this.goal = goal;
+	this.solved = false;
+	this.block = block;
 
     }
 
@@ -82,10 +74,9 @@ public class Task {
 	return prestate;
     }
 
-
     @Override
     public String toString() {
-        return "Task: " + this.id + "of color: " + this.color;
+	return "Task: " + this.id + "of color: " + this.color;
     }
 
     public void setPrestate(State prestate) {
@@ -93,36 +84,44 @@ public class Task {
     }
 
     public Goal getGoal() {
-        return this.goal;
+	return this.goal;
     }
 
+    public Block getBlock() {
+	return block;
+    }
 
     public static class MoveAgentTask extends Task {
+	private int agentNumber;
+	private List<Action> occupiedTiles;
 
-        public List<Action> getOccupiedTiles() {
-            return occupiedTiles;
-        }
+	public MoveAgentTask(Color color, List<Long> dependencies, int agentNumber, List<Action> occupiedTiles) {
+	    super(color, dependencies, null, null);
+	    this.agentNumber = agentNumber;
+	    this.occupiedTiles = occupiedTiles;
+	}
 
-        private List<Action> occupiedTiles;
+	public int getAgentNumber() {
+	    return agentNumber;
+	}
 
-        public MoveAgentTask(Color color, List<Long> dependencies, List<Action> occupiedTiles){
-            super(color, dependencies, null, null);
-            this.occupiedTiles = occupiedTiles;
-        }
+	public List<Action> getOccupiedTiles() {
+	    return occupiedTiles;
+	}
     }
 
     public static class MoveBlockTask extends Task {
 
-        public List<Action> getOccupiedTiles() {
-            return occupiedTiles;
-        }
+	public List<Action> getOccupiedTiles() {
+	    return occupiedTiles;
+	}
 
-        private List<Action> occupiedTiles;
+	private List<Action> occupiedTiles;
 
-        public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block){
-            super(color, dependencies, null, block);
-            this.occupiedTiles = occupiedTiles;
-        }
+	public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block) {
+	    super(color, dependencies, null, block);
+	    this.occupiedTiles = occupiedTiles;
+	}
 
     }
 

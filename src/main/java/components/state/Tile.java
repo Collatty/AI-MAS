@@ -7,7 +7,6 @@ import components.Agent;
 
 public class Tile {
 
-
     private final int col;
     private final int row;
 
@@ -16,11 +15,11 @@ public class Tile {
     private boolean isWall;
 
     public boolean notUsedInLastMove() {
-        return notUsedInLastMove;
+	return notUsedInLastMove;
     }
 
     public void setNotUsedInLastMove(boolean usedInLastMove) {
-        this.notUsedInLastMove = usedInLastMove;
+	this.notUsedInLastMove = usedInLastMove;
     }
 
     private boolean notUsedInLastMove;
@@ -32,139 +31,138 @@ public class Tile {
 
     public Collection<Tile> getNeighbors() {
 
-        Collection<Tile> neighbors = new HashSet<>();
-        if (this.northNeighbor != null) {
-            neighbors.add(this.northNeighbor);
-        }
-        if (this.southNeighbor != null) {
-            neighbors.add(this.southNeighbor);
-        }
-        if (this.eastNeighbor != null) {
-            neighbors.add(this.eastNeighbor);
-        }
-        if (this.westNeighbor != null) {
-            neighbors.add(this.westNeighbor);
-        }
-        return neighbors;
+	Collection<Tile> neighbors = new HashSet<>();
+	if (this.northNeighbor != null) {
+	    neighbors.add(this.northNeighbor);
+	}
+	if (this.southNeighbor != null) {
+	    neighbors.add(this.southNeighbor);
+	}
+	if (this.eastNeighbor != null) {
+	    neighbors.add(this.eastNeighbor);
+	}
+	if (this.westNeighbor != null) {
+	    neighbors.add(this.westNeighbor);
+	}
+	return neighbors;
     }
 
     public Tile(final int row, final int col) {
-        this.col = col;
-        this.row = row;
-        this.tileOccupant = null;
-        this.goal = null;
-
+	this.col = col;
+	this.row = row;
+	this.tileOccupant = null;
+	this.goal = null;
 
     }
 
-    //GETTERS
+    // GETTERS
     public int getCol() {
-        return col;
+	return col;
     }
 
     public int getRow() {
-        return row;
+	return row;
     }
 
     public Object getTileOccupant() {
-        return tileOccupant;
+	return tileOccupant;
     }
 
     public Tile getTile() {
-        return this;
+	return this;
     }
 
     public Goal getGoal() {
-        return this.goal;
+	return this.goal;
     }
 
     public Tile getNorthNeighbor() {
-        return northNeighbor;
+	return northNeighbor;
     }
 
     public Tile getSouthNeighbor() {
-        return southNeighbor;
+	return southNeighbor;
     }
 
     public Tile getEastNeighbor() {
-        return eastNeighbor;
+	return eastNeighbor;
     }
 
     public Tile getWestNeighbor() {
-        return westNeighbor;
+	return westNeighbor;
     }
-    //END GETTERS
+    // END GETTERS
 
-    //SETTERS
+    // SETTERS
     public void setTileOccupant(Object tileOccupant) {
-        this.tileOccupant = tileOccupant;
+	this.tileOccupant = tileOccupant;
     }
 
     public void setGoal(Goal goal) {
-        this.goal = goal;
+	this.goal = goal;
     }
 
     public void setWestNeighbor(Tile westNeighbor) {
-        this.westNeighbor = westNeighbor;
+	this.westNeighbor = westNeighbor;
     }
 
     public void setEastNeighbor(Tile eastNeighbor) {
-        this.eastNeighbor = eastNeighbor;
+	this.eastNeighbor = eastNeighbor;
     }
 
     public void setNorthNeighbor(Tile northNeighbor) {
-        this.northNeighbor = northNeighbor;
+	this.northNeighbor = northNeighbor;
     }
 
     public void setSouthNeighbor(Tile southNeighbor) {
-        this.southNeighbor = southNeighbor;
+	this.southNeighbor = southNeighbor;
     }
 
-    public void setWall (boolean isWall) {
-        this.isWall = isWall;
+    public void setWall(boolean isWall) {
+	this.isWall = isWall;
     }
 
-    //END SETTERS
+    // END SETTERS
 
     public void removeTileOccupant() {
-        this.tileOccupant = null;
+	this.tileOccupant = null;
     }
 
     public boolean isGoal() {
-        return this.goal != null;
+	return this.goal != null;
     }
 
     public boolean isWall() {
-        return this.isWall;
+	return this.isWall;
     }
 
     public boolean hasBlock() {
-        return this.tileOccupant instanceof Block;
+	return this.tileOccupant instanceof Block;
     }
 
     public boolean hasAgent() {
-        return this.tileOccupant instanceof Agent;
+	return this.tileOccupant instanceof Agent;
     }
 
     public boolean isFree() {
-        return this.tileOccupant == null && notUsedInLastMove;
+	return this.tileOccupant == null && notUsedInLastMove;
     }
 
-    public boolean isCompletedGoal () {
-        if (this.isGoal() && this.hasBlock()){
-            return this.goal.getType() == ((Block) this.getTileOccupant()).getType();
-        }
-        return false;
+    public boolean isCompletedGoal() {
+	if (this.isGoal() && this.hasBlock()) {
+	    return this.goal.getType() == ((Block) this.getTileOccupant()).getType();
+	}
+	return false;
     }
 
     @Override
     public String toString() {
-        if (this.isFree()) {
-            if (this.isGoal()) {
-                return this.goal.toString();
-            }
-            return "tile (" + col + "," + row + ")" + " is free";
-        }
+	if (this.isFree()) {
+	    if (this.isGoal()) {
+		return this.goal.toString();
+	    }
+	    return "-";// "tile (" + col + "," + row + ")" + " is free";
+	}
 	return this.tileOccupant != null ? this.tileOccupant.toString() : "null";
     }
 
