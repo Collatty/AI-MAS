@@ -37,11 +37,17 @@ public class Goal {
         this.col = col;
         this.completed = false;
 
+        System.err.println("Constructing goal");
+
+        //TODO: Here we basically set a golved to solved if a block of the right color is standing on top of it.
+        // this can, however, be problematic if this box has to moved for another goal to be solved for instance.
         if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
             if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor().equals(this.color)) {
+                System.err.println("Goal 42: " + Character.toString(this.type) + " is completed by default");
                 setCompleted(true);
             }
         }
+
 
     }
 

@@ -98,7 +98,9 @@ public abstract class SubGoalPlanner {
         List<Task> tasks = new ArrayList<>();
         HashMap<Goal, Task> mapping = new HashMap<>();
         for (Goal goal : State.getGoals()) {
+            System.err.println("101: " + goal.toString());
             if(!goal.isCompleted()) {
+                System.err.println("103: " + goal.toString() + " is not completed");
                 Block block = null;
                 for (Block block1 : State.getBlocks()) {
                     if (block1.getType() == goal.getType()){
@@ -113,13 +115,18 @@ public abstract class SubGoalPlanner {
         }
         for (Goal goal : State.getGoals()) {
             if(!goal.isCompleted()) {
+                System.err.println("116: " + goal.toString());
                 List<Task> depTasks = new ArrayList<>();
                 for (Goal goal2 : goal.getPreconditions()) {
+                    System.err.println("119: " + goal2.toString());
+                    System.err.println("120: " + mapping.toString());
                     depTasks.add(mapping.get(goal2));
                 }
+                System.err.println("123, depTasks: " + depTasks.toString());
                 List<Long> taskIds = depTasks.stream()
                         .map(Task::getId)
                         .collect(Collectors.toList());
+                System.err.println("127" + taskIds.toString());
                 mapping.get(goal).setDependencies(taskIds);
             }
         }
