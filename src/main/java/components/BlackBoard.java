@@ -92,6 +92,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    AbortTaskMessage abort = (AbortTaskMessage) nextMessage;
 		    taskMap.get(abort.getTask().getId()).setSolved(true);
 		    unsolvedTasks.remove(taskMap.get(abort.getTask().getId()));
+		    submitTasks();
 		}
 		checkCompleted();
 	    }
@@ -188,7 +189,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     private void submitTasks() {
-	System.err.println("unsolvedTasks.size(): " + unsolvedTasks.size() + ", ");
 	for (Task task : this.unsolvedTasks) {
 	    if (submittedTasks.contains(task.getId())) {
 		continue;
