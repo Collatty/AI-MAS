@@ -24,7 +24,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     private List<State> states = new ArrayList<>();
     private List<List<Action>> acceptedPlans = new ArrayList<>();
     private ConcurrentLinkedQueue<Message> messagesToBlackboard = new ConcurrentLinkedQueue<>();
-    private HashMap<Long, PlanProposal> savedPlanProposals = new HashMap<Long, PlanProposal>();
 
     public List<String> getOutputStrings() {
 	return outputStrings;
@@ -88,6 +87,11 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    }
 		} else if (messageType.equals(PlanProposal.class.getSimpleName())) {
 		    handlePlanPropsal((PlanProposal) nextMessage);
+
+		} else if (messageType.equals(AbortTaskMessage.class.getSimpleName())) {
+		    AbortTaskMessage abort = (AbortTaskMessage) nextMessage;
+		    taskMap.get(abort.getTask().getId()).setSolved(true);
+		    unsolvedTasks.remove(taskMap.get(abort.getTask().getId()));
 		}
 		checkCompleted();
 	    }
@@ -116,7 +120,10 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	}
 
 	Agent agent = agentInTheWay(pp.getActions());
-	Block block = blockInTheWay(pp.getActions());
+	Block block = blockInTheWay(pp.getActions(), pp.getTask().getBlock());
+	if (block != null) {
+	    System.err.println("Found block in the way with coordinates: " + block.getCol() + ", " + block.getRow());
+	}
 	List<State> newStates = newStatesGeneratorAndConflictChecker(pp.getActions(),
 		this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
 	if (newStates == null) { // CONFLICT
@@ -126,14 +133,14 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 			pp.getActions());
 		this.taskMap.get(pp.getTask().getId()).getDependencies().add(task.getId());
 		this.taskMap.put(task.getId(), task);
-		savedPlanProposals.put(task.getId(), pp);
+		submittedTasks.remove(pp.getTask().getId());
 		this.submit(new MessageToAgent(false, null, agent.getAgentNumber(), MessageType.PLAN, task));
 	    } else if (block != null && pp.getTask().getBlock() != null && !pp.getTask().getBlock().equals(block)) {
 		System.err.println("Block" + block.toString() + "is in the way");
 		Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
 		this.taskMap.get(pp.getTask().getId()).getDependencies().add(task.getId());
 		this.taskMap.put(task.getId(), task);
-		savedPlanProposals.put(task.getId(), pp);
+		submittedTasks.remove(pp.getTask().getId());
 		for (Agent a : block.getReachableAgents()) {
 		    submit(new MessageToAgent(false, null, a.getAgentNumber(), MessageType.PLAN, task));
 		}
@@ -141,6 +148,8 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		pp.getAgent().replan();
 	    }
 	} else {
+	    System.err.println("Agent " + pp.getAgent().getAgentNumber() + "'s plan for task " + pp.getTask().getId()
+		    + " accepted!");
 	    acceptedPlans.get(pp.getAgent().getAgentNumber()).addAll(pp.getActions());
 	    updateStates(newStates, acceptedPlans.get(pp.getAgent().getAgentNumber()).size() - pp.getActions().size());
 	    this.taskMap.get(pp.getTask().getId()).setSolved(true);
@@ -154,10 +163,6 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 //		System.err.println(unsolvedTask.getId());
 //	    }
 	    pp.getAgent().executePlan(pp);
-
-	    if (savedPlanProposals.containsKey(pp.getTask().getId())) {
-		handlePlanPropsal(savedPlanProposals.remove(pp.getTask().getId()));
-	    }
 	    submitTasks();
 	}
     }
@@ -183,6 +188,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     private void submitTasks() {
+	System.err.println("unsolvedTasks.size(): " + unsolvedTasks.size() + ", ");
 	for (Task task : this.unsolvedTasks) {
 	    if (submittedTasks.contains(task.getId())) {
 		continue;
@@ -264,10 +270,12 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	return null;
     }
 
-    private Block blockInTheWay(List<Action> actions) {
+    private Block blockInTheWay(List<Action> actions, Block blockUsed) {
 	Map<Tile, Block> occupiedTiles = new HashMap<>();
 	for (Block block : State.getBlocks()) {
-	    occupiedTiles.put(State.getInitialState().get(block.getRow()).get(block.getCol()), block);
+	    if (!block.equals(blockUsed)) {
+		occupiedTiles.put(State.getInitialState().get(block.getRow()).get(block.getCol()), block);
+	    }
 	}
 	for (Action action : actions) {
 	    if (occupiedTiles.keySet().contains(action.getEndBox())) {
