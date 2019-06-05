@@ -18,7 +18,7 @@ public class State {
 
     private static List<List<Tile>> INITIAL_STATE = new ArrayList<>();
     private static List<Goal> GOALS = new ArrayList<>();
-    private static List<Block> blocks = new ArrayList<>();
+    private static List<Box> boxes = new ArrayList<>();
     private static List<Agent> agents = new ArrayList<>();
     private static boolean[][] wallMatrix;
     private static int maxCol = 0;
@@ -37,7 +37,7 @@ public class State {
     public static void loadNewState() {
 	INITIAL_STATE = new ArrayList<>();
 	GOALS = new ArrayList<>();
-	blocks = new ArrayList<>();
+	boxes = new ArrayList<>();
 	agents = new ArrayList<>();
 	maxCol = 0;
 	STRING_COLORS = LevelReader.getColors();
@@ -90,15 +90,14 @@ public class State {
 		agents.add(agt);
 	    } else if ('A' <= character && character <= 'Z') { // Box.
 		Tile tile = new Tile(row, col);
-		// CHECK IF THERE ARE UNMOVABLE BLOCKS
-		if (!checkAgentsHasColor(convertFromStringToColor(getColorBlockAndGoal(character)))) {
+		// CHECK IF THERE ARE UNMOVABLE BOXES
+		if (!checkAgentsHasColor(convertFromStringToColor(getColorBoxAndGoal(character)))) {
 		    tile.setWall(true);
 		} else {
-		    Block box = new Block(character, convertFromStringToColor(getColorBlockAndGoal(character)), row,
-			    col);
+		    Box box = new Box(character, convertFromStringToColor(getColorBoxAndGoal(character)), row, col);
 		    tile.setTileOccupant(box);
 		    tile.setNotUsedInLastMove(true);
-		    blocks.add(box);
+		    boxes.add(box);
 		}
 		currentList.add(tile);
 	    } else if (character == ' ') {
@@ -121,7 +120,7 @@ public class State {
 		continue;
 	    }
 	    if ('A' <= character && character <= 'Z') { // Goal.
-		final Goal goal = new Goal(character, convertFromStringToColor(getColorBlockAndGoal(character)), row,
+		final Goal goal = new Goal(character, convertFromStringToColor(getColorBoxAndGoal(character)), row,
 			col);
 		INITIAL_STATE.get(row).get(col).setGoal(goal);
 		GOALS.add(goal);
@@ -130,12 +129,12 @@ public class State {
 	}
 	// REITERATING THROUGH TILES TO "CONNECT" THE BOARD
 	setNeighbors(INITIAL_STATE);
-	setReachableAgentsOnBlocks();
-	setReachableBlocksOnGoals();
+	setReachableAgentsOnBoxes();
+	setReachableBoxesOnGoals();
 	wallMatrix = createWallBoard(INITIAL_STATE);
     }
 
-    private static void setReachableBlocksOnGoals() {
+    private static void setReachableBoxesOnGoals() {
 	int maxRow = INITIAL_STATE.size();
 	int maxCol = INITIAL_STATE.get(0).size();
 
@@ -153,10 +152,10 @@ public class State {
 
 		for (Tile neighbor : tile.getNeighbors()) {
 		    if (!neighbor.isWall() && !visited[neighbor.getRow()][neighbor.getCol()]) {
-			if (neighbor.hasBlock()) {
-			    Block b = (Block) (neighbor.getTileOccupant());
+			if (neighbor.hasBox()) {
+			    Box b = (Box) (neighbor.getTileOccupant());
 			    if (b.getType() == goal.getType()) {
-				goal.addReachableBlock(b);
+				goal.addReachableBoxes(b);
 			    }
 			}
 			visited[neighbor.getRow()][neighbor.getCol()] = true;
@@ -167,25 +166,25 @@ public class State {
 	}
     }
 
-    private static void setReachableAgentsOnBlocks() {
-	Iterator<Block> blockItr = blocks.iterator();
-	while (blockItr.hasNext()) {
-	    Block block = blockItr.next();
-	    if (!isBlockReachable(block)) {
-		INITIAL_STATE.get(block.getRow()).get(block.getCol()).setWall(true);
-		INITIAL_STATE.get(block.getRow()).get(block.getCol()).removeTileOccupant();
-		blockItr.remove();
+    private static void setReachableAgentsOnBoxes() {
+	Iterator<Box> boxItr = boxes.iterator();
+	while (boxItr.hasNext()) {
+	    Box box = boxItr.next();
+	    if (!isBoxReachable(box)) {
+		INITIAL_STATE.get(box.getRow()).get(box.getCol()).setWall(true);
+		INITIAL_STATE.get(box.getRow()).get(box.getCol()).removeTileOccupant();
+		boxItr.remove();
 	    }
 	}
     }
 
-    private static boolean isBlockReachable(Block block) {
+    private static boolean isBoxReachable(Box box) {
 	int maxRow = INITIAL_STATE.size();
 	int maxCol = INITIAL_STATE.get(0).size();
 	boolean[][] visited = new boolean[maxRow][maxCol];
 	LinkedList<Tile> queue = new LinkedList<>();
 
-	Tile tile = INITIAL_STATE.get(block.getRow()).get(block.getCol());
+	Tile tile = INITIAL_STATE.get(box.getRow()).get(box.getCol());
 	visited[tile.getRow()][tile.getCol()] = true;
 
 	queue.add(tile);
@@ -197,8 +196,8 @@ public class State {
 		if (!neighbor.isWall() && !visited[neighbor.getRow()][neighbor.getCol()]) {
 		    if (neighbor.hasAgent()) {
 			Agent a = (Agent) (neighbor.getTileOccupant());
-			if (a.getColor().equals(block.getColor())) {
-			    block.addReachableAgent(a);
+			if (a.getColor().equals(box.getColor())) {
+			    box.addReachableAgent(a);
 			}
 		    }
 		    visited[neighbor.getRow()][neighbor.getCol()] = true;
@@ -207,7 +206,7 @@ public class State {
 	    }
 	}
 
-	return block.getReachableAgents().size() > 0;
+	return box.getReachableAgents().size() > 0;
     }
 
     public State(State copyState) {
@@ -225,11 +224,11 @@ public class State {
 		if (tile.isWall()) {
 		    copyTile.setWall(true);
 		}
-		if (tile.hasBlock()) {
-		    Block block = new Block(((Block) tile.getTileOccupant()).getType(),
-			    ((Block) tile.getTileOccupant()).getColor(), ((Block) tile.getTileOccupant()).getRow(),
-			    ((Block) tile.getTileOccupant()).getCol());
-		    copyTile.setTileOccupant(block);
+		if (tile.hasBox()) {
+		    Box box = new Box(((Box) tile.getTileOccupant()).getType(),
+			    ((Box) tile.getTileOccupant()).getColor(), ((Box) tile.getTileOccupant()).getRow(),
+			    ((Box) tile.getTileOccupant()).getCol());
+		    copyTile.setTileOccupant(box);
 		}
 		if (tile.hasAgent()) {
 		    Agent agent = new Agent(((Agent) tile.getTileOccupant()).getAgentNumber(),
@@ -269,8 +268,8 @@ public class State {
 	return agents;
     }
 
-    public static List<Block> getBlocks() {
-	return blocks;
+    public static List<Box> getBoxes() {
+	return boxes;
     }
 
     // There should be no other numbers in the color string besides the agents
@@ -285,11 +284,11 @@ public class State {
 	return "NA";
     }
 
-    private static String getColorBlockAndGoal(char blockAndGoal) {
+    private static String getColorBoxAndGoal(char boxAndGoal) {
 	String[] colorsSplitted = STRING_COLORS.split("\n");
 	for (String string : colorsSplitted) {
 	    String[] splittedEvenMore = string.split(":");
-	    if (splittedEvenMore[1].contains(Character.toString(blockAndGoal).toUpperCase())) {
+	    if (splittedEvenMore[1].contains(Character.toString(boxAndGoal).toUpperCase())) {
 		return splittedEvenMore[0];
 	    }
 	}
@@ -364,11 +363,11 @@ public class State {
 	return walls;
     }
 
-    public static boolean[][] createWallBoardWithBlocks(Color colorOfBlockToBeMoved) {
+    public static boolean[][] createWallBoardWithBoxes(Color colorOfBoxToBeMoved) {
 	boolean[][] walls = createWallBoard(State.getInitialState());
-	for (Block block : blocks) {
-	    if (!block.getColor().equals(colorOfBlockToBeMoved)) {
-		walls[block.getRow()][block.getCol()] = true;
+	for (Box box : boxes) {
+	    if (!box.getColor().equals(colorOfBoxToBeMoved)) {
+		walls[box.getRow()][box.getCol()] = true;
 	    }
 	}
 	return walls;
@@ -429,15 +428,15 @@ public class State {
 	agent.setCol(action.getEndAgent().getCol());
 	if (action.getActionType().equals(Action.ActionType.Pull)
 		|| action.getActionType().equals(Action.ActionType.Push)) {
-	    Block block = (Block) this.currentTiles.get(action.getStartBox().getRow())
-		    .get(action.getStartBox().getCol()).getTileOccupant();
+	    Box box = (Box) this.currentTiles.get(action.getStartBox().getRow()).get(action.getStartBox().getCol())
+		    .getTileOccupant();
 	    this.getCurrentTiles().get(action.getStartBox().getRow()).get(action.getStartBox().getCol())
 		    .removeTileOccupant();
 	    this.getCurrentTiles().get(action.getStartBox().getRow()).get(action.getStartBox().getCol())
 		    .setNotUsedInLastMove(!firstStateMoveIsMadeIn);
-	    this.currentTiles.get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).setTileOccupant(block);
-	    block.setRow(action.getEndBox().getRow());
-	    block.setCol(action.getEndBox().getCol());
+	    this.currentTiles.get(action.getEndBox().getRow()).get(action.getEndBox().getCol()).setTileOccupant(box);
+	    box.setRow(action.getEndBox().getRow());
+	    box.setCol(action.getEndBox().getCol());
 	}
 	this.getCurrentTiles().get(action.getEndAgent().getRow()).get(action.getEndAgent().getCol())
 		.setTileOccupant(agent);

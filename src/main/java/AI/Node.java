@@ -6,7 +6,7 @@ public class Node {
     private int h;
     private int row;
     private int col;
-    private boolean isBlock;
+    private boolean isBox;
     private Node parent;
 
     public Node(int row, int col) {
@@ -83,12 +83,12 @@ public class Node {
 	this.parent = parent;
     }
 
-    public boolean isBlock() {
-	return isBlock;
+    public boolean isBox() {
+	return isBox;
     }
 
-    public void setBlock(boolean isBlock) {
-	this.isBlock = isBlock;
+    public void setBox(boolean isBox) {
+	this.isBox = isBox;
     }
 
     public int getRow() {

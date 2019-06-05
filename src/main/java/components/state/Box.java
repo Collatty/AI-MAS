@@ -6,14 +6,14 @@ import java.util.List;
 import components.Agent;
 import components.Color;
 
-public class Block {
+public class Box {
     private char type;
     private final Color color;
     private int row;
     private int col;
     private List<Agent> reachableAgents;
 
-    public Block(char type, Color color, int row, int col) {
+    public Box(char type, Color color, int row, int col) {
 	this.type = type;
 	this.color = color;
 	this.row = row;

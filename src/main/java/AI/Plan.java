@@ -29,19 +29,18 @@ public abstract class Plan {
     public static List<Node> aStarSearch(int startRow, int startCol, int endRow, int endCol, Color color) {
 	AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
 		new Node(startRow, startCol), new Node(endRow, endCol), 1);
-	search.setBlocks(State.createWallBoardWithBlocks(color));
+	search.setBoxes(State.createWallBoardWithBoxes(color));
 	List<Node> path = search.findPath();
 	if (path.size() > 0 && path.get(path.size() - 1).getRow() == endRow
 		&& path.get(path.size() - 1).getCol() == endCol) {
 	    return path;
 	} else {
-	    AStarSearch searchWithBlocks = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
+	    AStarSearch searchWithBoxes = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
 		    new Node(startRow, startCol), new Node(endRow, endCol), 1);
-	    return searchWithBlocks.findPath();
+	    return searchWithBoxes.findPath();
 	}
     }
 
-    // GETTERS
     public int getStartRow() {
 	return startRow;
     }
@@ -61,7 +60,6 @@ public abstract class Plan {
     public List<Action> getPlan() {
 	return plan;
     }
-    // END GETTERS
 
     public Node getFinalNode() {
 	return new Node(this.endRow, this.endCol);

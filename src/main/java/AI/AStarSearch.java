@@ -30,7 +30,7 @@ public class AStarSearch {
 	    }
 	});
 	setNodes();
-	setBlocks(State.getWallMatrix());
+	setBoxes(State.getWallMatrix());
 	this.closedSet = new HashSet<>();
     }
 
@@ -48,11 +48,11 @@ public class AStarSearch {
 	}
     }
 
-    public void setBlocks(boolean[][] blocksArray) {
-	for (int i = 0; i < blocksArray.length; i++) {
-	    for (int j = 0; j < blocksArray[0].length; j++) {
-		if (blocksArray[i][j] == true) {
-		    setBlock(i, j);
+    public void setBoxes(boolean[][] boxArray) {
+	for (int i = 0; i < boxArray.length; i++) {
+	    for (int j = 0; j < boxArray[0].length; j++) {
+		if (boxArray[i][j] == true) {
+		    setBox(i, j);
 		}
 	    }
 	}
@@ -121,7 +121,7 @@ public class AStarSearch {
 
     private void checkNode(Node currentNode, int col, int row, int cost) {
 	Node adjacentNode = getSearchArea()[row][col];
-	if (!adjacentNode.isBlock() && !getClosedSet().contains(adjacentNode)) {
+	if (!adjacentNode.isBox() && !getClosedSet().contains(adjacentNode)) {
 	    if (!getOpenList().contains(adjacentNode)) {
 		adjacentNode.setNodeData(currentNode, cost);
 		getOpenList().add(adjacentNode);
@@ -145,8 +145,8 @@ public class AStarSearch {
 	return openList.size() == 0;
     }
 
-    private void setBlock(int row, int col) {
-	this.searchArea[row][col].setBlock(true);
+    private void setBox(int row, int col) {
+	this.searchArea[row][col].setBox(true);
     }
 
     public Node getInitialNode() {

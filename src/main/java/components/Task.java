@@ -2,14 +2,14 @@ package components;
 
 import java.util.List;
 
-import components.state.Block;
+import components.state.Box;
 import components.state.Goal;
 import components.state.State;
 
 //TODO: Consider if attributes should be private and have getters and setters
 public class Task {
     private static int counter = 0;
-    private final Block block;
+    private final Box box;
     private long id;
     private Color color;
     private List<Long> dependencies;
@@ -17,14 +17,14 @@ public class Task {
     private State prestate;
     private Goal goal;
 
-    public Task(Color color, List<Long> dependencies, Goal goal, Block block) {
+    public Task(Color color, List<Long> dependencies, Goal goal, Box box) {
 	this.id = counter;
 	counter++;
 	this.color = color;
 	this.dependencies = dependencies;
 	this.goal = goal;
 	this.solved = false;
-	this.block = block;
+	this.box = box;
     }
 
     public boolean isSolved() {
@@ -86,8 +86,8 @@ public class Task {
 	return this.goal;
     }
 
-    public Block getBlock() {
-	return block;
+    public Box getBox() {
+	return box;
     }
 
     public static class MoveAgentTask extends Task {
@@ -109,15 +109,15 @@ public class Task {
 	}
     }
 
-    public static class MoveBlockTask extends Task {
+    public static class MoveBoxTask extends Task {
 	private List<Action> occupiedTiles;
 
 	public List<Action> getOccupiedTiles() {
 	    return occupiedTiles;
 	}
 
-	public MoveBlockTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Block block) {
-	    super(color, dependencies, null, block);
+	public MoveBoxTask(Color color, List<Long> dependencies, List<Action> occupiedTiles, Box box) {
+	    super(color, dependencies, null, box);
 	    this.occupiedTiles = occupiedTiles;
 	}
     }

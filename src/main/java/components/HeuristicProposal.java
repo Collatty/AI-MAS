@@ -1,12 +1,12 @@
 package components;
 
-import AI.HeuristicAndBlock;
+import AI.HeuristicAndBox;
 
 public class HeuristicProposal extends Message {
-    private HeuristicAndBlock h;
+    private HeuristicAndBox h;
     private Agent a;
 
-    public HeuristicAndBlock getH() {
+    public HeuristicAndBox getH() {
 	return h;
     }
 
@@ -20,7 +20,7 @@ public class HeuristicProposal extends Message {
 
     private long taskID;
 
-    public HeuristicProposal(HeuristicAndBlock h, Agent a, long taskID) {
+    public HeuristicProposal(HeuristicAndBox h, Agent a, long taskID) {
 	this.h = h;
 	this.a = a;
 	this.taskID = taskID;

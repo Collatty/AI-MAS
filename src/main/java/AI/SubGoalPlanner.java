@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import components.Agent;
 import components.Task;
-import components.state.Block;
+import components.state.Box;
 import components.state.Goal;
 import components.state.State;
 import components.state.Tile;
@@ -28,8 +28,8 @@ public abstract class SubGoalPlanner {
 	return convertToTask();
     }
 
-    private static boolean searchForBlock(Goal goal) {
-	boolean hasBlock = false;
+    private static boolean searchForBox(Goal goal) {
+	boolean hasBox = false;
 	boolean hasAgent = false;
 	Collection<Tile> exploredTiles = new HashSet<>();
 	Stack<Tile> frontier = new Stack<>();
@@ -38,10 +38,8 @@ public abstract class SubGoalPlanner {
 	frontier.push(goalTile);
 	while (!frontier.isEmpty()) {
 	    Tile exploringTile = frontier.pop();
-	    if (exploringTile.hasBlock() && ((Block) exploringTile.getTileOccupant()).getType() == goal.getType()) {
-		hasBlock = true;
-		System.err.println("Found a correct type block for " + goal.toString() + " on tile ("
-			+ exploringTile.getCol() + "," + exploringTile.getRow() + ")");
+	    if (exploringTile.hasBox() && ((Box) exploringTile.getTileOccupant()).getType() == goal.getType()) {
+		hasBox = true;
 	    }
 	    if (exploringTile.getTileOccupant() instanceof Agent
 		    && ((Agent) exploringTile.getTileOccupant()).getColor().equals(goal.getColor())) {
@@ -63,16 +61,16 @@ public abstract class SubGoalPlanner {
 	    }
 	    exploredTiles.add(exploringTile);
 	}
-	return hasBlock && hasAgent;
+	return hasBox && hasAgent;
     }
 
     private static void searchForGoal(Goal goal) {
-	for (Block block : goal.getReachableBlocks()) {
+	for (Box box : goal.getReachableBoxes()) {
 	    AStarSearch search = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
-		    new Node(goal.getRow(), goal.getCol()), new Node(block.getRow(), block.getCol()), 1);
+		    new Node(goal.getRow(), goal.getCol()), new Node(box.getRow(), box.getCol()), 1);
 	    List<Node> path = search.findPath();
-	    if (path.get(path.size() - 1).getRow() == block.getRow()
-		    && path.get(path.size() - 1).getCol() == block.getCol()) {
+	    if (path.get(path.size() - 1).getRow() == box.getRow()
+		    && path.get(path.size() - 1).getCol() == box.getCol()) {
 		for (Node node : path.subList(1, path.size() - 1)) {
 		    if (State.getInitialState().get(node.getRow()).get(node.getCol()).isGoal()) {
 			State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions()
@@ -82,9 +80,9 @@ public abstract class SubGoalPlanner {
 		    }
 		}
 	    }
-	    for (Agent agent : block.getReachableAgents()) {
+	    for (Agent agent : box.getReachableAgents()) {
 		AStarSearch searchForAgent = new AStarSearch(State.getInitialState().size(), State.getMaxCol(),
-			new Node(block.getRow(), block.getCol()), new Node(agent.getRow(), agent.getCol()), 1);
+			new Node(box.getRow(), box.getCol()), new Node(agent.getRow(), agent.getCol()), 1);
 		List<Node> pathToAgent = searchForAgent.findPath();
 		if (pathToAgent.get(pathToAgent.size() - 1).getRow() == agent.getRow()
 			&& pathToAgent.get(pathToAgent.size() - 1).getCol() == agent.getCol()) {
@@ -108,12 +106,10 @@ public abstract class SubGoalPlanner {
 
     public static void serialize() {
 	for (Goal goal : State.getGoals()) {
-	    System.err.println("Serializing " + goal.toString() + "...");
-	    if (!searchForBlock(goal)) {
+	    if (!searchForBox(goal)) {
 		searchForGoal(goal);
 	    }
 	}
-
     }
 
     private static List<Task> convertToTask() {
@@ -121,8 +117,8 @@ public abstract class SubGoalPlanner {
 	HashMap<Goal, Task> mapping = new HashMap<>();
 	for (Goal goal : State.getGoals()) {
 	    if (!goal.isCompleted()) {
-		Block block = goal.getReachableBlocks().get(0);
-		Task task = new Task(goal.getColor(), null, goal, block);
+		Box box = goal.getReachableBoxes().get(0);
+		Task task = new Task(goal.getColor(), null, goal, box);
 		task.setTaskType(GOAL);
 		tasks.add(task);
 		mapping.put(goal, task);

@@ -11,7 +11,7 @@ public class Goal {
     private Collection<Goal> parents = new HashSet<>();
     private Collection<Goal> children = new HashSet<>();
     private Collection<Goal> preconditions = new HashSet<>();
-    private List<Block> reachableBlocks;
+    private List<Box> reachableBoxes;
 
     private final char type;
     private final int col;
@@ -25,11 +25,11 @@ public class Goal {
 	this.row = row;
 	this.col = col;
 	this.completed = false;
-	this.reachableBlocks = new ArrayList<>();
+	this.reachableBoxes = new ArrayList<>();
 
-	if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBlock()) {
-	    if (((Block) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant())
-		    .getType() == (this.type)) {
+	if (State.getInitialState().get(this.getRow()).get(this.getCol()).hasBox()) {
+	    if (((Box) State.getInitialState().get(this.getRow()).get(this.getCol()).getTileOccupant()).getColor()
+		    .equals(this.color)) {
 		setCompleted(true);
 	    }
 	}
@@ -59,8 +59,8 @@ public class Goal {
 	return this.preconditions;
     }
 
-    public List<Block> getReachableBlocks() {
-	return reachableBlocks;
+    public List<Box> getReachableBoxes() {
+	return reachableBoxes;
     }
 
     public Collection<Goal> getParents() {
@@ -111,8 +111,8 @@ public class Goal {
 	return Character.toString(this.type);
     }
 
-    public void addReachableBlock(Block block) {
-	reachableBlocks.add(block);
+    public void addReachableBoxes(Box box) {
+	reachableBoxes.add(box);
     }
 
 }

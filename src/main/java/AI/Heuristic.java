@@ -6,7 +6,7 @@ import java.util.List;
 
 import components.Agent;
 import components.Color;
-import components.state.Block;
+import components.state.Box;
 import components.state.Goal;
 import components.state.State;
 
@@ -14,42 +14,41 @@ public abstract class Heuristic implements Comparator<State> {
 
     private static AllPairsShortestPath apsp = new AllPairsShortestPath();
 
-    public static HeuristicAndBlock h(State n, Agent agent, Goal goal) {
-	List<Block> blocks = State.getBlocks();
+    public static HeuristicAndBox h(State n, Agent agent, Goal goal) {
+	List<Box> boxes = State.getBoxes();
 	char goalType = goal.getType();
 	String agentColor = agent.getColor().toString();
 
 	int heuristicValue = 10000;
 	int tempHeuristicValue;
-	Block tempBlock = new Block('x', Color.BLUE, -1, -1);
+	Box tempBox = new Box('x', Color.BLUE, -1, -1);
 
-	for (Block block : blocks) {
-	    String blockColor = block.getColor().toString();
-	    char blockType = block.getType();
+	for (Box box : boxes) {
+	    String boxColor = box.getColor().toString();
+	    char boxType = box.getType();
 
-	    if (blockType == goalType && agentColor.equals(blockColor)) {
+	    if (boxType == goalType && agentColor.equals(boxColor)) {
 		tempHeuristicValue = 0;
-		double distToBlock = Math.abs(bfs(goal.getRow(), goal.getCol(), block.getRow(), block.getCol()));
-		tempHeuristicValue += distToBlock;
+		double distToBox = Math.abs(bfs(goal.getRow(), goal.getCol(), box.getRow(), box.getCol()));
+		tempHeuristicValue += distToBox;
 		// IF GOAL IS SATISFIED, JUMP TO NEXT GOAL
-		if (distToBlock == 0) {
+		if (distToBox == 0) {
 		    heuristicValue = tempHeuristicValue;
-		    tempBlock = block;
+		    tempBox = box;
 		    break;
 		}
 
-		// CALCULATING DISTANCE FROM BLOCK TO AGENT
-		double distanceToAgent = Math
-			.abs(bfs(agent.getRow(), agent.getCol(), block.getRow(), block.getCol()) - 1);
+		// CALCULATING DISTANCE FROM BOX TO AGENT
+		double distanceToAgent = Math.abs(bfs(agent.getRow(), agent.getCol(), box.getRow(), box.getCol()) - 1);
 		tempHeuristicValue += distanceToAgent;
 
 		if (tempHeuristicValue < heuristicValue) {
 		    heuristicValue = tempHeuristicValue;
-		    tempBlock = block;
+		    tempBox = box;
 		}
 	    }
 	}
-	return new HeuristicAndBlock(heuristicValue, tempBlock);
+	return new HeuristicAndBox(heuristicValue, tempBox);
     }
 
     // BFS

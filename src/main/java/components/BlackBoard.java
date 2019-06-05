@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
-import components.state.Block;
+import components.state.Box;
 import components.state.Goal;
 import components.state.State;
 import components.state.Tile;
@@ -73,7 +73,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		    heuristicProposalMap.put(hp.getTaskID(), hpArray);
 
 		    // Check if all the relevant agents have send a heuristic for this task
-		    if (taskMap.get(hp.getTaskID()).getBlock().getReachableAgents().size() == hpArray.size()) {
+		    if (taskMap.get(hp.getTaskID()).getBox().getReachableAgents().size() == hpArray.size()) {
 			delegateTask(hpArray);
 		    }
 		} else if (messageType.equals(PlanProposal.class.getSimpleName())) {
@@ -109,7 +109,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	}
 
 	Agent agent = agentInTheWay(pp.getActions());
-	Block block = blockInTheWay(pp.getActions(), pp.getTask().getBlock());
+	Box box = boxInTheWay(pp.getActions(), pp.getTask().getBox());
 	List<State> newStates = newStatesGeneratorAndConflictChecker(pp.getActions(),
 		this.acceptedPlans.get(pp.getAgent().getAgentNumber()).size());
 	if (newStates == null) { // CONFLICT
@@ -120,12 +120,12 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 		this.taskMap.put(task.getId(), task);
 		submittedTasks.remove(pp.getTask().getId());
 		this.submit(new MessageToAgent(false, null, agent.getAgentNumber(), MessageType.PLAN, task));
-	    } else if (block != null && pp.getTask().getBlock() != null && !pp.getTask().getBlock().equals(block)) {
-		Task task = new Task.MoveBlockTask(block.getColor(), new ArrayList<>(), pp.getActions(), block);
+	    } else if (box != null && pp.getTask().getBox() != null && !pp.getTask().getBox().equals(box)) {
+		Task task = new Task.MoveBoxTask(box.getColor(), new ArrayList<>(), pp.getActions(), box);
 		this.taskMap.get(pp.getTask().getId()).getDependencies().add(task.getId());
 		this.taskMap.put(task.getId(), task);
 		submittedTasks.remove(pp.getTask().getId());
-		for (Agent a : block.getReachableAgents()) {
+		for (Agent a : box.getReachableAgents()) {
 		    submit(new MessageToAgent(false, null, a.getAgentNumber(), MessageType.PLAN, task));
 		}
 	    } else {
@@ -196,7 +196,7 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
     }
 
     private void submitHeuristicTask(Task task) {
-	for (Agent agent : task.getBlock().getReachableAgents()) {
+	for (Agent agent : task.getBox().getReachableAgents()) {
 	    MessageToAgent messageToAgent = new MessageToAgent(null, null, agent.getAgentNumber(),
 		    MessageType.HEURISTIC, task);
 	    this.submit(messageToAgent);
@@ -238,11 +238,11 @@ public class BlackBoard extends SubmissionPublisher<MessageToAgent> {
 	return null;
     }
 
-    private Block blockInTheWay(List<Action> actions, Block blockUsed) {
-	Map<Tile, Block> occupiedTiles = new HashMap<>();
-	for (Block block : State.getBlocks()) {
-	    if (!block.equals(blockUsed)) {
-		occupiedTiles.put(State.getInitialState().get(block.getRow()).get(block.getCol()), block);
+    private Box boxInTheWay(List<Action> actions, Box boxUsed) {
+	Map<Tile, Box> occupiedTiles = new HashMap<>();
+	for (Box box : State.getBoxes()) {
+	    if (!box.equals(boxUsed)) {
+		occupiedTiles.put(State.getInitialState().get(box.getRow()).get(box.getCol()), box);
 	    }
 	}
 	for (Action action : actions) {

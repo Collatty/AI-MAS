@@ -127,8 +127,8 @@ public class Tile {
 	return this.isWall;
     }
 
-    public boolean hasBlock() {
-	return this.tileOccupant instanceof Block;
+    public boolean hasBox() {
+	return this.tileOccupant instanceof Box;
     }
 
     public boolean hasAgent() {
@@ -140,8 +140,8 @@ public class Tile {
     }
 
     public boolean isCompletedGoal() {
-	if (this.isGoal() && this.hasBlock()) {
-	    return this.goal.getType() == ((Block) this.getTileOccupant()).getType();
+	if (this.isGoal() && this.hasBox()) {
+	    return this.goal.getType() == ((Box) this.getTileOccupant()).getType();
 	}
 	return false;
     }
