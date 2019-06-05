@@ -34,7 +34,6 @@ public abstract class SubGoalPlanner {
 	Collection<Tile> exploredTiles = new HashSet<>();
 	Stack<Tile> frontier = new Stack<>();
 	Tile goalTile = State.getInitialState().get(goal.getRow()).get(goal.getCol());
-	System.err.println("37, current state: " + State.getInitialState().toString());
 	frontier.push(goalTile);
 	while (!frontier.isEmpty()) {
 	    Tile exploringTile = frontier.pop();
@@ -44,8 +43,6 @@ public abstract class SubGoalPlanner {
 	    if (exploringTile.getTileOccupant() instanceof Agent
 		    && ((Agent) exploringTile.getTileOccupant()).getColor().equals(goal.getColor())) {
 		hasAgent = true;
-		System.err.println("Found a correct type agent for " + goal.toString() + " on tile ("
-			+ exploringTile.getCol() + "," + exploringTile.getRow() + ")");
 	    }
 	    for (Tile neighbor : exploringTile.getNeighbors()) {
 		if (exploredTiles.contains(neighbor)) {
@@ -75,8 +72,6 @@ public abstract class SubGoalPlanner {
 		    if (State.getInitialState().get(node.getRow()).get(node.getCol()).isGoal()) {
 			State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions()
 				.add(goal);
-			System.err.println("77: Adding " + goal.toString() + " as a precondition for "
-				+ State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().toString());
 		    }
 		}
 	    }
@@ -95,8 +90,6 @@ public abstract class SubGoalPlanner {
 					.getType() == goal.getType())) {
 			    State.getInitialState().get(node.getRow()).get(node.getCol()).getGoal().getPreconditions()
 				    .add(goal);
-			    System.err.println("92: Adding " + goal.toString() + " as a precondition for " + State
-				    .getInitialState().get(node.getRow()).get(node.getCol()).getGoal().toString());
 			}
 		    }
 		}
